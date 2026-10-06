@@ -16,9 +16,15 @@ def main() -> None:
     base = Path(".apate_data")
     operation = Operation(
         name="Demostración local",
-        adversary_profile=AdversaryProfile(name="Actor ficticio", expected_ttps=["T1046", "T1078"]),
+        adversary_profile=AdversaryProfile(
+            name="Actor simulado de red", motivation="Reconocimiento de un segmento de laboratorio",
+            skill_level="intermediate", expected_ttps=["T1046", "T1078"],
+        ),
         roe=RulesOfEngagement(allowed_actions=["deploy", "transition", "retire"]),
-        narrative=Narrative(name="Entorno simulado"),
+        narrative=Narrative(
+            name="Servicio interno de laboratorio",
+            description="Un señuelo de prueba observa interacciones sin exponer servicios reales.",
+        ),
     )
     for plugin_id in ("honeypot-mock-1", "honeypot-mock-2"):
         operation.bind_plugin(PluginBinding(plugin_id=plugin_id, surface="network"))

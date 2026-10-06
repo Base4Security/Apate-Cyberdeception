@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Operaciones · Apate Core{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">Control de operaciones</div>
+      <h1>Operaciones</h1>
+      <p class="muted">Perfil, reglas de interacción y observaciones alrededor de una misma operación.</p>
+    </div>
+    <a class="button primary" href="{{ url_for('operations.new_operation_form') }}">+ Nueva operación</a>
+  </div>
+
+  <div class="stat-row" aria-label="Resumen de operaciones">
+    <div class="stat-card"><span>OPERACIONES</span><strong>{{ operations | length }}</strong></div>
+    <div class="stat-card"><span>ACTIVAS</span><strong>{{ active_count }}</strong></div>
+    <div class="stat-card"><span>CERRADAS</span><strong>{{ closed_count }}</strong></div>
+  </div>
+
+  {% if operations %}
+    <table>
+      <thead><tr><th>Operación</th><th>Estado</th><th>Perfil de adversario</th><th>Creada</th><th></th></tr></thead>
+      <tbody>
+        {% for operation in operations %}
+          <tr>
+            <td><strong>{{ operation.name }}</strong></td>
+            <td><span class="badge badge-{{ operation.status.value }}">{{ status_label(operation.status.value) }}</span></td>
+            <td>{{ operation.adversary_profile.name }}</td>
+            <td class="muted">{{ operation.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td><a href="{{ url_for('operations.detail', operation_id=operation.id) }}">Abrir →</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="empty-state">Todavía no hay operaciones creadas. Empezá con una operación local o ejecutá el ejemplo de demostración.</div>
+  {% endif %}
+{% endblock %}

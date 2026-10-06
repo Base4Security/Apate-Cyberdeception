@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Telemetría de la operación · Apate Core{% endblock %}
+{% block section_name %}Telemetría{% endblock %}
+{% block content %}
+  <p><a href="{{ url_for('telemetry.index') }}">&larr; Telemetr&iacute;a</a></p>
+  <h1>Telemetr&iacute;a de la operaci&oacute;n</h1>
+  <p class="muted">operation_id: {{ operation_id }}
+    &middot; <a href="{{ url_for('operations.detail', operation_id=operation_id) }}">ver operaci&oacute;n</a>
+  </p>
+
+  <form method="get" class="filter-row">
+    <div><label for="plugin_id">Filtrar por plugin</label>
+      <select id="plugin_id" name="plugin_id" onchange="this.form.submit()">
+        <option value="">(todos)</option>
+        {% for pid in plugin_ids %}
+          <option value="{{ pid }}" {% if pid == selected_plugin_id %}selected{% endif %}>{{ pid }}</option>
+        {% endfor %}
+      </select></div>
+    <div><label for="surface">Filtrar por superficie</label>
+      <select id="surface" name="surface" onchange="this.form.submit()">
+        <option value="">(todas)</option>
+        {% for s in surfaces %}
+          <option value="{{ s }}" {% if s == selected_surface %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select></div>
+    <noscript><button type="submit">Filtrar</button></noscript>
+  </form>
+
+  <h2>TTPs observadas ({{ ttps | length }})</h2>
+  {% if ttps %}
+    <p>{% for ttp in ttps %}<span class="badge badge-active">{{ ttp }}</span> {% endfor %}</p>
+  {% else %}
+    <p class="muted">Sin TTPs observadas todav&iacute;a.</p>
+  {% endif %}
+
+  <h2>IoCs ({{ iocs | length }})</h2>
+  {% if iocs %}
+    <table>
+      <thead><tr><th>Tipo</th><th>Valor</th></tr></thead>
+      <tbody>
+        {% for ioc in iocs %}
+          <tr><td>{{ ioc.type }}</td><td>{{ ioc.value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">Sin IoCs observados todav&iacute;a.</p>
+  {% endif %}
+
+  <h2>Eventos ({{ events | length }})</h2>
+  {% if events %}
+    <table>
+      <thead><tr><th>Timestamp</th><th>Tipo</th><th>plugin_id</th><th>Superficie</th><th>TTP</th><th>Payload</th></tr></thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td class="muted">{{ event.timestamp.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+            <td>{{ event.event_type.value }}</td>
+            <td>{{ event.plugin_id }}</td>
+            <td>{{ event.surface }}</td>
+            <td>{{ event.ttp_id or "-" }}</td>
+            <td class="muted">{{ event.payload }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">Sin eventos registrados todav&iacute;a para esta operaci&oacute;n{% if selected_plugin_id or selected_surface %} con este filtro{% endif %}.</p>
+  {% endif %}
+{% endblock %}

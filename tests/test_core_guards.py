@@ -92,7 +92,7 @@ def test_recursive_event_chain_is_bounded():
 def test_public_package_boundary():
     package = Path(__file__).resolve().parents[1] / "src" / "apate"
     assert {path.name for path in package.iterdir() if path.is_dir() and path.name != "__pycache__"} == {
-        "core", "plugins", "rules", "telemetry"
+        "core", "plugins", "rules", "telemetry", "web"
     }
 
 

@@ -2,19 +2,37 @@
 
 [English](README.md) · Español
 
-**Una base abierta y ejecutable para operaciones de ciberengaño centradas en la operación.**
+**Una herramienta abierta de ciberengaño centrada en la operación, con interfaz gráfica local.**
 
-Apate Core reúne un modelo de operación, reglas deterministas, un contrato de plugins y telemetría básica. El plugin incluido es **simulado**: permite probar el flujo completo en una máquina local sin desplegar señuelos reales ni conectarse a infraestructura externa. La versión actual es `0.1.0a1` (alfa).
+Apate Core reúne el modelo de operación, reglas deterministas, eventos de plugins y telemetría básica. Su interfaz permite crear y revisar operaciones, editar reglas YAML y explorar eventos observados. El honeypot incluido es **simulado**: el recorrido funciona sin desplegar señuelos reales ni conectarse a infraestructura corporativa.
 
-## Verlo funcionar
+> **Las capturas son de la GUI real de Apate Core**, ejecutada localmente con datos sintéticos de [`examples/seed_gui.py`](examples/seed_gui.py). No son maquetas ni imágenes de Parallax.
 
-Esta captura reproduce la salida **real** de `python examples/quickstart.py`. El identificador de operación cambia en cada ejecución. La TTP `T1078` es una observación sintética, no evidencia de un ataque real.
+## La herramienta
 
-![Salida de terminal de una ejecución real del ejemplo](docs/assets/quickstart.png)
+### Operaciones
 
-## Instalación y primer uso
+Vista de planificación, estado y perfil de adversario. Las tres operaciones de la imagen fueron generadas por el script de demostración.
 
-Requiere Git y Python 3.10 o superior. La instalación descarga dependencias de Python; el ejemplo no necesita red, cuentas, credenciales, contenedores ni laboratorio.
+![Interfaz de operaciones de Apate Core con tres operaciones sintéticas](docs/assets/operations.png)
+
+### Detalle de una operación
+
+El perfil de adversario, las reglas de interacción (RoE), la narrativa, los escenarios, los plugins vinculados y el estado quedan asociados a una misma operación. La interfaz permite crear operaciones y aplicar transiciones manuales válidas.
+
+![Detalle de una operación en la GUI de Apate Core](docs/assets/operation-detail.png)
+
+### Reglas y telemetría
+
+La vista de reglas muestra las condiciones y acciones cargadas y valida el YAML antes de guardarlo. La telemetría permite filtrar eventos por plugin y superficie y consultar TTP e indicadores observados. Todo lo que aparece en estas capturas es sintético.
+
+![Editor de reglas de la GUI de Apate Core](docs/assets/rules.png)
+
+![Telemetría de una operación en la GUI de Apate Core](docs/assets/telemetry.png)
+
+## Reproducir las capturas
+
+Necesitás Git y Python 3.10 o superior. La instalación descarga dependencias de Python; el ejemplo y la aplicación local no requieren servicios externos. El servidor escucha en `127.0.0.1` y no tiene autenticación de usuarios: usalo sólo en tu equipo.
 
 **macOS / Linux**
 
@@ -24,8 +42,8 @@ cd Apate-Cyberdeception
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
-python examples/quickstart.py
-python -m pytest -q
+python examples/seed_gui.py
+python -m apate.web
 ```
 
 **Windows PowerShell**
@@ -35,42 +53,39 @@ git clone https://github.com/fedequark/Apate-Cyberdeception.git
 Set-Location Apate-Cyberdeception
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe examples/quickstart.py
-.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe examples/seed_gui.py
+.\.venv\Scripts\python.exe -m apate.web
 ```
 
-La ejecución crea `.apate_data/operations/<operation-id>.json` y `.apate_data/telemetry/<operation-id>.json`. Cada nueva ejecución genera otra operación. `.apate_data/` está excluido de Git.
+Abrí **[http://127.0.0.1:5000/operations/](http://127.0.0.1:5000/operations/)**. Desde el menú lateral podés entrar a Reglas y Telemetría. Detené el servidor con `Ctrl+C`. Para ejecutar las pruebas, usá `python -m pytest -q` en el entorno virtual.
 
-![Salida de terminal de la suite de pruebas](docs/assets/tests.png)
+El script crea tres operaciones ficticias: una en planificación, otra activa y una cerrada con eventos. Guarda los datos en `.apate_data/`, excluido de Git. Cada nueva ejecución agrega otras operaciones. Si querés una interfaz vacía, iniciá `python -m apate.web` sin ejecutar el script.
 
-La captura corresponde a 92 pruebas locales aprobadas. La [CI](https://github.com/fedequark/Apate-Cyberdeception/actions/workflows/tests.yml) ejecuta las pruebas y el ejemplo en Windows y Ubuntu con Python 3.10 y 3.12; consultá allí el resultado del commit más reciente.
+La suite local pasa **115 pruebas**. La [CI](https://github.com/fedequark/Apate-Cyberdeception/actions/workflows/tests.yml) ejecuta las pruebas y ambos ejemplos en Windows y Ubuntu con Python 3.10 y 3.12; allí se ve el resultado del commit más reciente.
 
-## Qué incluye
+## Qué demuestra el ejemplo
 
-| Componente | Uso actual |
+[`examples/quickstart.py`](examples/quickstart.py), invocado por el script de la GUI, crea una operación y vincula dos plugins simulados. Un escaneo sintético activa una regla que despliega el segundo mock y cambia el estado a activo. Un acceso simulado la marca comprometida y registra una observación `T1078`. Finalmente, `check_closure()` evalúa una fecha vencida, retira ambos mocks y cierra la operación. Las [reglas de ejemplo](examples/rules_example.yaml) se pueden consultar y modificar.
+
+El ejemplo persiste `.apate_data/operations/<operation-id>.json` y `.apate_data/telemetry/<operation-id>.json`; la GUI lee esos archivos. **La GUI edita reglas, pero no ejecuta un motor de reglas ni un planificador en segundo plano.** Un proceso que instancie `RuleEngine` carga las reglas editadas en su próxima lectura. Las transiciones manuales de la interfaz son independientes de las acciones del motor.
+
+## Arquitectura y alcance
+
+| Componente | Incluido en Apate Core |
 | --- | --- |
-| Operación | Perfil de adversario, reglas de interacción (RoE), narrativa, escenarios, plugins vinculados, criterios de cierre y persistencia JSON local. |
-| Reglas | Condiciones y acciones declarativas en YAML; respuesta a eventos o evaluación explícita del vencimiento. |
-| Plugins | Contrato `deploy()`/`rotate()`/`retire()`, bus síncrono en el mismo proceso y un `MockHoneypotPlugin` de referencia. |
-| Telemetría | Registro normalizado por evento, conservación del payload original y consultas de eventos, TTP e indicadores por operación. |
+| GUI local | Crear, listar y consultar operaciones; transiciones válidas; revisión y edición de YAML; lectura de telemetría. |
+| Operación | Perfil de adversario, RoE, narrativa, escenarios, plugins vinculados, criterios de cierre y persistencia JSON. |
+| Reglas | Condiciones y acciones declarativas, aplicación de RoE, alcance por operación/plugin y límite a cascadas recursivas. |
+| Plugins | Contrato `deploy()`/`rotate()`/`retire()`, bus síncrono y un `MockHoneypotPlugin` sintético. |
+| Telemetría | Registro normalizado por evento, payload original, TTP e indicadores conocidos. |
 
-El [ejemplo completo](examples/quickstart.py) crea una operación y enlaza dos plugins simulados. Al desplegar el primero se emite un escaneo sintético; una regla despliega el segundo y activa la operación. Un acceso simulado la marca comprometida. Finalmente, el ejemplo establece una fecha vencida, llama a `check_closure()`, retira los plugins y cierra la operación. Las [tres reglas YAML](examples/rules_example.yaml) se pueden leer y modificar directamente.
+Las reglas se parsean con `yaml.safe_load`; un YAML inválido no reemplaza el archivo guardado. `allowed_actions` y `forbidden_actions` limitan las acciones **del motor** mediante firmas como `deploy` o `transition:closed`; una prohibición prevalece. El motor ignora eventos de otras operaciones o plugins no vinculados y limita las cadenas recursivas. Estas guardas no autentican operadores ni protegen llamadas manuales a plugins.
 
-No hay planificador en segundo plano: quien integra el motor debe llamar a `RuleEngine.check_closure()` para evaluar reglas de vencimiento. El bus y el motor se ejecutan sincrónicamente en el mismo proceso.
+El diseño centrado en la operación se apoya en la investigación de Federico Pacheco y Diego Staino sobre CTI y ciberengaño. Esta edición ofrece una base ejecutable; no implementa la metodología completa de siete pasos ni incluye un catálogo MITRE Engage. Los eventos de la demo no demuestran efectividad defensiva en campo.
 
-El diseño centrado en la operación se apoya en la investigación de Federico Pacheco y Diego Staino sobre el paso de CTI a ciberengaño. Este repositorio expone una base ejecutable de esa arquitectura: no implementa la metodología completa de siete pasos ni incluye un catálogo MITRE Engage. El recorrido sintético demuestra comportamiento del software, no efectividad defensiva en campo.
+## Apate Core y Parallax
 
-## Reglas de interacción y seguridad
-
-`allowed_actions` y `forbidden_actions` restringen las acciones del **motor de reglas** mediante firmas generales (`deploy`) o específicas (`deploy:honeypot-mock-2`, `transition:closed`). Una prohibición tiene prioridad; una lista de permitidas vacía no restringe. El motor ignora eventos de otra operación o de plugins no vinculados, limita las cadenas recursivas y deja los rechazos por RoE o por límite de cascada en `RuleEngine.rejected_actions` durante ese proceso.
-
-Estas guardas no autentican operadores ni protegen llamadas manuales a plugins. El entorno y las restricciones legales de texto libre son metadatos de la operación: un conector externo debe aplicar sus propios límites sobre la infraestructura. El [plugin simulado](src/apate/plugins/mock.py) muestra cómo implementar el [contrato](src/apate/plugins/base.py); no despliega recursos reales.
-
-## Alcance y relación con Parallax
-
-Esta edición es una **biblioteca alfa y una demostración local**, no un plano de control listo para producción. No incluye consola web, cuentas/OIDC, API administrativa, ledger gobernado, aprobaciones corporativas, conectores de despliegue ni stacks de terceros. La persistencia JSON no ofrece control de concurrencia, cifrado ni auditoría resistente a alteraciones. La telemetría normaliza observaciones; no demuestra causalidad de ataques ni efectividad defensiva.
-
-**Apate Core** es la base pública y de código abierto. **Parallax** es un producto comercial separado, desarrollado en un repositorio privado. Aquí no se incluye su implementación empresarial.
+**Apate Core** es la herramienta pública y de código abierto. **Parallax** es un producto comercial separado, desarrollado en un repositorio privado. Esta edición no incluye sus capacidades empresariales, integraciones de identidad, ledger gobernado, conectores corporativos ni stacks de terceros. La GUI local no tiene login. La persistencia JSON carece de control de concurrencia, cifrado y auditoría resistente a alteraciones.
 
 ## Licencia y colaboración
 

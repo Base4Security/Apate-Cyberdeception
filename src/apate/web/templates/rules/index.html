@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Reglas · Apate Core{% endblock %}
+{% block section_name %}Reglas{% endblock %}
+{% block content %}
+  <h1>Reglas del motor de decisi&oacute;n</h1>
+  <p class="muted">
+    Formato condición-acción en YAML. Guardar valida el
+    documento antes de sobreescribir el archivo; cualquier motor que lea ese mismo
+    archivo ve las reglas nuevas en su pr&oacute;xima carga.
+  </p>
+
+  {% if error %}
+    <div class="flash flash-error">Documento YAML invalido: {{ error }}</div>
+  {% endif %}
+
+  <h2>Reglas cargadas ({{ rules | length }})</h2>
+  {% if rules %}
+    <table>
+      <thead><tr><th>Nombre</th><th>Condici&oacute;n</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for rule in rules %}
+          <tr>
+            <td>{{ rule.name }}</td>
+            <td>
+              {% if rule.when.closure_due %}
+                closure_due
+              {% else %}
+                event_type={{ rule.when.event_type.value }}
+                {% if rule.when.plugin_id %} plugin_id={{ rule.when.plugin_id }}{% endif %}
+                {% if rule.when.payload %} payload={{ rule.when.payload }}{% endif %}
+              {% endif %}
+            </td>
+            <td>
+              {% for action in rule.then %}
+                {{ action.kind.value }}{% if action.plugin_id %}(plugin_id={{ action.plugin_id }}){% elif action.kind.value != "transition" %}(todos){% endif %}{% if action.to %} &rarr; {{ action.to.value }}{% endif %}{% if not loop.last %}; {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted">No hay reglas cargadas todav&iacute;a.</p>
+  {% endif %}
+
+  <h2>Editar</h2>
+  <form method="post" action="{{ url_for('rules.save_rules') }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <textarea name="rules_text" rows="20">{{ rules_text }}</textarea>
+    <p>
+      <button type="submit" class="primary">Guardar y recargar</button>
+    </p>
+  </form>
+{% endblock %}

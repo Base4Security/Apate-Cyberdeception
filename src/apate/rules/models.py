@@ -163,7 +163,12 @@ def parse_rules(yaml_text: str) -> list[Rule]:
     """Parsea un documento YAML con la forma {rules: [...]} a una lista
     de Rule."""
 
-    data = yaml.safe_load(yaml_text) or {}
+    try:
+        data = yaml.safe_load(yaml_text) or {}
+    except yaml.YAMLError as exc:
+        raise RuleDefinitionError(f"YAML inválido: {exc}") from exc
+    if not isinstance(data, dict) or not isinstance(data.get("rules", []), list):
+        raise RuleDefinitionError("El documento debe contener una lista 'rules'.")
     raw_rules = data.get("rules", [])
     return [Rule.from_dict(r) for r in raw_rules]
 
