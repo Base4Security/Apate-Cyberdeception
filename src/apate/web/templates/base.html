@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="{{ ui_language }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,24 +9,31 @@
 </head>
 <body>
   <div class="app-shell">
-    <aside class="sidebar" aria-label="Navegación principal">
-      <a class="brand" href="{{ url_for('operations.list_operations') }}" aria-label="Apate Core, inicio">
+    <aside class="sidebar" aria-label="{{ tr('Navegación principal') }}">
+      <a class="brand" href="{{ url_for('operations.list_operations') }}" aria-label="Apate Core, {{ tr('inicio') }}">
         <span class="brand-mark" aria-hidden="true">A</span>
         <span class="brand-name">Apate <small>CORE</small></span>
       </a>
-      <p class="sidebar-intro">Operaciones de ciberengaño<br>en un flujo local y trazable.</p>
+      <p class="sidebar-intro">{{ tr('Operaciones de ciberengaño') }}<br>{{ tr('en un flujo local y trazable.') }}</p>
       <div class="nav-label">WORKSPACE</div>
       <nav>
-        <a href="{{ url_for('operations.list_operations') }}" {% if request.blueprint == 'operations' %}class="active" aria-current="page"{% endif %}>Operaciones</a>
-        <a href="{{ url_for('rules.show_rules') }}" {% if request.blueprint == 'rules' %}class="active" aria-current="page"{% endif %}>Reglas</a>
-        <a href="{{ url_for('telemetry.index') }}" {% if request.blueprint == 'telemetry' %}class="active" aria-current="page"{% endif %}>Telemetría</a>
+        <a href="{{ url_for('operations.list_operations') }}" {% if request.blueprint == 'operations' %}class="active" aria-current="page"{% endif %}>{{ tr('Operaciones') }}</a>
+        <a href="{{ url_for('rules.show_rules') }}" {% if request.blueprint == 'rules' %}class="active" aria-current="page"{% endif %}>{{ tr('Reglas') }}</a>
+        <a href="{{ url_for('telemetry.index') }}" {% if request.blueprint == 'telemetry' %}class="active" aria-current="page"{% endif %}>{{ tr('Telemetría') }}</a>
       </nav>
-      <div class="sidebar-bottom"><span class="status-dot"></span> Entorno local · simulación</div>
+      <div class="sidebar-bottom"><span class="status-dot"></span> {{ tr('Entorno local · simulación') }}</div>
     </aside>
     <div class="content-shell">
       <header class="topbar">
-        <span>Apate Core <span class="topbar-separator">/</span> {% block section_name %}Operaciones{% endblock %}</span>
-        <span class="version-pill">ALFA {{ app_version }}</span>
+        <span>Apate Core <span class="topbar-separator">/</span> {% block section_name %}{{ tr('Operaciones') }}{% endblock %}</span>
+        <div class="topbar-actions">
+          <nav class="language-switch" aria-label="{{ tr('Idioma') }}">
+            <a href="{{ language_url('en') }}" hreflang="en" {% if ui_language == 'en' %}aria-current="true"{% endif %}>EN</a>
+            <span aria-hidden="true">/</span>
+            <a href="{{ language_url('es') }}" hreflang="es" {% if ui_language == 'es' %}aria-current="true"{% endif %}>ES</a>
+          </nav>
+          <span class="version-pill">{{ tr('ALFA') }} {{ app_version }}</span>
+        </div>
       </header>
       <main id="main-content">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -36,7 +43,7 @@
         {% endwith %}
         {% block content %}{% endblock %}
       </main>
-      <footer class="app-footer">Apate Core · Ejecución local</footer>
+      <footer class="app-footer">Apate Core · {{ tr('Ejecución local') }}</footer>
     </div>
   </div>
 </body>

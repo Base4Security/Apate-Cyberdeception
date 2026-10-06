@@ -19,6 +19,11 @@ class MockHoneypotPlugin(DeceptionPlugin):
     # documentacion y ejemplos, nunca enrutable en produccion.
     _DEFAULT_SOURCE_IP = "203.0.113.10"
 
+    def _detail(self, spanish: str, english: str) -> str:
+        """El idioma de la demo afecta sólo la descripción del evento."""
+
+        return english if self.config.get("language") == "en" else spanish
+
     def deploy(self) -> None:
         self._require_state(PluginLifecycleState.CREATED, action="deploy")
         self._publish(
@@ -26,7 +31,10 @@ class MockHoneypotPlugin(DeceptionPlugin):
             {
                 "kind": "scan",
                 "source_ip": self.config.get("source_ip", self._DEFAULT_SOURCE_IP),
-                "detail": "Escaneo de puertos simulado contra el honeypot mock.",
+                "detail": self._detail(
+                    "Escaneo de puertos simulado contra el honeypot mock.",
+                    "Simulated port scan against the mock honeypot.",
+                ),
             },
         )
         self.state = PluginLifecycleState.DEPLOYED
@@ -45,14 +53,20 @@ class MockHoneypotPlugin(DeceptionPlugin):
             {
                 "kind": "access",
                 "source_ip": source_ip or self.config.get("source_ip", self._DEFAULT_SOURCE_IP),
-                "detail": "Acceso simulado al honeypot mock.",
+                "detail": self._detail(
+                    "Acceso simulado al honeypot mock.",
+                    "Simulated access to the mock honeypot.",
+                ),
             },
         )
         self._publish(
             EventType.TTP_OBSERVED,
             {
                 "ttp_id": ttp_id,
-                "detail": "TTP observada durante el acceso simulado al honeypot mock.",
+                "detail": self._detail(
+                    "TTP observada durante el acceso simulado al honeypot mock.",
+                    "TTP observed during simulated access to the mock honeypot.",
+                ),
             },
         )
 
@@ -62,7 +76,10 @@ class MockHoneypotPlugin(DeceptionPlugin):
             EventType.INTERACTION,
             {
                 "kind": "rotate",
-                "detail": "Honeypot mock rotado: nueva identidad simulada.",
+                "detail": self._detail(
+                    "Honeypot mock rotado: nueva identidad simulada.",
+                    "Mock honeypot rotated: new simulated identity.",
+                ),
             },
         )
         # rotate() no cambia el estado del ciclo de vida: sigue DEPLOYED.
@@ -73,7 +90,10 @@ class MockHoneypotPlugin(DeceptionPlugin):
             EventType.INTERACTION,
             {
                 "kind": "retire",
-                "detail": "Honeypot mock retirado.",
+                "detail": self._detail(
+                    "Honeypot mock retirado.",
+                    "Mock honeypot retired.",
+                ),
             },
         )
         self.state = PluginLifecycleState.RETIRED

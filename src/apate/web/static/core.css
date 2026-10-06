@@ -32,6 +32,10 @@ button, input, select, textarea { font: inherit; }
 .content-shell { min-width: 0; display: flex; flex-direction: column; }
 .topbar { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 42px; border-bottom: 1px solid var(--line); background: #fff; color: #52667b; font-size: 11px; font-weight: 800; letter-spacing: .12em; }
 .topbar-separator { margin: 0 8px; color: #a2b0bd; }
+.topbar-actions { display: flex; align-items: center; gap: 18px; }
+.language-switch { display: flex; align-items: center; gap: 5px; font-size: 11px; letter-spacing: .04em; }
+.language-switch a { color: #66798c; }
+.language-switch a[aria-current="true"] { color: #087781; text-decoration: underline; text-underline-offset: 3px; }
 .version-pill { padding: 5px 9px; border: 1px solid #bbdbde; border-radius: 100px; color: #087781; background: #effafa; font-size: 10px; }
 main { width: 100%; max-width: 1260px; margin: 0 auto; padding: 34px 42px 48px; flex: 1; }
 .app-footer { padding: 18px 42px; border-top: 1px solid var(--line); color: #8492a2; font-size: 12px; }

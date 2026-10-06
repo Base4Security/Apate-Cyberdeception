@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ operation.name }} · Apate Core{% endblock %}
 {% block content %}
-  <p><a href="{{ url_for('operations.list_operations') }}">&larr; Operaciones</a></p>
+  <p><a href="{{ url_for('operations.list_operations') }}">&larr; {{ tr('Operaciones') }}</a></p>
   <h1>{{ operation.name }}
     <span class="badge badge-{{ operation.status.value }}">{{ status_label(operation.status.value) }}</span>
   </h1>
@@ -11,50 +11,50 @@
       <form class="inline" method="post" action="{{ url_for('operations.transition', operation_id=operation.id) }}">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="to" value="active">
-        <button type="submit">Marcar activa</button>
+        <button type="submit">{{ tr('Marcar activa') }}</button>
       </form>
       <form class="inline" method="post" action="{{ url_for('operations.transition', operation_id=operation.id) }}">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="to" value="compromised">
-        <button type="submit">Marcar comprometida</button>
+        <button type="submit">{{ tr('Marcar comprometida') }}</button>
       </form>
       <form class="inline" method="post" action="{{ url_for('operations.transition', operation_id=operation.id) }}">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="to" value="closed">
-        <button type="submit">Cerrar</button>
+        <button type="submit">{{ tr('Cerrar') }}</button>
       </form>
     </p>
   {% endif %}
 
-  <p><a href="{{ url_for('telemetry.detail', operation_id=operation.id) }}">Ver telemetr&iacute;a de esta operaci&oacute;n &rarr;</a></p>
+  <p><a href="{{ url_for('telemetry.detail', operation_id=operation.id) }}">{{ tr('Ver telemetría de esta operación →') }}</a></p>
 
-  <h2>Perfil de adversario</h2>
+  <h2>{{ tr('Perfil de adversario') }}</h2>
   <dl>
-    <dt>Nombre</dt><dd>{{ operation.adversary_profile.name }}</dd>
-    <dt>Motivaci&oacute;n</dt><dd>{{ operation.adversary_profile.motivation or "-" }}</dd>
-    <dt>Nivel de habilidad</dt><dd>{{ operation.adversary_profile.skill_level }}</dd>
-    <dt>TTPs esperadas</dt><dd>{{ operation.adversary_profile.expected_ttps | join(", ") or "-" }}</dd>
+    <dt>{{ tr('Nombre') }}</dt><dd>{{ operation.adversary_profile.name }}</dd>
+    <dt>{{ tr('Motivación') }}</dt><dd>{{ operation.adversary_profile.motivation or "-" }}</dd>
+    <dt>{{ tr('Nivel de habilidad') }}</dt><dd>{{ operation.adversary_profile.skill_level }}</dd>
+    <dt>{{ tr('TTPs esperadas') }}</dt><dd>{{ operation.adversary_profile.expected_ttps | join(", ") or "-" }}</dd>
   </dl>
 
-  <h2>Reglas de interacción</h2>
+  <h2>{{ tr('Reglas de interacción') }}</h2>
   <dl>
-    <dt>Entorno</dt><dd>{{ operation.roe.environment.value }}</dd>
-    <dt>Acciones permitidas</dt><dd>{{ operation.roe.allowed_actions | join(", ") or "-" }}</dd>
-    <dt>Acciones prohibidas</dt><dd>{{ operation.roe.forbidden_actions | join(", ") or "-" }}</dd>
-    <dt>Contacto de escalamiento</dt><dd>{{ operation.roe.escalation_contact or "-" }}</dd>
+    <dt>{{ tr('Entorno') }}</dt><dd>{{ operation.roe.environment.value }}</dd>
+    <dt>{{ tr('Acciones permitidas') }}</dt><dd>{{ operation.roe.allowed_actions | join(", ") or "-" }}</dd>
+    <dt>{{ tr('Acciones prohibidas') }}</dt><dd>{{ operation.roe.forbidden_actions | join(", ") or "-" }}</dd>
+    <dt>{{ tr('Contacto de escalamiento') }}</dt><dd>{{ operation.roe.escalation_contact or "-" }}</dd>
   </dl>
 
-  <h2>Narrativa</h2>
+  <h2>{{ tr('Narrativa') }}</h2>
   <dl>
-    <dt>Nombre</dt><dd>{{ operation.narrative.name }}</dd>
-    <dt>Descripci&oacute;n</dt><dd>{{ operation.narrative.description or "-" }}</dd>
-    <dt>% de similitud</dt><dd>{{ operation.narrative.similarity_percentage }}</dd>
+    <dt>{{ tr('Nombre') }}</dt><dd>{{ operation.narrative.name }}</dd>
+    <dt>{{ tr('Descripción') }}</dt><dd>{{ operation.narrative.description or "-" }}</dd>
+    <dt>{{ tr('% de similitud') }}</dt><dd>{{ operation.narrative.similarity_percentage }}</dd>
   </dl>
 
-  <h2>Escenarios</h2>
+  <h2>{{ tr('Escenarios') }}</h2>
   {% if operation.scenarios %}
     <table>
-      <thead><tr><th>Descripci&oacute;n</th><th>TTPs relacionadas</th><th>Nivel de enga&ntilde;o</th></tr></thead>
+      <thead><tr><th>{{ tr('Descripción') }}</th><th>{{ tr('TTPs relacionadas') }}</th><th>{{ tr('Nivel de engaño') }}</th></tr></thead>
       <tbody>
         {% for scenario in operation.scenarios %}
           <tr>
@@ -66,13 +66,13 @@
       </tbody>
     </table>
   {% else %}
-    <p class="muted">Sin escenarios asociados.</p>
+    <p class="muted">{{ tr('Sin escenarios asociados.') }}</p>
   {% endif %}
 
-  <h2>Plugins asociados</h2>
+  <h2>{{ tr('Plugins asociados') }}</h2>
   {% if operation.plugins %}
     <table>
-      <thead><tr><th>plugin_id</th><th>Superficie</th></tr></thead>
+      <thead><tr><th>plugin_id</th><th>{{ tr('Superficie') }}</th></tr></thead>
       <tbody>
         {% for binding in operation.plugins %}
           <tr><td>{{ binding.plugin_id }}</td><td>{{ binding.surface }}</td></tr>
@@ -80,6 +80,6 @@
       </tbody>
     </table>
   {% else %}
-    <p class="muted">Sin plugins asociados.</p>
+    <p class="muted">{{ tr('Sin plugins asociados.') }}</p>
   {% endif %}
 {% endblock %}

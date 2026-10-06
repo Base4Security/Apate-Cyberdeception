@@ -18,6 +18,7 @@ from ..telemetry import JSONFileTelemetryRepository, TelemetryCollector
 from .blueprints.operations import operations_bp
 from .blueprints.rules import rules_bp
 from .blueprints.telemetry import telemetry_bp
+from .i18n import current_language, select_language, translate
 from .. import __version__
 
 # Documento YAML vacio: se usa para inicializar APATE_RULES_PATH la
@@ -56,6 +57,7 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
 
         if not app.testing and request.host.split(":")[0] not in {"127.0.0.1", "localhost"}:
             abort(403)
+        select_language()
         if request.method == "POST" and not app.testing:
             expected = session.get("_csrf_token", "")
             submitted = request.form.get("_csrf_token", "")
@@ -68,9 +70,18 @@ def create_app(config: Optional[dict[str, Any]] = None) -> Flask:
         if token is None:
             token = secrets.token_urlsafe(32)
             session["_csrf_token"] = token
+        def language_url(language: str) -> str:
+            values = dict(request.view_args or {})
+            values.update(request.args.to_dict(flat=True))
+            values["lang"] = language
+            return url_for(request.endpoint or "operations.list_operations", **values)
+
         return {
             "csrf_token": lambda: token,
-            "status_label": lambda status: _STATUS_LABELS.get(status, status),
+            "status_label": lambda status: translate(_STATUS_LABELS.get(status, status)),
+            "tr": translate,
+            "ui_language": current_language(),
+            "language_url": language_url,
             "app_version": __version__,
         }
 

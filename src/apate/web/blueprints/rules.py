@@ -9,6 +9,7 @@ from __future__ import annotations
 from flask import Blueprint, current_app, flash, redirect, render_template, request, url_for
 
 from ...rules import RuleDefinitionError, parse_rules
+from ..i18n import translate
 
 rules_bp = Blueprint("rules", __name__, url_prefix="/rules")
 
@@ -28,11 +29,11 @@ def save_rules():
 
     rules, error = _try_parse(text)
     if error is not None:
-        flash(f"No se guardo: {error}", "error")
+        flash(translate("No se guardó: {}").format(error), "error")
         return render_template("rules/index.html", rules=[], rules_text=text, error=error), 400
 
     path.write_text(text, encoding="utf-8")
-    flash(f"Reglas guardadas y recargadas: {len(rules)} regla(s).", "success")
+    flash(translate("Reglas guardadas y recargadas: {} regla(s).").format(len(rules)), "success")
     return redirect(url_for("rules.show_rules"))
 
 

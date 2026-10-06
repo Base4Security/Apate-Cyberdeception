@@ -11,7 +11,7 @@ English · [Español](README.es.md)
 
 Apate Core brings an operation model, deterministic rules, plugin events, and basic telemetry into one workflow. Its local web interface lets you create and inspect operations, edit YAML rules, and explore observed events. The included honeypot is **simulated**: you can run the full example without deploying a decoy, opening a network listener, or connecting to enterprise infrastructure.
 
-> **What the screenshots show:** the actual Apate Core GUI running locally with synthetic data from [`examples/seed_gui.py`](examples/seed_gui.py). They are not mockups or screenshots of Parallax. The current GUI labels are in Spanish; the captions below explain each view in English.
+> **What the screenshots show:** the actual Apate Core GUI in English, running locally with English synthetic data from [`examples/seed_gui.py`](examples/seed_gui.py). They are not mockups or screenshots of Parallax. Switch between English and Spanish with the **EN / ES** control in the header.
 
 ## The tool
 
@@ -48,7 +48,7 @@ cd Apate-Cyberdeception
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
-python examples/seed_gui.py
+python examples/seed_gui.py --lang en
 python -m apate.web
 ```
 
@@ -62,24 +62,24 @@ git clone https://github.com/fedequark/Apate-Cyberdeception.git
 Set-Location Apate-Cyberdeception
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe examples/seed_gui.py
+.\.venv\Scripts\python.exe examples/seed_gui.py --lang en
 .\.venv\Scripts\python.exe -m apate.web
 ```
 
 </details>
 
-Open **[http://127.0.0.1:5000/operations/](http://127.0.0.1:5000/operations/)** in your browser. Use the sidebar to navigate to **Reglas** (Rules) and **Telemetría** (Telemetry). Stop the local server with `Ctrl+C`. To run the tests, use `python -m pytest -q` in the same virtual environment.
+Open **[http://127.0.0.1:5000/operations/?lang=en](http://127.0.0.1:5000/operations/?lang=en)** in your browser. Use the sidebar to navigate to **Rules** and **Telemetry**. The language choice persists in that browser session; **EN / ES** changes it at any time. Stop the local server with `Ctrl+C`. To run the tests, use `python -m pytest -q` in the same virtual environment.
 
-`seed_gui.py` runs the complete mock workflow once and adds two more synthetic operations so the GUI opens with meaningful data. It writes under `.apate_data/`, which Git ignores. Running it again adds another set of operations. To try an empty workspace, skip the seed step and start `python -m apate.web` directly.
+`seed_gui.py --lang en` runs the complete mock workflow once and adds two more synthetic operations, English rules, and English event descriptions. It writes under `.apate_data/`, which Git ignores. Run the seed in a clean directory to reproduce the screenshots; existing data and the rules file are preserved on later runs. Use `--lang es` for Spanish demo data. To try an empty workspace, skip the seed step and start `python -m apate.web` directly.
 
-The current local suite passes **115 tests**. [GitHub Actions](https://github.com/fedequark/Apate-Cyberdeception/actions/workflows/tests.yml) runs the suite and both examples on Windows and Ubuntu with Python 3.10 and 3.12; check that page for the latest commit's result.
+The current local suite passes **117 tests**. [GitHub Actions](https://github.com/fedequark/Apate-Cyberdeception/actions/workflows/tests.yml) runs the suite and both examples on Windows and Ubuntu with Python 3.10 and 3.12; check that page for the latest commit's result.
 
 ## What happens in the example
 
 [`examples/quickstart.py`](examples/quickstart.py), which the GUI seed invokes, demonstrates the rule engine separately from the browser:
 
 1. It creates an `Operation` with an adversary profile, narrative, RoE, and two bound mock plugins.
-2. It attaches a `RuleEngine` and `TelemetryCollector` to one synchronous `EventBus`, loading [`examples/rules_example.yaml`](examples/rules_example.yaml).
+2. It attaches a `RuleEngine` and `TelemetryCollector` to one synchronous `EventBus`, loading the [English demo rules](examples/rules_example.en.yaml) when seeded with `--lang en`.
 3. Deploying the first mock emits a synthetic scan; a rule deploys the second and marks the operation active.
 4. A simulated access marks the operation compromised and records a synthetic `T1078` observation.
 5. An explicit `check_closure()` call evaluates a past due date, retires the mocks, and closes the operation.

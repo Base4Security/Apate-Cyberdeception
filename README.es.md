@@ -6,7 +6,7 @@
 
 Apate Core reúne el modelo de operación, reglas deterministas, eventos de plugins y telemetría básica. Su interfaz permite crear y revisar operaciones, editar reglas YAML y explorar eventos observados. El honeypot incluido es **simulado**: el recorrido funciona sin desplegar señuelos reales ni conectarse a infraestructura corporativa.
 
-> **Las capturas son de la GUI real de Apate Core**, ejecutada localmente con datos sintéticos de [`examples/seed_gui.py`](examples/seed_gui.py). No son maquetas ni imágenes de Parallax.
+> **Las capturas son de la GUI real de Apate Core en inglés**, ejecutada localmente con datos sintéticos en inglés de [`examples/seed_gui.py`](examples/seed_gui.py). No son maquetas ni imágenes de Parallax. El selector **EN / ES** permite volver al español.
 
 ## La herramienta
 
@@ -42,7 +42,7 @@ cd Apate-Cyberdeception
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
-python examples/seed_gui.py
+python examples/seed_gui.py --lang en
 python -m apate.web
 ```
 
@@ -53,15 +53,15 @@ git clone https://github.com/fedequark/Apate-Cyberdeception.git
 Set-Location Apate-Cyberdeception
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe examples/seed_gui.py
+.\.venv\Scripts\python.exe examples/seed_gui.py --lang en
 .\.venv\Scripts\python.exe -m apate.web
 ```
 
-Abrí **[http://127.0.0.1:5000/operations/](http://127.0.0.1:5000/operations/)**. Desde el menú lateral podés entrar a Reglas y Telemetría. Detené el servidor con `Ctrl+C`. Para ejecutar las pruebas, usá `python -m pytest -q` en el entorno virtual.
+Abrí **[http://127.0.0.1:5000/operations/?lang=en](http://127.0.0.1:5000/operations/?lang=en)**. Desde el menú lateral podés entrar a **Rules** y **Telemetry**; el selector **EN / ES** cambia el idioma de la interfaz. Detené el servidor con `Ctrl+C`. Para ejecutar las pruebas, usá `python -m pytest -q` en el entorno virtual.
 
-El script crea tres operaciones ficticias: una en planificación, otra activa y una cerrada con eventos. Guarda los datos en `.apate_data/`, excluido de Git. Cada nueva ejecución agrega otras operaciones. Si querés una interfaz vacía, iniciá `python -m apate.web` sin ejecutar el script.
+Con `--lang en`, el script crea tres operaciones ficticias en inglés: una en planificación, otra activa y una cerrada con eventos; también prepara reglas y descripciones de eventos en inglés. Guarda los datos en `.apate_data/`, excluido de Git. Para reproducir las capturas, ejecutalo en un directorio limpio: una nueva ejecución conserva el archivo de reglas anterior y agrega otras operaciones. `--lang es` genera datos de demostración en español. Si querés una interfaz vacía, iniciá `python -m apate.web` sin ejecutar el script.
 
-La suite local pasa **115 pruebas**. La [CI](https://github.com/fedequark/Apate-Cyberdeception/actions/workflows/tests.yml) ejecuta las pruebas y ambos ejemplos en Windows y Ubuntu con Python 3.10 y 3.12; allí se ve el resultado del commit más reciente.
+La suite local pasa **117 pruebas**. La [CI](https://github.com/fedequark/Apate-Cyberdeception/actions/workflows/tests.yml) ejecuta las pruebas y ambos ejemplos en Windows y Ubuntu con Python 3.10 y 3.12; allí se ve el resultado del commit más reciente.
 
 ## Qué demuestra el ejemplo
 

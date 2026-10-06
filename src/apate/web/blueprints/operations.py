@@ -13,6 +13,7 @@ from ...core import (
     RulesOfEngagement,
 )
 from ...core.exceptions import InvalidTransitionError
+from ..i18n import translate
 
 operations_bp = Blueprint("operations", __name__, url_prefix="/operations")
 
@@ -71,7 +72,7 @@ def create_operation():
         ),
     )
     repo.save(operation)
-    flash(f"Operacion '{operation.name}' creada.", "success")
+    flash(translate("Operación '{}' creada.").format(operation.name), "success")
     return redirect(url_for("operations.detail", operation_id=operation.id))
 
 
@@ -89,7 +90,7 @@ def transition(operation_id: str):
     to = request.form.get("to", "")
     method = _TRANSITION_METHODS.get(to)
     if method is None:
-        flash(f"Transicion desconocida: '{to}'.", "error")
+        flash(translate("Transición desconocida: '{}'.").format(to), "error")
         return redirect(url_for("operations.detail", operation_id=operation_id))
 
     try:
@@ -99,7 +100,7 @@ def transition(operation_id: str):
         return redirect(url_for("operations.detail", operation_id=operation_id))
 
     repo.save(operation)
-    flash(f"Operacion transicionada a '{operation.status.value}'.", "success")
+    flash(translate("Operación transicionada a '{}'.").format(operation.status.value), "success")
     return redirect(url_for("operations.detail", operation_id=operation_id))
 
 

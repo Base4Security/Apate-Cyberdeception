@@ -1,34 +1,34 @@
 {% extends "base.html" %}
-{% block title %}Nueva operación · Apate Core{% endblock %}
+{% block title %}{{ tr('Nueva operación') }} · Apate Core{% endblock %}
 {% block content %}
-  <h1>Nueva operaci&oacute;n</h1>
+  <h1>{{ tr('Nueva operación') }}</h1>
   <form method="post" action="{{ url_for('operations.create_operation') }}">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
     <fieldset>
-      <legend>Operaci&oacute;n</legend>
-      <label for="name">Nombre</label>
+      <legend>{{ tr('Operación') }}</legend>
+      <label for="name">{{ tr('Nombre') }}</label>
       <input type="text" id="name" name="name" required>
     </fieldset>
 
     <fieldset>
-      <legend>Perfil de adversario (paso 1)</legend>
-      <label for="adversary_name">Nombre / actor</label>
+      <legend>{{ tr('Perfil de adversario (paso 1)') }}</legend>
+      <label for="adversary_name">{{ tr('Nombre / actor') }}</label>
       <input type="text" id="adversary_name" name="adversary_name" required>
-      <label for="adversary_motivation">Motivaci&oacute;n</label>
+      <label for="adversary_motivation">{{ tr('Motivación') }}</label>
       <input type="text" id="adversary_motivation" name="adversary_motivation">
-      <label for="adversary_skill_level">Nivel de habilidad</label>
+      <label for="adversary_skill_level">{{ tr('Nivel de habilidad') }}</label>
       <select id="adversary_skill_level" name="adversary_skill_level">
         {% for level in skill_levels %}
           <option value="{{ level }}" {% if level == "unknown" %}selected{% endif %}>{{ level }}</option>
         {% endfor %}
       </select>
-      <label for="expected_ttps">TTPs esperadas (separadas por coma, ej. T1046, T1078)</label>
+      <label for="expected_ttps">{{ tr('TTPs esperadas (separadas por coma, ej. T1046, T1078)') }}</label>
       <input type="text" id="expected_ttps" name="expected_ttps" placeholder="T1046, T1078">
     </fieldset>
 
     <fieldset>
-      <legend>Rules of Engagement (paso 2)</legend>
-      <label for="environment">Entorno de despliegue</label>
+      <legend>{{ tr('Rules of Engagement (paso 2)') }}</legend>
+      <label for="environment">{{ tr('Entorno de despliegue') }}</label>
       <select id="environment" name="environment">
         {% for env in environments %}
           <option value="{{ env.value }}" {% if env.value == "isolated" %}selected{% endif %}>{{ env.value }}</option>
@@ -37,16 +37,16 @@
     </fieldset>
 
     <fieldset>
-      <legend>Narrativa (paso 5)</legend>
-      <label for="narrative_name">Nombre</label>
+      <legend>{{ tr('Narrativa (paso 5)') }}</legend>
+      <label for="narrative_name">{{ tr('Nombre') }}</label>
       <input type="text" id="narrative_name" name="narrative_name" required>
-      <label for="narrative_description">Descripci&oacute;n</label>
+      <label for="narrative_description">{{ tr('Descripción') }}</label>
       <input type="text" id="narrative_description" name="narrative_description">
     </fieldset>
 
     <p>
-      <button type="submit" class="primary">Crear operaci&oacute;n</button>
-      <a href="{{ url_for('operations.list_operations') }}">Cancelar</a>
+      <button type="submit" class="primary">{{ tr('Crear operación') }}</button>
+      <a href="{{ url_for('operations.list_operations') }}">{{ tr('Cancelar') }}</a>
     </p>
   </form>
 {% endblock %}
