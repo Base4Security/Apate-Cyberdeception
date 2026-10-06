@@ -1,0 +1,180 @@
+{
+  "_meta": {
+    "source": "No es un dataset publico versionado como mitre_attack_groups.json/mitre_engage_matrix.json (M12a/M12j) -- son las mismas 3 operaciones de ejemplo curadas a mano para la demo (examples/seed_demo.py, commit ba7ec0a y anteriores), reubicadas acá como fuente única compartida en vez de mantener dos listas paralelas (mismo problema que M12h resolvió con el registro de plugins). Cada 'operation.expected_ttps' sigue siendo un subconjunto real de Group.technique_ids del grupo correspondiente en apate.attack (verificado antes de escribir esto, no inventado); 'id'/'summary' son los únicos campos nuevos que no existían en examples/seed_demo.py -- se agregaron para el catálogo de plantillas de la UI (apate.web._operation_templates), sin tocar el resto de los campos.",
+    "note": "'operation.end_date_days' reemplaza el 'end_date' absoluto que examples/seed_demo.py calculaba con _end_date(N) al importar -- una fecha absoluta hardcodeada en JSON envejecería mal. Se resuelve a fecha ISO absoluta en tiempo de uso via apate.web._operation_templates.resolve_operation_fields(), tanto para precargar el wizard como para el POST real de examples/seed_demo.py.",
+    "localization": "Variante española del catálogo localizado en archivos paralelos. Se eligió operation_templates.en.json en lugar de duplicar cada texto por idioma dentro de cada entrada: preserva el esquema que consumen el wizard y examples/seed_demo.py, mantiene los identificadores técnicos idénticos y evita que cada llamador tenga que elegir claves de idioma.",
+    "schema_version": "1.0"
+  },
+  "templates": [
+    {
+      "id": "apt28-lateral-finance",
+      "summary": "Detección temprana de un actor de espionaje conocido que busca moverse lateralmente hacia el segmento financiero via fuerza bruta SSH.",
+      "operation": {
+        "name": "APT28 — Movimiento lateral hacia el segmento financiero",
+        "adversary_name": "APT28 (Fancy Bear)",
+        "adversary_motivation": "Espionaje y acceso a datos financieros del segmento corporativo",
+        "adversary_skill_level": "advanced",
+        "expected_ttps": ["T1566", "T1078", "T1059", "T1105", "T1071", "T1003", "T1021"],
+        "target_assets": "Segmento de red financiero, Servidores de archivos internos",
+        "adversary_notes": "Perfil basado en TTPs publicamente atribuidas a APT28 (catalogo MITRE ATT&CK curado de apate.attack).",
+        "environment": "near_production",
+        "narrative_name": "Servidor de staging con acceso lateral",
+        "narrative_description": "Los señuelos simulan un entorno de staging recien migrado, con configuraciones debiles tipicas de un ambiente pre-produccion.",
+        "psychological_impact": "El adversario cree haber encontrado un entorno de bajo riesgo desde el cual moverse lateralmente hacia sistemas financieros reales sin ser detectado.",
+        "objectives": ["early_detection", "controls_validation"],
+        "roles": "Líder SOC: N. Pérez\nAnalista de amenazas: M. Gómez",
+        "resource_estimate": "2 analistas part-time durante 4 semanas",
+        "end_date_days": 30
+      },
+      "scenario": {
+        "description": "Detectar escaneo de puertos y fuerza bruta SSH hacia el segmento financiero",
+        "related_ttps": "T1046,T1110.001,T1021.004",
+        "deception_level": "basic"
+      },
+      "plugins": [
+        {
+          "kind": "dolost",
+          "plugin_id": "dolost-apt28-finance",
+          "surface": "network",
+          "expected_adversary_belief": "El servidor SSH señuelo es un salto real hacia la red financiera.",
+          "expected_adversary_action": "Intentar fuerza bruta y, si tiene exito, moverse lateralmente desde ahi.",
+          "success_metric": "Alerta en menos de 10 minutos desde el primer intento de login.",
+          "engage_activity_ids": ["EAC0005"],
+          "Hostname": "SshFinanceGateway",
+          "Description": "Gateway SSH señuelo hacia el segmento financiero",
+          "IP": "172.16.50.10",
+          "Subnet": "172.16.50.0/24",
+          "Gateway": "172.16.50.1",
+          "DeceptionNetwork": "NetworkOpFinance",
+          "ServicePorts": "{'22/tcp': 2222}",
+          "Service": "ssh",
+          "DecoyFiles": "decoy_ssh"
+        }
+      ],
+      "transitions": ["active"]
+    },
+    {
+      "id": "fin7-support-hr",
+      "summary": "Recolección de inteligencia sobre un actor de fraude conocido que suplanta soporte remoto tercerizado hacia RRHH.",
+      "operation": {
+        "name": "FIN7 — Suplantación de soporte remoto en RRHH",
+        "adversary_name": "FIN7 (Carbon Spider)",
+        "adversary_motivation": "Fraude financiero mediante compromiso de cuentas de soporte remoto",
+        "adversary_skill_level": "advanced",
+        "expected_ttps": ["T1566", "T1078", "T1190", "T1210", "T1486"],
+        "target_assets": "Buzones de correo de RRHH, Credenciales de acceso remoto",
+        "adversary_notes": "Perfil basado en TTPs publicamente atribuidas a FIN7 (catalogo MITRE ATT&CK curado de apate.attack).",
+        "environment": "isolated",
+        "narrative_name": "Mesa de ayuda de soporte remoto tercerizado",
+        "narrative_description": "Los perfiles de usuario simulan empleados de soporte remoto con patrones de comportamiento predecibles y credenciales reutilizadas.",
+        "psychological_impact": "El adversario cree estar interactuando con cuentas reales de bajo privilegio, con errores operativos tipicos de un proveedor tercerizado.",
+        "objectives": ["intelligence_collection", "attribution"],
+        "roles": "Analista de identidad: L. Fernández\nResponsable de RRHH: C. Ibarra",
+        "resource_estimate": "1 analista full-time durante 3 semanas",
+        "end_date_days": 45
+      },
+      "scenario": {
+        "description": "Detectar fuerza bruta y explotacion de aplicacion expuesta contra cuentas de soporte",
+        "related_ttps": "T1110.001,T1190,T1059.004",
+        "deception_level": "basic"
+      },
+      "plugins": [
+        {
+          "kind": "buda",
+          "plugin_id": "buda-fin7-hr",
+          "surface": "identity",
+          "expected_adversary_belief": "Las cuentas de soporte remoto son reales y tienen acceso legitimo a sistemas internos.",
+          "expected_adversary_action": "Usar las credenciales comprometidas para acceder y escalar privilegios.",
+          "success_metric": "Detectar acceso fuera del patron de comportamiento simulado en menos de 1 hora.",
+          "engage_activity_ids": ["EAC0005"],
+          "create_buda_narrative": "on"
+        }
+      ],
+      "transitions": ["active"]
+    },
+    {
+      "id": "lazarus-exfil-validation",
+      "summary": "Validación de controles ante exfiltración combinando señuelos de red y de comportamiento durante el cierre de trimestre.",
+      "operation": {
+        "name": "Lazarus Group — Validación de controles ante exfiltración",
+        "adversary_name": "Lazarus Group (Hidden Cobra)",
+        "adversary_motivation": "Exfiltracion de datos financieros y espionaje",
+        "adversary_skill_level": "advanced",
+        "expected_ttps": ["T1566", "T1059", "T1105", "T1071", "T1486"],
+        "target_assets": "Repositorios de datos financieros, Infraestructura de respaldo",
+        "adversary_notes": "Perfil basado en TTPs publicamente atribuidas a Lazarus Group (catalogo MITRE ATT&CK curado de apate.attack).",
+        "environment": "near_production",
+        "narrative_name": "Simulacro de cierre de trimestre",
+        "narrative_description": "Escenario combinado de decoys de red y comportamiento de usuario simulando el cierre contable de fin de trimestre, momento de mayor actividad legitima real.",
+        "psychological_impact": "El adversario cree que el volumen de actividad legitima del cierre de trimestre le da cobertura para exfiltrar datos sin ser detectado.",
+        "objectives": ["deterrence_attrition", "attribution"],
+        "roles": "Líder de la operación: R. Sosa\nOficial de cumplimiento: D. Molina",
+        "resource_estimate": "3 analistas, 1 mes, coordinacion con equipo legal",
+        "end_date_days": 20
+      },
+      "scenario": {
+        "description": "Detectar exfiltracion de datos hacia infraestructura externa tras explotar la aplicacion expuesta",
+        "related_ttps": "T1190,T1041,T1083",
+        "deception_level": "complete"
+      },
+      "plugins": [
+        {
+          "kind": "dolost",
+          "plugin_id": "dolost-lazarus-exfil",
+          "surface": "network",
+          "expected_adversary_belief": "El servidor de backups señuelo contiene los datos reales del cierre de trimestre.",
+          "expected_adversary_action": "Exfiltrar el contenido del backup hacia infraestructura externa.",
+          "success_metric": "Detectar transferencia saliente hacia una IP no autorizada.",
+          "engage_activity_ids": ["EAC0005"],
+          "Hostname": "FileServerBackup",
+          "Description": "Servidor de backups señuelo del cierre de trimestre",
+          "IP": "172.16.80.20",
+          "Subnet": "172.16.80.0/24",
+          "Gateway": "172.16.80.1",
+          "DeceptionNetwork": "NetworkOpBackup",
+          "ServicePorts": "{'21/tcp': 2121}",
+          "Service": "ftp",
+          "DecoyFiles": "decoy_backup"
+        },
+        {
+          "kind": "buda",
+          "plugin_id": "buda-lazarus-exfil",
+          "surface": "identity",
+          "expected_adversary_belief": "El operador de cierre de trimestre es un usuario real con acceso a los backups.",
+          "expected_adversary_action": "Usar ese acceso para localizar y exfiltrar los datos del backup.",
+          "success_metric": "Detectar acceso al backup fuera del horario habitual del cierre.",
+          "engage_activity_ids": ["EAC0005"],
+          "create_buda_narrative": "on"
+        },
+        {
+          "kind": "canarytoken",
+          "plugin_id": "canarytoken-lazarus-exfil",
+          "surface": "network",
+          "leads_to_plugin_id": "dolost-lazarus-exfil",
+          "expected_adversary_belief": "El enlace de transferencia del cierre de trimestre expone un recurso de respaldo real.",
+          "expected_adversary_action": "Abrir el enlace y reutilizar la infraestructura aparente para ubicar el servidor de backups.",
+          "success_metric": "Registrar la interacción con la miga antes de que alcance el decoy de red.",
+          "engage_activity_ids": ["EAC0005"],
+          "base_url": "https://canary-console.example",
+          "token_type": "dns",
+          "memo": "Enlace de transferencia del cierre contable Lazarus",
+          "email": "soc-finanzas@example.com",
+          "ttp_id": "T1041"
+        },
+        {
+          "kind": "opencanary",
+          "plugin_id": "opencanary-lazarus-exfil",
+          "surface": "network",
+          "expected_adversary_belief": "El host de transferencia expone servicios administrativos del respaldo financiero.",
+          "expected_adversary_action": "Enumerar SSH y FTP para preparar una exfiltración desde el entorno de cierre.",
+          "success_metric": "Detectar el primer intento de conexión a los servicios del host señuelo.",
+          "engage_activity_ids": ["EAC0005"],
+          "services": "ssh:2222\nftp:2121",
+          "network_mode": "bridge",
+          "ttp_id": "T1083"
+        }
+      ],
+      "transitions": ["active", "closed"]
+    }
+  ]
+}

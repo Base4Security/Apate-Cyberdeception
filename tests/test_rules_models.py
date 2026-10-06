@@ -62,6 +62,24 @@ def test_action_non_transition_rejects_to():
         Action(kind=ActionKind.DEPLOY, to=OperationStatus.ACTIVE)
 
 
+# -- Action.signatures() (M9, hardening) -------------------------------------
+
+
+def test_signatures_for_plugin_action_with_plugin_id():
+    action = Action(kind=ActionKind.RETIRE, plugin_id="honeypot-mock-1")
+    assert action.signatures() == ["retire", "retire:honeypot-mock-1"]
+
+
+def test_signatures_for_plugin_action_without_plugin_id():
+    action = Action(kind=ActionKind.RETIRE)
+    assert action.signatures() == ["retire"]
+
+
+def test_signatures_for_transition_action():
+    action = Action(kind=ActionKind.TRANSITION, to=OperationStatus.CLOSED)
+    assert action.signatures() == ["transition", "transition:closed"]
+
+
 def test_parse_rules_from_yaml_text():
     yaml_text = """
     rules:
@@ -136,3 +154,44 @@ def test_parse_rules_unknown_action_kind_raises_rule_definition_error():
     """
     with pytest.raises(RuleDefinitionError):
         parse_rules(yaml_text)
+
+
+def test_parse_rules_invalid_yaml_syntax_raises_rule_definition_error():
+    # Sintaxis YAML rota (corchete sin cerrar), no un problema de
+    # esquema: parse_rules debe reportar esto tambien como
+    # RuleDefinitionError, no dejar pasar un yaml.YAMLError crudo -
+    # quien edita reglas a mano (por ejemplo desde la interfaz web de
+    # M4b) solo deberia tener que atajar un tipo de excepcion.
+    with pytest.raises(RuleDefinitionError):
+        parse_rules("rules: [invalid")
+
+
+def test_parse_rules_document_that_is_not_a_mapping_raises_rule_definition_error():
+    with pytest.raises(RuleDefinitionError):
+        parse_rules("- just\n- a\n- list\n")
+
+
+# -- Condition.to_dict() (M12f) -----------------------------------------------
+
+
+def test_condition_to_dict_from_dict_roundtrip_for_event_shaped_condition():
+    condition = Condition(
+        event_type=EventType.TTP_OBSERVED, plugin_id="honeypot-mock-1", payload={"ttp_id": "T1499"}
+    )
+
+    restored = Condition.from_dict(condition.to_dict())
+
+    assert restored == condition
+
+
+def test_condition_to_dict_from_dict_roundtrip_for_closure_due_condition():
+    # event_type=None viaja explicito en el dict (a diferencia del YAML,
+    # donde la clave simplemente se omite) -- from_dict() tiene que
+    # distinguir "la clave esta pero vale None" de EventType(None), que
+    # rompería.
+    condition = Condition(closure_due=True)
+
+    restored = Condition.from_dict(condition.to_dict())
+
+    assert restored == condition
+    assert condition.to_dict()["event_type"] is None

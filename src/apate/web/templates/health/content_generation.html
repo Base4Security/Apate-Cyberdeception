@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Generación de contenido") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('health.index') }}">{{ _("Salud y configuración") }}</a> / {{ _("Generación de contenido") }}</nav>{% endblock %}
+{% block content %}
+  {% include "health/_configuration_nav.html" %}
+  <div class="content-toolbar tools-page-header">
+    <div><h1>{{ _("Generación de contenido") }}</h1><p class="muted">{{ _("Proveedor y modelo del motor de identidad y comportamiento.") }}</p></div>
+    <span class="badge {{ 'health-configured' if settings.provider else 'health-disabled' }}">{{ settings.provider or _("sin proveedor") }}</span>
+  </div>
+  <aside class="assist-note"><strong>{{ _("Generación, no decisión") }}</strong><span>{{ _("El LLM produce borradores; nunca decide cuándo desplegar, rotar o retirar un recurso y ninguna sugerencia se aplica sola.") }}</span></aside>
+
+  <div class="panel-grid configuration-diagnostics" aria-label="{{ _("Diagnóstico de generación") }}">
+    <article class="card"><h2>{{ _("Motor") }}</h2><p><span class="badge health-configured">{{ _("preparado") }}</span></p><p class="muted">{{ _("Capacidad de comportamiento simulada.") }}</p></article>
+    <article class="card"><h2>{{ _("Credencial") }}</h2><p><span class="badge {{ 'health-configured' if api_key_configured else 'health-disabled' }}">{{ _("configurada") if api_key_configured else _("no configurada") }}</span></p><p class="muted">{{ _("La API key es de escritura solamente.") }}</p></article>
+    <article class="card"><h2>{{ _("Conectividad") }}</h2><p class="muted">{{ _("La prueba consulta el modelo; no genera contenido.") }}</p><form method="post" action="{{ url_for('health.content_generation_test') }}" data-slow-action><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" {% if not settings.provider or not settings.model_name %}disabled{% endif %}>{{ _("Probar proveedor y modelo") }}</button></form></article>
+  </div>
+
+  <div class="settings-layout">
+    <form class="panel settings-form" method="post" action="{{ url_for('health.content_generation') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <fieldset>
+        <legend>{{ _("Proveedor y modelo") }}</legend>
+        <label for="provider">{{ _("Proveedor") }}</label>
+        <select id="provider" name="provider">
+          <option value="">{{ _("-- Elegir --") }}</option>
+          <option value="openai" {% if settings.provider == "openai" %}selected{% endif %}>OpenAI</option>
+          <option value="lmstudio" {% if settings.provider == "lmstudio" %}selected{% endif %}>LM Studio</option>
+        </select>
+        <label for="model_name">{{ _("Nombre del modelo") }}</label>
+        <input type="text" id="model_name" name="model_name" class="mono" value="{{ settings.model_name or '' }}" required>
+        <label for="api_key">{{ _("API key de OpenAI") }}</label>
+        <input type="password" id="api_key" name="api_key" placeholder="{{ _("configurada — dejar en blanco para conservarla") if api_key_configured else _("sin configurar") }}">
+        <p class="credential-status {{ 'configured' if api_key_configured else 'missing' }}"><strong>{{ _("API key:") }}</strong> {{ _("configurada (su valor no se muestra).") if api_key_configured else _("no configurada.") }} {{ _("Dejar el campo en blanco conserva el valor existente.") }}</p>
+        <label for="lmstudio_url">{{ _("URL de LM Studio") }}</label>
+        <input type="url" id="lmstudio_url" name="lmstudio_url" class="mono" value="{{ settings.lmstudio_url or 'http://localhost:1234/v1/chat/completions' }}">
+      </fieldset>
+      <p><button type="submit" class="primary">{{ _("Guardar configuración") }}</button></p>
+    </form>
+
+    <aside class="panel danger-zone">
+      <span class="danger-zone-kicker">{{ _("Área avanzada · destructiva") }}</span>
+      <h2>{{ _("Reiniciar datos de comportamiento") }}</h2>
+      <p class="muted">{{ _("Borra y recrea narrativas, perfiles de usuario y actividades globales. No afecta las operaciones de Apate y no se puede deshacer.") }}</p>
+      <form method="post" action="{{ url_for('health.behavior_data_reset') }}" data-confirm="Esto borrará los datos globales de comportamiento. ¿Confirmás la acción irreversible?"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label for="reset-confirmation">{{ _("Escribí") }} <strong>{{ reset_confirmation }}</strong> {{ _("para habilitar el reinicio") }}</label>
+        <input type="text" id="reset-confirmation" name="confirmation" autocomplete="off" required pattern="{{ reset_confirmation }}">
+        <p><button type="submit" class="danger">{{ _("Reiniciar datos") }}</button></p>
+      </form>
+    </aside>
+  </div>
+{% endblock %}

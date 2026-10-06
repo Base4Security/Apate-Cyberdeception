@@ -1,0 +1,47 @@
+# Normalizacion de fin de linea -- housekeeping post-vendorizado (ver
+# docs/roadmap.md/CLAUDE.md). Sin esto, el core.autocrlf local (comun
+# en checkouts Windows -- este entorno incluido) puede dejar en disco
+# CRLF para un blob commiteado en LF, mostrando arboles vendorizados
+# enteros como "modificados" sin ningun cambio de contenido real
+# (confirmado sobre src/DOLOST/, src/BUDA/ y playground-stack/).
+
+# Default global: git decide texto/binario por heuristica y normaliza
+# a LF en el repo cuando es texto -- explicito en vez de dejarlo a
+# merced de la config local de cada desarrollador.
+* text=auto eol=lf
+
+# --- src/DOLOST/, src/BUDA/ (vendorizado, M8a-M14) ---
+# Los repos originales de DOLOS-T/BUDA versionan en LF (confirmado
+# contra sus propios blobs Git -- ninguno de los dos trae un
+# .gitattributes propio, asi que esto preserva su criterio real en vez
+# de inventar uno nuevo). Ningun script vendorizado de estos dos corre
+# dentro de un contenedor Linux por su cuenta (a diferencia de
+# playground-stack/ mas abajo), pero el default de arriba ya alcanza
+# para el codigo fuente -- solo hacen falta excepciones para binarios.
+src/DOLOST/**/*.png binary
+src/BUDA/**/*.png binary
+
+# --- playground-stack/ (vendorizado, M14g) ---
+# El repo original del Cyber Deception Playground trae su propio
+# .gitattributes con esta misma regla, por el mismo motivo real: CRLF
+# en un script que corre dentro de un contenedor Linux rompe el
+# shebang/interprete de verdad (bad interpreter: /bin/bash^M), no es
+# cosmetico -- preservado literalmente aca, no reinventado.
+playground-stack/**/*.sh text eol=lf
+playground-stack/**/Dockerfile text eol=lf
+playground-stack/**/*.ndjson text eol=lf
+# Batch de Windows del Playground -- CRLF real, no forzar LF encima.
+playground-stack/**/*.bat text eol=crlf
+playground-stack/**/*.cmd text eol=crlf
+playground-stack/**/*.xlsx binary
+
+# Dockerfiles de DOLOS-T con nombre no estandar (Dockerfile-apache,
+# Dockerfile-mysql, etc., sin extension) -- mismo motivo que
+# playground-stack/**/Dockerfile de arriba.
+src/DOLOST/dockerfiles_templates/Dockerfile-* text eol=lf
+
+# Catalogos gettext compilados: binarios, nunca normalizar saltos de linea.
+*.mo binary
+
+# Evidencia y cortes editoriales con manifiestos SHA-256: preservar bytes exactos.
+research/apate_paper/** -text

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from ..plugins.base import EventBus, EventType, PluginEvent
+from ..plugins.base import EventBus, EventType, PluginEvent, is_lifecycle_event
 from .models import IoC, TelemetryRecord
 from .repository import TelemetryRepository
 
@@ -27,8 +27,9 @@ class TelemetryCollector:
     minimas que M6 (retroalimentacion CTI) y M4b (interfaz web) van a
     necesitar: eventos, IoCs y TTPs observadas por operacion."""
 
-    def __init__(self, *, repository: TelemetryRepository, bus: Optional[EventBus] = None) -> None:
+    def __init__(self, *, repository: TelemetryRepository, bus: Optional[EventBus] = None, attention_evaluator=None) -> None:
         self.repository = repository
+        self.attention_evaluator = attention_evaluator
         if bus is not None:
             self.attach(bus)
 
@@ -43,9 +44,28 @@ class TelemetryCollector:
     def handle_event(self, event: PluginEvent) -> None:
         """Punto de entrada para eventos del bus. Tambien puede llamarse
         directamente (sin pasar por un EventBus real) para probar el
-        colector en aislamiento."""
+        colector en aislamiento.
 
-        self.repository.append(TelemetryRecord.from_event(event))
+        **Descarta las acciones del ciclo de vida** (E3 de
+        docs/improvements.md): un deploy/rotate/retire ejecutado por el
+        operador no es actividad del adversario, y guardarlo aca
+        contaminaba todo lo que se deriva de esta telemetria -- los KPI de
+        la operacion, los contadores de Telemetria, el Centro de impacto,
+        el informe post-operacion y, sobre todo, el estado "observed" del
+        arbol y del camino de engano, que se calcula como "existe algun
+        registro para este plugin_id" y por lo tanto pintaba una capacidad
+        recien desplegada como si el adversario ya la hubiera tocado.
+
+        El evento sigue viajando por el bus (el motor de reglas lo ve
+        igual); lo que hace el operador ya queda auditado aparte, en
+        apate.audit.OperatorAction."""
+
+        if is_lifecycle_event(event):
+            return
+        record = TelemetryRecord.from_event(event)
+        self.repository.append(record)
+        if self.attention_evaluator is not None:
+            self.attention_evaluator(record)
 
     def list_events(self, operation_id: str) -> list[TelemetryRecord]:
         """Todos los registros normalizados de una operacion, en el
@@ -73,3 +93,18 @@ class TelemetryCollector:
         alfabeticamente."""
 
         return sorted({r.ttp_id for r in self.list_events(operation_id) if r.ttp_id is not None})
+
+    def list_ttps_by_operation(self, operation_ids: list[str]) -> dict[str, list[str]]:
+        """Fase 4 post-BlackHat (ver docs/roadmap.md): la misma consulta
+        que list_ttps(), pero para varias operaciones en una sola
+        llamada -- delega en el repositorio para que el backend real
+        (JSON o SQLite) decida como resolverla de forma eficiente. Ver
+        TelemetryRepository.list_ttps_by_operation() para el contrato
+        completo."""
+
+        return self.repository.list_ttps_by_operation(operation_ids)
+
+    def list_events_by_operation(self, operation_ids: list[str]) -> dict[str, list[TelemetryRecord]]:
+        """Registros completos de varias operaciones, agrupados por ID."""
+
+        return self.repository.list_for_operations(operation_ids)

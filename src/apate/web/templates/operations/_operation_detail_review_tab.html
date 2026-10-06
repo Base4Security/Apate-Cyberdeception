@@ -1,0 +1,313 @@
+  <div class="tab-panel" id="tab-review" role="tabpanel" aria-labelledby="tab-control-review" tabindex="0">
+  <section id="tab-preparation" aria-labelledby="preparation-title">
+    <h2 id="preparation-title">{{ _("Preparaci&oacute;n") }}</h2>
+    <p class="muted">
+      {{ _("Las ocho actividades estrat&eacute;gicas de preparaci&oacute;n y entendimiento de MITRE Engage,\n      contrastadas con los datos reales de esta operaci&oacute;n. La tabla no guarda informaci&oacute;n\n      adicional ni calcula un score: muestra qu&eacute; actividad tiene evidencia y cu&aacute;l requiere\n      atenci&oacute;n del operador.") }}
+    </p>
+
+    {% if request.args.get('catalog_context_id') %}
+      <aside class="assist-note">
+        <strong>{{ _("Recurso sugerido desde el Cat&aacute;logo") }}</strong>
+        <span>{{ _("Revis&aacute; la procedencia y marc&aacute; la fuente si corresponde. Llegar desde el Cat&aacute;logo no la selecciona autom&aacute;ticamente.") }}</span>
+      </aside>
+    {% endif %}
+
+    <section class="operation-context-section" aria-labelledby="operation-context-title">
+      <div class="panel-heading">
+        <div>
+          <h3 id="operation-context-title">{{ _("Contexto de comportamiento") }}</h3>
+          <p class="muted">{{ _("Fuentes de an&aacute;lisis del comportamiento de usuarios y entidades (") }}<abbr title="{{ _('User and Entity Behavior Analytics') }}">{{ _("UEBA") }}</abbr>{{ _(") compartidas que el operador eligi&oacute; expl&iacute;citamente para esta operaci&oacute;n.") }}</p>
+        </div>
+        <a class="button secondary small" href="{{ url_for('capabilities.behavior_context') }}">{{ _("Abrir biblioteca") }}</a>
+      </div>
+
+      <div class="operation-context-grid">
+        <div class="panel context-selection-panel">
+          <h4>{{ _("Seleccionadas y disponibles") }}</h4>
+          <form method="post" action="{{ url_for('operations.behavior_context_select', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="context-selection-list">
+              {% for row in selected_context_sources %}
+                {% if row.source and row.source.status.value == 'active' and row.source.integrity_ok %}
+                  <label class="context-choice {% if request.args.get('catalog_context_id') == row.source.id %}context-choice-highlight{% endif %}">
+                    <input type="checkbox" name="source_ids" value="{{ row.source.id }}" checked>
+                    <span><strong>{{ row.source.name }}</strong><small>{{ row.source.provenance }} {{ _("· activa · integridad verificada") }}</small></span>
+                  </label>
+                {% endif %}
+              {% endfor %}
+              {% for source in available_context_sources %}
+                <label class="context-choice {% if request.args.get('catalog_context_id') == source.id %}context-choice-highlight{% endif %}">
+                  <input type="checkbox" name="source_ids" value="{{ source.id }}">
+                  <span><strong>{{ source.name }}</strong><small>{{ source.provenance }} {{ _("· activa · integridad verificada") }}</small></span>
+                </label>
+              {% else %}
+                {% if not selected_context_sources %}
+                  <p class="muted">{{ _("No hay fuentes activas disponibles. Pod&eacute;s extraer un candidato a la derecha.") }}</p>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <button type="submit" class="primary small">{{ _("Guardar selecci&oacute;n expl&iacute;cita") }}</button>
+          </form>
+        </div>
+
+        <form class="panel context-upload-panel" id="operation-context-upload-form" method="post" enctype="multipart/form-data" action="{{ url_for('operations.behavior_context_upload', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <h3 class="as-h4">{{ _("Extraer desde registro de eventos de Windows (") }}<abbr title="{{ _('Windows Event Log') }}">{{ _("EVTX") }}</abbr>)</h3>
+          <label for="operation-context-name">{{ _("Nombre") }}</label>
+          <input type="text" id="operation-context-name" name="name" placeholder="{{ _('Autenticaciones del escenario') }}">
+          <label for="operation-context-file">{{ _("Archivo de registro de eventos de Windows (") }}<abbr title="{{ _('Windows Event Log') }}">{{ _("EVTX") }}</abbr>)</label>
+          <input type="file" id="operation-context-file" name="file" accept=".evtx" required>
+          <p class="muted">{{ _("M&aacute;ximo 50 MiB. El archivo se elimina al finalizar. El resultado queda pendiente hasta una segunda confirmaci&oacute;n.") }}</p>
+          <button type="submit" class="primary small">{{ _("Extraer candidato") }}</button>
+          <p id="operation-context-upload-status" class="muted" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      {% set exceptional_sources = namespace(any=false) %}
+      {% for row in selected_context_sources %}
+        {% if not row.source or row.source.status.value != 'active' or not row.source.integrity_ok %}
+          {% set exceptional_sources.any = true %}
+        {% endif %}
+      {% endfor %}
+      {% if exceptional_sources.any %}
+        <div class="warning-note">
+          <strong>{{ _("Referencias preservadas que requieren atenci&oacute;n") }}</strong>
+          <span>{{ _("Estas fuentes no admiten selecciones nuevas, pero Apate conserva su uso hist&oacute;rico hasta que el operador actualice la selecci&oacute;n.") }}</span>
+        </div>
+        <div class="context-reference-list">
+          {% for row in selected_context_sources %}
+            {% if not row.source or row.source.status.value != 'active' or not row.source.integrity_ok %}
+              <div class="context-reference-row">
+                {% if row.source %}
+                  <strong>{{ row.source.name }}</strong>
+                  <span class="muted">{{ row.source.provenance }} · {{ resource_status_label(row.source.status.value) }} · {{ 'integridad verificada' if row.source.integrity_ok else 'integridad alterada' }}</span>
+                {% else %}
+                  <strong>{{ _("Fuente no encontrada") }}</strong><span class="mono muted">{{ row.id }}</span>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if pending_context_sources %}
+        <div class="context-pending-section">
+          <h4>{{ _("Candidatos pendientes de esta operaci&oacute;n") }}</h4>
+          <p class="muted">{{ _("Revis&aacute; el resultado completo. Confirmar activa la fuente y la selecciona; descartar elimina solo este candidato no utilizado.") }}</p>
+          <div class="context-source-list">
+            {% for source in pending_context_sources %}
+              <article class="panel context-source-card">
+                <div class="panel-heading"><div><h3 class="as-h4">{{ source.name }}</h3><span class="muted">{{ source.provenance }}</span></div><span class="badge badge-planning">{{ _("pendiente") }}</span></div>
+                <p><strong>{{ _("Integridad:") }}</strong> <span class="badge {{ 'badge-active' if source.integrity_ok else 'badge-compromised' }}">{{ 'verificada' if source.integrity_ok else 'alterada' }}</span></p>
+                <details class="collapsible"><summary>{{ _("Revisar resultado extra&iacute;do") }}</summary><div class="collapsible-body"><pre class="mono context-preview">{{ source.data | tojson(indent=2) }}</pre></div></details>
+                <div class="context-source-actions">
+                  <form method="post" action="{{ url_for('operations.behavior_context_confirm', operation_id=operation.id, source_id=source.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <label class="checkbox-label"><input type="checkbox" name="confirm" value="CONFIRMAR" required> {{ _("Revis&eacute; el resultado y quiero utilizar esta fuente") }}</label>
+                    <button type="submit" class="primary small">{{ _("Confirmar y seleccionar") }}</button>
+                  </form>
+                  <form class="inline" method="post" data-confirm="{{ _('¿Descartar este candidato pendiente?') }}" action="{{ url_for('operations.behavior_context_discard', operation_id=operation.id, source_id=source.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="danger small">{{ _("Descartar") }}</button></form>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>{{ _("Actividad") }}</th><th>{{ _("Descripci&oacute;n") }}</th><th>{{ _("Estado") }}</th><th>{{ _("Evidencia") }}</th></tr>
+      </thead>
+      <tbody>
+        {% for row in preparation_coverage %}
+          <tr>
+            <td><span class="mono">{{ row.activity.id }}</span> {{ row.activity.name }}</td>
+            <td class="muted">{{ row.activity.description }}</td>
+            <td>
+              {% if row.status == "covered" %}
+                <span class="tag accent">{{ _("Cubierta") }}</span>
+              {% elif row.status == "partial" %}
+                <span class="tag">{{ _("Parcial") }}</span>
+              {% elif row.status == "not_covered" %}
+                <span class="tag">{{ _("Sin cubrir") }}</span>
+              {% else %}
+                <span class="muted">{{ _("Sin campo equivalente") }}</span>
+              {% endif %}
+            </td>
+            <td class="muted">
+              {{ row.detail }}
+              {% if row.status != "covered" and row.target %}
+                <a class="preparation-action" href="#{{ row.target }}">{{ row.target_label }} {{ _("&rarr;") }}</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="tab-dryrun" aria-labelledby="dryrun-title">
+    <h2 id="dryrun-title">{{ _("Ensayo en seco") }}</h2>
+    <p class="muted">
+      {{ _("Dos revisiones de solo lectura sobre el dise&ntilde;o ya cargado,") }} <strong>{{ _("antes de que salga a la\n      cancha") }}</strong>{{ _(": qu&eacute; camino seguir&iacute;a un adversario por las cadenas de migas\n      (conectividad estructural) y si las piezas de la ficci&oacute;n cuentan la misma historia\n      (coherencia narrativa).") }} <strong>{{ _("Sin desplegar nada, sin tocar Docker/WinRM y sin publicar\n      ning&uacute;n evento real") }}</strong>{{ _(". No es lo mismo que") }} <a href="{{ url_for('playground.index') }}">{{ _("\"Esperado\n      vs. observado\"") }}</a> {{ _("del Playground: eso compara contra telemetr&iacute;a real de una corrida ya\n      sucedida; esto es sobre el dise&ntilde;o, antes de que exista ninguna corrida.") }}
+    </p>
+
+    {% if not operation_dry_run.has_content %}
+      <div class="empty-state compact-empty-state"><p>{{ _("Agreg&aacute; escenarios y capacidades para poder ensayar un recorrido.") }}</p><a href="#tab-scenarios">{{ _("Completar escenarios") }}</a></div>
+    {% else %}
+      <section class="dry-run-findings" aria-labelledby="dry-run-findings-title">
+        <h3 id="dry-run-findings-title">{{ _("Hallazgos") }} <span class="tab-count">{{ operation_dry_run.findings | length }}</span></h3>
+        {% if operation_dry_run.findings %}
+          <ul class="dry-run-finding-list">
+            {% for finding in operation_dry_run.findings %}
+              <li class="dry-run-finding">
+                <span class="tag{% if finding.severity == 'gap' %} warning{% endif %}">{{ 'Hueco' if finding.severity == 'gap' else 'Informativo' }}</span>
+                <span>{{ finding.message }}</span>
+                {% if finding.anchor %}<a href="#{{ finding.anchor }}">{{ _("Revisar &rarr;") }}</a>{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="operation-clear-state"><strong>{{ _("Sin huecos detectados") }}</strong><span>{{ _("El recorrido no encontr&oacute; TTPs sin cobertura, escenarios vac&iacute;os, capacidades aisladas ni migas rotas.") }}</span></p>
+        {% endif %}
+      </section>
+
+      <section class="dry-run-chains" aria-labelledby="dry-run-chains-title">
+        <h3 id="dry-run-chains-title">{{ _("Cadenas de recorrido") }} <span class="tab-count">{{ operation_dry_run.chains | length }}</span></h3>
+        <p class="muted">{{ _("Cada cadena arranca en una capacidad sin ninguna miga entrante y sigue \"lleva a\" hasta el final declarado. Lo mostrado en cada paso es lo DECLARADO en el dise&ntilde;o (actividades de Engage, efecto Ver-Pensar-Hacer) -- nunca estado de despliegue real.") }}</p>
+        {% for chain in operation_dry_run.chains %}
+          <div class="dry-run-chain-block">
+            {% if chain.entry_is_arbitrary %}
+              <p class="muted dry-run-chain-note">{{ _("&#9888; Ciclo cerrado sin ning&uacute;n punto de entrada externo -- el arranque de esta cadena es arbitrario (orden de carga, no una ra&iacute;z real).") }}</p>
+            {% endif %}
+            <ol class="dry-run-chain">
+              {% for step in chain.steps %}
+                <li class="dry-run-step">
+                  <div class="dry-run-step-heading">
+                    <span class="tag">{{ capability_kind_label(step.plugin_kind) if step.plugin_kind else "?" }}</span>
+                    <a class="mono" href="#tab-plugins">{{ step.plugin_id }}</a>
+                    {% if step.scenario_label %}<span class="muted">{{ _("&middot;") }} {{ step.scenario_label }}</span>{% endif %}
+                    {% if not loop.last %}<span class="dry-run-step-arrow" aria-hidden="true">{{ _("&rarr;") }}</span>{% endif %}
+                  </div>
+                  {% if step.engage_activity_names %}
+                    <span class="tag-list">{% for name in step.engage_activity_names %}<span class="tag accent">{{ name }}</span>{% endfor %}</span>
+                  {% endif %}
+                  {% if step.expected_adversary_belief or step.expected_adversary_action or step.success_metric %}
+                    <dl class="dry-run-effect">
+                      {% if step.expected_adversary_belief %}<dt>{{ _("Pensar") }}</dt><dd>{{ step.expected_adversary_belief }}</dd>{% endif %}
+                      {% if step.expected_adversary_action %}<dt>{{ _("Hacer") }}</dt><dd>{{ step.expected_adversary_action }}</dd>{% endif %}
+                      {% if step.success_metric %}<dt>{{ _("&Eacute;xito") }}</dt><dd>{{ step.success_metric }}</dd>{% endif %}
+                    </dl>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ol>
+            <p class="muted dry-run-chain-terminal">
+              {% if chain.terminal_reason == "sin_miga_saliente" %}
+                {{ _("Fin del recorrido: sin ninguna miga saliente declarada desde el &uacute;ltimo paso.") }}
+              {% elif chain.terminal_reason == "miga_rota" %}
+                {{ _("Se corta ac&aacute;: la &uacute;ltima miga apunta a una capacidad que no est&aacute; vinculada a esta operaci&oacute;n.") }}
+              {% elif chain.terminal_reason == "ciclo_detectado" %}
+                {{ _("Vuelve a un paso ya visitado &mdash; el recorrido nunca termina.") }}
+              {% endif %}
+            </p>
+          </div>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    <section class="narrative-coherence" aria-labelledby="narrative-coherence-title">
+      <h3 id="narrative-coherence-title">{{ _("Coherencia de la ficci&oacute;n") }} <span class="tab-count">{{ narrative_coherence.checks | length }}</span></h3>
+      <p class="muted">
+        {{ _("Referencia declarada: CounterCraft -- \"construir la organizaci&oacute;n que una") }} <abbr title="{{ _('amenaza persistente avanzada') }}">{{ _("APT") }}</abbr> {{ _("no pueda\n        resistir\". Junta narrativa, activos objetivo, empleados ficticios, infraestructura\n        ficticia y documentos ficticios (honeytokens) para que se lean juntos.") }}
+        <strong>{{ _("Esto es an&aacute;lisis y presentaci&oacute;n, no validaci&oacute;n autom&aacute;tica") }}</strong>{{ _(":\n        no hay ning&uacute;n score de coherencia ni un modelo de lenguaje (") }}<abbr title="{{ _('Large Language Model') }}">{{ _("LLM") }}</abbr>{{ _(") juzgando si la ficci&oacute;n es\n        cre&iacute;ble. Buena parte de la coherencia narrativa (¿estos empleados encajan con esta\n        historia?) es subjetiva y no es computable -- eso queda para que lo eval&uacute;e el operador\n        con las piezas de abajo. Los pocos chequeos autom&aacute;ticos que hay son heur&iacute;sticos\n        d&eacute;biles (superposici&oacute;n de palabras clave, sin NLP real), marcados siempre como\n        informativos, nunca como un hueco objetivo.") }}
+      </p>
+
+      {% if not narrative_coherence.has_content %}
+        <div class="empty-state compact-empty-state"><p>{{ _("Cargá narrativa, activos objetivo o capacidades para poder revisar la coherencia de la ficción.") }}</p><a href="#tab-narrative">{{ _("Completar narrativa") }}</a></div>
+      {% else %}
+        <div class="panel-grid narrative-coherence-grid">
+          <article class="card">
+            <h4>{{ _("Narrativa") }} <span class="muted">{{ _("(paso 5)") }}</span></h4>
+            {% if narrative_coherence.narrative_has_content %}
+              <p>{{ narrative_coherence.narrative.description or "Sin descripción." }}</p>
+              {% if narrative_coherence.narrative.psychological_impact %}<p class="muted">{{ _("Sesgo explotado:") }} {{ narrative_coherence.narrative.psychological_impact }}</p>{% endif %}
+              {% if narrative_coherence.narrative.story_elements %}
+                <span class="tag-list">{% for element in narrative_coherence.narrative.story_elements %}<span class="tag">{{ element }}</span>{% endfor %}</span>
+              {% endif %}
+            {% else %}
+              <p class="muted">{{ _("Sin contenido cargado todavía.") }}</p>
+            {% endif %}
+          </article>
+
+          <article class="card">
+            <h4>{{ _("Activos objetivo") }} <span class="muted">({{ narrative_coherence.target_assets | length }})</span></h4>
+            {% if narrative_coherence.target_assets %}
+              <span class="tag-list">{% for asset in narrative_coherence.target_assets %}<span class="tag">{{ asset }}</span>{% endfor %}</span>
+            {% else %}
+              <p class="muted">{{ _("Sin activos objetivo declarados.") }}</p>
+            {% endif %}
+          </article>
+
+          <article class="card">
+            <h4>{{ _("Empleados ficticios") }} <span class="muted">({{ narrative_coherence.employees | length }})</span></h4>
+            {% if narrative_coherence.employees %}
+              <ul class="coherence-item-list">
+                {% for employee in narrative_coherence.employees %}<li><strong>{{ employee.name }}</strong>{% if employee.role %} {{ _("&middot;") }} {{ employee.role }}{% endif %}</li>{% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">{{ _("Sin empleados ficticios vinculados.") }}</p>
+            {% endif %}
+          </article>
+
+          <article class="card">
+            <h4>{{ _("Infraestructura ficticia") }} <span class="muted">({{ narrative_coherence.infrastructure | length }}{{ _(", decoys / OpenCanary)") }}</span></h4>
+            {% if narrative_coherence.infrastructure %}
+              <ul class="coherence-item-list">
+                {% for item in narrative_coherence.infrastructure %}<li><strong class="mono">{{ item.hostname or "Sin nombre" }}</strong>{% if item.description %} {{ _("&middot;") }} {{ item.description }}{% endif %}</li>{% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">{{ _("Sin infraestructura ficticia configurada.") }}</p>
+            {% endif %}
+          </article>
+
+          <article class="card">
+            <h4>{{ _("Documentos y migas ficticias") }} <span class="muted">({{ narrative_coherence.documents | length }}{{ _(", honeytokens / Canarytokens)") }}</span></h4>
+            {% if narrative_coherence.documents %}
+              <ul class="coherence-item-list">
+                {% for document in narrative_coherence.documents %}<li><span class="mono">{{ document.directory }}</span>{% if document.filenames %} {{ _("&middot;") }} {{ document.filenames | join(", ") }}{% endif %}</li>{% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">{{ _("Sin documentos ficticios configurados.") }}</p>
+            {% endif %}
+          </article>
+
+          <article class="card">
+            <h4>{{ _("Escenarios") }} <span class="muted">({{ narrative_coherence.scenarios | length }}{{ _(", paso 3)") }}</span></h4>
+            {% if narrative_coherence.scenarios %}
+              <ul class="coherence-item-list">
+                {% for scenario in narrative_coherence.scenarios %}<li>{{ scenario.description }}</li>{% endfor %}
+              </ul>
+            {% else %}
+              <p class="muted">{{ _("Sin escenarios cargados.") }}</p>
+            {% endif %}
+          </article>
+        </div>
+
+        <h4>{{ _("Chequeos heur&iacute;sticos") }} <span class="tab-count">{{ narrative_coherence.checks | length }}</span></h4>
+        {% if narrative_coherence.checks %}
+          <ul class="dry-run-finding-list">
+            {% for check in narrative_coherence.checks %}
+              <li class="dry-run-finding">
+                <span class="tag">{{ _("Informativo") }}</span>
+                <span>{{ check.message }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+        <p class="operation-clear-state"><strong>{{ _("Sin observaciones") }}</strong><span>{{ _("Los chequeos de superposición de palabras clave y de presencia cruzada no encontraron nada para señalar -- no es una garantía de coherencia real, solo de que el heurístico débil no vio nada raro.") }}</span></p>
+        {% endif %}
+      {% endif %}
+    </section>
+  </section>
+  </div>

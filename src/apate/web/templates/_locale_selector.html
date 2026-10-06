@@ -1,0 +1,10 @@
+<form class="locale-session" method="post" action="{{ url_for('set_locale') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="next" value="{{ request.path }}">
+  <label for="{{ locale_select_id }}">{{ _("Idioma") }}</label>
+  <select id="{{ locale_select_id }}" name="locale" onchange="this.form.submit()">
+    {% for code, name in available_locales %}
+      <option value="{{ code }}" {% if code == current_locale %}selected{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit" class="small">{{ _("Cambiar") }}</button></noscript>
+</form>

@@ -2,6 +2,13 @@
 # Replica los tres ejemplos de la seccion 4.3 del documento de diseno,
 # probados end-to-end contra MockHoneypotPlugin en
 # tests/test_rules_end_to_end.py.
+#
+# Para que estas reglas se ejecuten de verdad en una sesion de Playground,
+# la operacion necesita dos capacidades vinculadas con esos plugin_id
+# exactos (honeypot-mock-1 y honeypot-mock-2) y plugin_kind "mock": el
+# motor resuelve sus acciones contra las capacidades de la operacion, no
+# contra nombres sueltos. Sin esos bindings, las transiciones se aplican
+# igual pero deploy/retire no tienen sobre que actuar.
 
 rules:
   - name: "Escaneo en honeypot-mock-1: desplegar segundo mock y activar la operacion"

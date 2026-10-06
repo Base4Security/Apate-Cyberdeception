@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Portafolio") }} {{ _("- Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> {{ _("/ Portafolio") }}</nav>{% endblock %}
+{% block content %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('operations.list_operations') }}">{{ _("&larr; Operaciones") }}</a></p>
+  <div class="content-toolbar portfolio-header">
+    <div>
+      <h1>{{ _("Portafolio") }}</h1>
+      <p class="muted">{{ _("M&eacute;tricas transversales, cobertura de") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s, Engage y efectos medidos.") }}</p>
+    </div>
+    <a class="button" href="{{ url_for('operations.compare_operations') }}">{{ _("Comparar operaciones") }}</a>
+  </div>
+  <details class="methodology-help portfolio-methodology">
+    <summary>{{ _("Alcance y forma de c&aacute;lculo") }}</summary>
+    <p class="muted">
+    {{ _("Cobertura agregada entre") }} <strong>{{ _("todas") }}</strong> {{ _("las operaciones:") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s, actividades de Engage\n    y capacidades vinculadas. Se calcula al vuelo desde la informaci&oacute;n actual y una consulta agrupada\n    de Telemetr&iacute;a; no consulta estad&iacute;sticas internas de los motores ni fabrica un score de efectividad.") }}
+    </p>
+  </details>
+
+  {% if portfolio.considered_count == 0 %}
+    <div class="empty-state"><h2>{{ _("El Portafolio necesita operaciones") }}</h2><p class="muted">{{ _("Todav&iacute;a no hay operaciones creadas. Cuando existan, esta vista agregar&aacute; cobertura real de TTPs, Engage y capacidades.") }}</p><a class="button primary" href="{{ url_for('operations.new_operation_form') }}">{{ _("Crear operaci&oacute;n") }}</a></div>
+  {% else %}
+    <div class="panel-grid portfolio-summary" aria-label="{{ _('Resumen ejecutivo') }}">
+      <div class="card kpi-card"><dl><dt>{{ _("Operaciones") }}</dt><dd class="kpi-value">{{ portfolio.operational_metrics.operation_count }}</dd></dl><small>{{ _("Fuente: modelo de operaciones &middot; estado actual") }}</small></div>
+      <div class="card kpi-card"><dl><dt>{{ _("Con telemetr&iacute;a") }}</dt><dd class="kpi-value">{{ portfolio.operational_metrics.operations_with_telemetry }}</dd></dl><small>{{ _("Fuente: Telemetr&iacute;a &middot; historial completo") }}</small></div>
+      <div class="card kpi-card"><dl><dt>{{ _("Eventos persistidos") }}</dt><dd class="kpi-value">{{ portfolio.operational_metrics.event_count }}</dd></dl><small>{{ _("Fuente: Telemetr&iacute;a &middot; todas las operaciones") }}</small></div>
+      <div class="card kpi-card"><dl><dt><abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s observadas") }}</dt><dd class="kpi-value">{{ portfolio.operational_metrics.observed_ttp_count }}</dd></dl><small>{{ _("Fuente: Telemetr&iacute;a &middot; IDs distintos globales") }}</small></div>
+    </div>
+    <aside class="portfolio-scope-note">
+      {{ portfolio.considered_count }} {{ _("operaci&oacute;n(es) en total.") }}
+      {% if portfolio.excluded_count %}
+        {{ portfolio.excluded_count }} {{ _("sin TTPs esperadas cargadas -- excluida(s) del heatmap de abajo\n        para no contaminar el agregado con operaciones en blanco (no aportan a ning&uacute;n conjunto,\n        pero inflar&iacute;an el denominador de \"cu&aacute;ntas operaciones\").") }}
+      {% endif %}
+    </aside>
+
+    {% set plugin_total = portfolio.plugin_kind_counts.kinds | sum(attribute='count') + portfolio.plugin_kind_counts.unclassified_count %}
+    <nav class="portfolio-section-nav" aria-label="{{ _('Secciones del portafolio') }}">
+      <a href="#portfolio-operational-metrics">{{ _("M&eacute;tricas") }} <span>{{ portfolio.operational_metrics.operations_with_telemetry }}</span></a>
+      <a href="#portfolio-heatmap">{{ _("TTPs") }} <span>{{ portfolio.ttp_operations_count }}</span></a>
+      <a href="#portfolio-engage">{{ _("Engage") }} <span>{{ portfolio.engage_coverage | length }}</span></a>
+      <a href="#portfolio-effects">{{ _("Efectos") }} <span>{{ portfolio.measured_effect_notes | length }}</span></a>
+      <a href="#portfolio-plugins">{{ _("Capacidades") }} <span>{{ plugin_total }}</span></a>
+      <a href="#portfolio-assets">{{ _("Activos") }} <span>{{ portfolio.asset_coverage.covered | length }}</span></a>
+      <span class="portfolio-section-actions">
+        <button type="button" class="small" data-portfolio-expand>{{ _("Abrir todo") }}</button>
+        <button type="button" class="small" data-portfolio-collapse>{{ _("Cerrar todo") }}</button>
+      </span>
+    </nav>
+
+    <h2 class="visually-hidden">{{ _("Métricas operacionales") }}</h2>
+    <details class="collapsible portfolio-section" id="portfolio-operational-metrics" data-portfolio-section="metrics" open><summary><span class="portfolio-summary-title">{{ _("M&eacute;tricas operacionales") }} <small>{{ _("historial persistido") }}</small></span><span class="summary-count-badge">{{ portfolio.operational_metrics.event_count }}</span></summary><div class="collapsible-body">
+      <p class="muted">{{ _("Alcance: las") }} {{ portfolio.operational_metrics.operation_count }} {{ _("operaciones actuales. Per&iacute;odo:") }}
+      {% if portfolio.operational_metrics.first_observed_at %}<time data-local-time datetime="{{ portfolio.operational_metrics.first_observed_at.isoformat() }}">{{ portfolio.operational_metrics.first_observed_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</time> {{ _("&rarr;") }} <time data-local-time datetime="{{ portfolio.operational_metrics.last_observed_at.isoformat() }}">{{ portfolio.operational_metrics.last_observed_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</time>{% else %}{{ _("sin registros persistidos") }}{% endif %}{{ _(".\n      Fuente: Telemetr&iacute;a y estado actual de las operaciones.") }}</p>
+      <div class="panel-grid operational-metrics-grid">
+        <article class="card kpi-card"><dl><dt><abbr title="{{ _('Indicadores de compromiso') }}">{{ _("IoC") }}</abbr>{{ _("s distintos") }}</dt><dd class="kpi-value">{{ portfolio.operational_metrics.ioc_count }}</dd></dl><small>{{ _("Tipo+valor distintos en todo el alcance") }}</small></article>
+        <article class="card kpi-card"><dl><dt>{{ _("Efectos medidos") }}</dt><dd class="kpi-value">{{ portfolio.operational_metrics.measured_effect_count }}</dd></dl><small>{{ _("Resultados humanos en el modelo actual") }}</small></article>
+        <article class="card kpi-card"><dl><dt>{{ _("Proveedores observados") }}</dt><dd class="kpi-value">{{ portfolio.operational_metrics.provider_counts | length }}</dd></dl><small>{% if portfolio.operational_metrics.provider_counts %}{% for item in portfolio.operational_metrics.provider_counts %}{{ provider_label(item.provider) }}: {{ item.count }} {{ _("evento(s)") }}{% if not loop.last %} · {% endif %}{% endfor %}{% else %}{{ _("Sin eventos") }}{% endif %}</small></article>
+      </div>
+      <div class="table-scroll"><table class="operational-metrics-table"><thead><tr><th>{{ _("Operaci&oacute;n") }}</th><th>{{ _("Estado") }}</th><th>{{ _("Eventos") }}</th><th>{{ _("IoCs") }}</th><th>{{ _("TTP observadas") }}</th><th>{{ _("Esperadas coincidentes") }}</th><th>{{ _("Efectos medidos") }}</th><th>{{ _("&Uacute;ltimo evento") }}</th></tr></thead><tbody>
+        {% for row in portfolio.operational_metrics.rows %}<tr><td><a href="{{ url_for('operations.detail', operation_id=row.operation_id, _anchor='operation-metrics') }}">{{ row.operation_name }}</a></td><td><span class="badge badge-{{ row.status }}">{{ operation_status_label(row.status) }}</span></td><td>{{ row.event_count }}</td><td>{{ row.ioc_count }}</td><td>{{ row.observed_ttp_count }}</td><td>{{ row.matched_ttp_count }}/{{ row.expected_ttp_count }}</td><td>{{ row.measured_effect_count }}/{{ row.binding_count }}</td><td>{% if row.last_observed_at %}<time data-local-time datetime="{{ row.last_observed_at.isoformat() }}">{{ row.last_observed_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</time>{% else %}{{ _("&mdash;") }}{% endif %}</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div></details>
+
+    <h2 class="visually-hidden">{{ _("Heatmap de TTPs agregado") }}</h2>
+    <details class="collapsible portfolio-section" id="portfolio-heatmap" data-portfolio-section="heatmap" open><summary><span class="portfolio-summary-title">{{ _("Heatmap de TTPs agregado") }} <small>{{ _("Estilo MITRE ATT&amp;CK Navigator") }}</small></span><span class="summary-count-badge">{{ portfolio.ttp_operations_count }}</span></summary><div class="collapsible-body">
+    {% if portfolio.ttp_operations_count == 0 %}
+      <details class="methodology-help"><summary>{{ _("&iquest;C&oacute;mo se interpreta?") }}</summary><p class="muted">
+        {{ _("Ninguna operaci&oacute;n tiene TTPs esperadas cargadas todav&iacute;a -- sin nada que agregar\n        en el heatmap.") }}
+      </p></details>
+    {% else %}
+      <details class="methodology-help"><summary>{{ _("&iquest;C&oacute;mo se interpreta?") }}</summary><p class="muted">
+        {{ _("Sobre") }} {{ portfolio.ttp_operations_count }} {{ _("operaci&oacute;n(es) con TTPs esperadas. El n&uacute;mero\n        en cada celda es la cantidad de operaciones en el status dominante de esa t&eacute;cnica\n        (coincidente &gt; esperada-no-observada &gt; no-esperada); pas&aacute; el mouse para ver el\n        desglose completo de los tres conteos.") }}
+      </p></details>
+      <p class="ttp-legend">
+        <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-matched"></span> {{ _("Coincidente en alguna operaci&oacute;n") }}</span>
+        <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-not-observed"></span> {{ _("Esperada, no observada") }}</span>
+        <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-unexpected"></span> {{ _("Observada, no esperada") }}</span>
+        <span class="ttp-legend-item"><span class="ttp-swatch"></span> {{ _("Sin relaci&oacute;n con el portafolio") }}</span>
+      </p>
+      <div class="ttp-heatmap">
+        {% for column in portfolio.ttp_heatmap.columns %}
+            <div class="ttp-heatmap-column">
+            <h3>{{ tactic_label(column.tactic) }}</h3>
+            {% for cell in column.cells %}
+              <button type="button" class="ttp-cell{% if cell.status %} ttp-cell-{{ cell.status }}{% endif %}"
+                   title="{{ cell.technique.id }} -- {{ cell.technique.name }} &middot; coincidente: {{ cell.matched_count }} &middot; esperada no observada: {{ cell.not_observed_count }} &middot; no esperada: {{ cell.unexpected_count }}">
+                <span class="mono">{{ cell.technique.id }}</span> {{ cell.technique.name }}
+                {% if cell.count %}<span class="tag">{{ cell.count }}</span>{% endif %}
+                <span class="heatmap-detail" hidden>
+                  <strong>{{ cell.technique.id }} {{ _("&middot;") }} {{ cell.technique.name }}</strong>
+                  <span>{{ _("Coincidente:") }} {{ cell.matched_count }}</span>
+                  <span>{{ _("Esperada no observada:") }} {{ cell.not_observed_count }}</span>
+                  <span>{{ _("No esperada:") }} {{ cell.unexpected_count }}</span>
+                  {% for operation_id in cell.operation_ids %}<a href="{{ url_for('operations.detail', operation_id=operation_id) }}">{{ portfolio.operation_names[operation_id] }}</a>{% endfor %}
+                </span>
+              </button>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      {% if portfolio.ttp_heatmap.uncatalogued %}
+        <p class="muted">
+          {{ _("TTPs fuera del cat&aacute;logo curado (sin celda en la grilla de arriba):") }}
+          {% for item in portfolio.ttp_heatmap.uncatalogued %}
+            <span class="mono">{{ item.id }}</span> ({{ item.label }}, {{ item.count }}){% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </p>
+      {% endif %}
+    {% endif %}
+    </div></details>
+
+    <h2 class="visually-hidden">{{ _("Actividades de Engage planificadas") }}</h2>
+    <details class="collapsible portfolio-section" id="portfolio-engage" data-portfolio-section="engage" open><summary><span class="portfolio-summary-title">{{ _("Actividades de Engage planificadas") }} <small>{{ _("Agregado entre operaciones") }}</small></span><span class="summary-count-badge">{{ portfolio.engage_coverage | length }}</span></summary><div class="collapsible-body">
+    <p class="muted">
+      {{ _("Cu&aacute;ntas operaciones distintas planificaron cada actividad \"engagement\" (Expose/Affect/\n      Elicit) en al menos una capacidad vinculada. Las actividades Prepare/Understand pertenecen\n      a la operaci&oacute;n completa. “Medida: N” indica cu&aacute;ntas operaciones tienen un resultado\n      humano registrado: es cobertura de") }} <strong>{{ _("medici&oacute;n") }}</strong>{{ _(", no una puntuaci&oacute;n de &eacute;xito.") }}
+    </p>
+    <div class="engage-matrix">
+      {% for group in portfolio.engage_coverage %}
+        <div class="card engage-matrix-column">
+          <h3>{{ group.goal.name }}</h3>
+          {% for entry in group.approaches %}
+            <div class="engage-approach">
+              <p class="muted engage-approach-name"><strong>{{ entry.approach.name }}</strong></p>
+              {% for item in entry.activities %}
+                <p>
+                  {{ item.activity.name }}
+                  {% if item.operation_count %}
+                    <span class="tag accent" title="Planificada en {{ item.operation_count }} operaci&oacute;n(es)">{{ item.operation_count }}</span>
+                  {% else %}
+                    <span class="tag" title="{{ _('No planificada en ninguna operaci&oacute;n todav&iacute;a') }}">0</span>
+                  {% endif %}
+                  {% if item.measured_count %}
+                    <span class="tag" title="Con resultado medido (DeceptionEffect.measured_outcome) en {{ item.measured_count }} de esas operaci&oacute;n(es)">{{ _("medida:") }} {{ item.measured_count }}</span>
+                  {% endif %}
+                </p>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+    </div></details>
+
+    <h2 class="visually-hidden">{{ _("Efectividad medida") }}</h2>
+    <details class="collapsible portfolio-section" id="portfolio-effects" data-portfolio-section="effects" open><summary><span class="portfolio-summary-title">{{ _("Efectividad medida") }} <small>{{ _("Textos reales, no una m&eacute;trica sint&eacute;tica") }}</small></span><span class="summary-count-badge">{{ portfolio.measured_effect_notes | length }}</span></summary><div class="collapsible-body">
+    <p class="muted">
+      {{ _("Cada resultado medido de una capacidad vinculada a una actividad de Engage, tal cual lo\n      carg&oacute; el operador, sin resumir ni puntuar. Le&eacute;los y sac&aacute; tus propias conclusiones; el\n      sistema no decide por vos qu&eacute; \"funciona\". M&aacute;s reciente primero.") }}
+    </p>
+    {% if portfolio.measured_effect_notes %}
+      <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>{{ _("Operaci&oacute;n") }}</th><th>{{ _("Actividad(es)") }}</th><th>{{ _("Medido por") }}</th><th>{{ _("Cu&aacute;ndo") }}</th><th>{{ _("Resultado") }}</th></tr>
+        </thead>
+        <tbody>
+          {% for note in portfolio.measured_effect_notes %}
+            <tr>
+              <td><a href="{{ url_for('operations.detail', operation_id=note.operation_id, _anchor='tab-plugins') }}">{{ note.operation_name }}</a></td>
+              <td>
+                {% for activity in note.activities %}
+                  {% if activity %}<span class="tag" title="{{ activity.id }}">{{ activity.name }}</span>{% endif %}
+                {% endfor %}
+              </td>
+              <td class="muted">{{ note.measured_by or "sin especificar" }}</td>
+              <td class="muted">{{ note.measured_at.date() if note.measured_at else "-" }}</td>
+              <td>{{ note.measured_outcome }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    {% else %}
+      <p class="muted">{{ _("Todav&iacute;a ning&uacute;n plugin vinculado a una actividad de Engage tiene un\n      resultado medido cargado.") }}</p>
+    {% endif %}
+    </div></details>
+
+    <h2 class="visually-hidden">{{ _("Capacidades vinculadas por tipo") }}</h2>
+    <details class="collapsible portfolio-section" id="portfolio-plugins" data-portfolio-section="plugins" open><summary><span class="portfolio-summary-title">{{ _("Capacidades vinculadas por tipo") }} <small>{{ _("Modelo actual, no estado de despliegue") }}</small></span><span class="summary-count-badge">{{ plugin_total }}</span></summary><div class="collapsible-body">
+    <div class="panel-grid">
+      {% for item in portfolio.plugin_kind_counts.kinds %}
+        <div class="card kpi-card">
+          <dl>
+            <dt>{{ item.display_name }} <span class="muted">({{ item.surface }})</span></dt>
+            <dd class="kpi-value">{{ item.count }}</dd>
+          </dl>
+        </div>
+      {% endfor %}
+    </div>
+    {% if portfolio.plugin_kind_counts.unclassified_count %}
+      <p class="muted">
+        {{ portfolio.plugin_kind_counts.unclassified_count }} {{ _("plugin(s) vinculado(s) sin kind\n        clasificable (ni") }} <code>{{ _("plugin_kind") }}</code> {{ _("expl&iacute;cito ni prefijo reconocido de") }}
+        <code>{{ _("plugin_id") }}</code>).
+      </p>
+    {% endif %}
+    </div></details>
+  {% endif %}
+
+  {% set asset_coverage = portfolio.asset_coverage %}
+  <h2 class="visually-hidden">{{ _("Cobertura de activos del inventario") }}</h2>
+  <details class="collapsible portfolio-section" id="portfolio-assets" data-portfolio-section="assets" open><summary><span class="portfolio-summary-title">{{ _("Cobertura de activos") }} <small>{{ _("Relaciones expl&iacute;citas de capacidades, sin porcentaje ni score") }}</small></span><span class="summary-count-badge">{{ asset_coverage.covered | length }}</span></summary><div class="collapsible-body">
+    <p class="muted">{{ _("Cada conteo es de operaciones distintas: repetir una capacidad dentro de la misma operaci&oacute;n no aumenta la cobertura. La cobertura y la planificaci&oacute;n se leen por separado.") }}</p>
+    {% if asset_coverage.inventory_count %}
+      <div class="panel-grid">
+        <div class="card kpi-card"><dl><dt>{{ _("Con cobertura") }}</dt><dd class="kpi-value">{{ asset_coverage.covered | length }}</dd></dl><small>{{ _("Al menos una capacidad declarada") }}</small></div>
+        <div class="card kpi-card"><dl><dt>{{ _("Objetivo sin cobertura") }}</dt><dd class="kpi-value">{{ asset_coverage.targeted_uncovered | length }}</dd></dl><small>{{ _("En el plan, sin capacidad vinculada") }}</small></div>
+        <div class="card kpi-card"><dl><dt>{{ _("Sin objetivo") }}</dt><dd class="kpi-value">{{ asset_coverage.not_targeted | length }}</dd></dl><small>{{ _("No entr&oacute; en el plan de ninguna operaci&oacute;n") }}</small></div>
+      </div>
+
+      <h3>{{ _("Activos cubiertos por alguna operaci&oacute;n") }}</h3>
+      {% if asset_coverage.covered %}
+        <div class="table-scroll"><table><thead><tr><th>{{ _("Activo") }}</th><th>{{ _("Criticidad") }}</th><th>{{ _("Operaciones con cobertura") }}</th></tr></thead><tbody>
+        {% for entry in asset_coverage.covered %}
+          <tr><td>{{ entry.asset.name }} <span class="muted">({{ entry.asset.identifier }})</span></td><td>{{ criticality_labels[entry.asset.criticality] }}</td><td>{% for operation_id in entry.covered_operation_ids %}<a href="{{ url_for('operations.detail', operation_id=operation_id, _anchor='tab-plugins') }}">{{ portfolio.operation_names[operation_id] }}</a>{% if not loop.last %}, {% endif %}{% endfor %} <span class="muted">({{ entry.covered_operation_ids | length }})</span></td></tr>
+        {% endfor %}
+        </tbody></table></div>
+      {% else %}
+        <p class="muted">{{ _("Ning&uacute;n activo inventariado tiene todav&iacute;a una capacidad que declare protegerlo.") }}</p>
+      {% endif %}
+
+      <h3>{{ _("Objetivos sin cobertura") }}</h3>
+      {% if asset_coverage.targeted_uncovered %}
+        <p class="muted">{{ _("Estos activos est&aacute;n declarados como objetivo de al menos una operaci&oacute;n, pero ninguna capacidad los cubre. Se ordenan por criticidad.") }}</p>
+        <div class="table-scroll"><table><thead><tr><th>{{ _("Activo") }}</th><th>{{ _("Criticidad") }}</th><th>{{ _("Operaciones que lo planifican") }}</th></tr></thead><tbody>
+        {% for entry in asset_coverage.targeted_uncovered %}
+          <tr><td>{{ entry.asset.name }} <span class="muted">({{ entry.asset.identifier }})</span></td><td>{{ criticality_labels[entry.asset.criticality] }}</td><td>{% for operation_id in entry.target_operation_ids %}<a href="{{ url_for('operations.detail', operation_id=operation_id, _anchor='tab-profile') }}">{{ portfolio.operation_names[operation_id] }}</a>{% if not loop.last %}, {% endif %}{% endfor %} <span class="muted">({{ entry.target_operation_ids | length }})</span></td></tr>
+        {% endfor %}
+        </tbody></table></div>
+      {% else %}
+        <p class="muted">{{ _("No hay activos del inventario que est&eacute;n planificados sin una cobertura declarada.") }}</p>
+      {% endif %}
+
+      <h3>{{ _("Activos que no son objetivo de ninguna operaci&oacute;n") }}</h3>
+      {% if asset_coverage.not_targeted %}
+        <p class="muted">{{ _("No entraron al plan de ninguna operaci&oacute;n; no se confunden con los objetivos sin cobertura. Si una relaci&oacute;n legada los cubre, tambi&eacute;n aparece arriba como cobertura expl&iacute;cita.") }}</p>
+        <div class="table-scroll"><table><thead><tr><th>{{ _("Activo") }}</th><th>{{ _("Criticidad") }}</th><th>{{ _("Cobertura declarada") }}</th></tr></thead><tbody>
+        {% for entry in asset_coverage.not_targeted %}
+          <tr><td>{{ entry.asset.name }} <span class="muted">({{ entry.asset.identifier }})</span></td><td>{{ criticality_labels[entry.asset.criticality] }}</td><td>{% if entry.covered_operation_ids %}{% for operation_id in entry.covered_operation_ids %}<a href="{{ url_for('operations.detail', operation_id=operation_id, _anchor='tab-plugins') }}">{{ portfolio.operation_names[operation_id] }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% else %}<span class="muted">{{ _("sin capacidad vinculada") }}</span>{% endif %}</td></tr>
+        {% endfor %}
+        </tbody></table></div>
+      {% else %}
+        <p class="muted">{{ _("Todos los activos del inventario entraron al plan de alguna operaci&oacute;n.") }}</p>
+      {% endif %}
+    {% else %}
+      <p class="muted">{{ _("No hay fichas en el inventario. La cobertura de activos requiere una ficha para poder ordenar por criticidad.") }}</p>
+    {% endif %}
+
+    {% if asset_coverage.unresolved_references %}
+      <h3>{{ _("Referencias sin ficha de inventario") }}</h3>
+      <p class="muted">{{ _("No se omiten: no cuentan como activo inventariado ni reciben criticidad, pero se muestran para que puedan resolverse.") }}</p>
+      <div class="table-scroll"><table><thead><tr><th>{{ _("Referencia") }}</th><th>{{ _("En el plan de") }}</th><th>{{ _("Con cobertura declarada en") }}</th></tr></thead><tbody>
+      {% for reference in asset_coverage.unresolved_references %}
+        <tr><td><code>{{ reference.reference }}</code></td><td>{% if reference.target_operation_ids %}{% for operation_id in reference.target_operation_ids %}<a href="{{ url_for('operations.detail', operation_id=operation_id, _anchor='tab-profile') }}">{{ portfolio.operation_names[operation_id] }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% else %}<span class="muted">-</span>{% endif %}</td><td>{% if reference.covered_operation_ids %}{% for operation_id in reference.covered_operation_ids %}<a href="{{ url_for('operations.detail', operation_id=operation_id, _anchor='tab-plugins') }}">{{ portfolio.operation_names[operation_id] }}</a>{% if not loop.last %}, {% endif %}{% endfor %}{% else %}<span class="muted">-</span>{% endif %}</td></tr>
+      {% endfor %}
+      </tbody></table></div>
+    {% endif %}
+  </div></details>
+  <dialog class="app-dialog" id="heatmap-dialog" aria-labelledby="heatmap-dialog-title">
+    <form method="dialog"><div id="heatmap-dialog-title" class="heatmap-dialog-content"></div><div class="dialog-actions"><button value="cancel">{{ _("Cerrar") }}</button></div></form>
+  </dialog>
+  <script>
+    const portfolioParams = new URLSearchParams(window.location.search);
+    const requestedOpenSections = portfolioParams.get('open');
+    if (requestedOpenSections !== null) {
+      const openSections = new Set(requestedOpenSections.split(',').filter(Boolean));
+      document.querySelectorAll('[data-portfolio-section]').forEach(function (section) {
+        section.open = openSections.has(section.dataset.portfolioSection);
+      });
+    }
+    document.querySelectorAll('[data-portfolio-section]').forEach(function (section) {
+      section.addEventListener('toggle', function () {
+        const open = Array.from(document.querySelectorAll('[data-portfolio-section][open]')).map(function (item) { return item.dataset.portfolioSection; });
+        const params = new URLSearchParams(window.location.search);
+        params.set('open', open.join(','));
+        history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+      });
+    });
+    function setAllPortfolioSections(open) {
+      document.querySelectorAll('[data-portfolio-section]').forEach(function (section) {
+        section.open = open;
+      });
+    }
+    document.querySelector('[data-portfolio-expand]')?.addEventListener('click', function () {
+      setAllPortfolioSections(true);
+    });
+    document.querySelector('[data-portfolio-collapse]')?.addEventListener('click', function () {
+      setAllPortfolioSections(false);
+    });
+    const heatmapDialog = document.getElementById('heatmap-dialog');
+    document.querySelectorAll('.ttp-cell .heatmap-detail').forEach(function (detail) {
+      detail.closest('.ttp-cell').addEventListener('click', function () {
+        heatmapDialog.querySelector('.heatmap-dialog-content').replaceChildren(detail.cloneNode(true));
+        heatmapDialog.querySelector('.heatmap-detail').hidden = false;
+        if (!heatmapDialog.open) heatmapDialog.showModal();
+      });
+    });
+  </script>
+{% endblock %}

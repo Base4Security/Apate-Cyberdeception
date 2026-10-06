@@ -1,0 +1,24 @@
+<h3>{{ _("Acciones rechazadas") }}</h3>
+{% if rejected_actions %}
+  <p class="muted">{{ _("Registro persistido de las acciones que el motor no ejecutó y de la protección que las frenó.") }}</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>{{ _("Fecha y hora") }}</th><th>{{ _("Regla") }}</th><th>{{ _("Acción") }}</th><th>{{ _("Capacidad objetivo") }}</th><th>{{ _("Evento disparador") }}</th><th>{{ _("Protección") }}</th><th>{{ _("Motivo") }}</th></tr></thead>
+    <tbody>
+      {% for rejected in rejected_actions %}
+        <tr>
+          <td class="muted"><time data-local-time datetime="{{ rejected.timestamp.isoformat() }}">{{ rejected.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+          <td>{{ rejected.rule_name }}</td>
+          <td class="mono">{{ rejected.action.signatures() | join(", ") }}</td>
+          <td class="mono">{{ rejected.action.plugin_id or _("Todas las capacidades vinculadas") }}</td>
+          <td class="mono">{{ rejected.triggering_event_id or _("Sin evento disparador disponible") }}</td>
+          <td><span class="tag" data-rejection-kind="{{ rejected.kind.value }}"><code>{{ rejected.kind.value }}</code> · {% if rejected.kind.value == "roe" %}{{ _("Reglas de interacción") }}{% elif rejected.kind.value == "cascade_limit" %}{{ _("Tope de cascada") }}{% else %}{{ _("Error de ejecución") }}{% endif %}</span></td>
+          <td>{{ rejected.reason }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+{% else %}
+  <p class="muted">{{ _("Todavía no hay acciones rechazadas por el motor para esta operación.") }}</p>
+{% endif %}

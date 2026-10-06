@@ -1,0 +1,26 @@
+{
+  "name": "andesfinance-backend",
+  "version": "1.0.0",
+  "description": "Andesfinance Financial Services - Backend API System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "mysql2": "^3.6.0",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1",
+    "express-rate-limit": "^6.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["finance", "banking", "api", "backend", "andesfinance"],
+  "author": "Andesfinance Financial Services",
+  "license": "MIT"
+}

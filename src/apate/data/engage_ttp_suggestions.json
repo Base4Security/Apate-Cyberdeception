@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "source": "https://raw.githubusercontent.com/mitre/engage/main/Data/json/attack_mapping.json (repo publico mitre/engage, Apache-2.0)",
+    "verification_date": "2026-08-07",
+    "verification_methodology": "Extraido directamente de attack_mapping.json, el dataset oficial que mapea attack_id (tecnica de ATT&CK) -> eav (Engagement Adversary Vulnerability, texto libre) -> eac_id/eac (actividad de Engage que explota esa vulnerabilidad). El archivo completo pesa ~106KB y no se pudo bajar entero en esta sesion (limite de tamano de la herramienta de fetch); se extrajeron muestras reales tecnica por tecnica (grep dirigido sobre el JSON ya bajado) para las tecnicas de mitre_attack_groups.json (M12j) que sí tienen entrada en el archivo. NO es una tabla completa tecnica-por-tecnica: se generalizo a nivel de TACTICA de ATT&CK (catorce tacticas de Enterprise), tomando la union de eac_id observados en las tecnicas muestreadas de cada tactica -- mismo criterio 'tabla chica, no hace falta importar el ATT&CK completo' ya documentado en docs/analisis-engage-integral.md para M12d. Hallazgo real, no omision: 'initial-access', 'impact', 'exfiltration' y 'resource-development' NO tienen ninguna entrada en attack_mapping.json para las tecnicas muestreadas (T1190, T1486, T1567, T1583) -- consistente con que el mapeo de Engage modela vulnerabilidades que se revelan cuando el adversario ya esta interactuando con el entorno de engagement, no tacticas de pre-compromiso o de impacto/salida macro. No se inventaron sugerencias para esas cuatro tacticas: quedan con lista vacia a proposito, ver 'tactics_without_mapping'.",
+    "sampled_techniques": {
+      "credential-access": [
+        "T1003"
+      ],
+      "collection": [
+        "T1005"
+      ],
+      "lateral-movement": [
+        "T1021"
+      ],
+      "defense-evasion": [
+        "T1027"
+      ],
+      "discovery": [
+        "T1033"
+      ],
+      "execution": [
+        "T1059"
+      ],
+      "command-and-control": [
+        "T1071"
+      ],
+      "persistence": [
+        "T1098"
+      ],
+      "privilege-escalation": [
+        "T1055 (fuera de mitre_attack_groups.json, usado solo como muestra porque T1134 no tiene entrada en attack_mapping.json)"
+      ]
+    },
+    "tactics_without_mapping": [
+      "initial-access",
+      "impact",
+      "exfiltration",
+      "resource-development"
+    ],
+    "tactics_not_sampled": [
+      "reconnaissance"
+    ],
+    "schema_version": "1.0"
+  },
+  "tactic_activity_map": {
+    "credential-access": [
+      "EAC0005"
+    ],
+    "collection": [
+      "EAC0015",
+      "EAC0011",
+      "EAC0005",
+      "EAC0018"
+    ],
+    "lateral-movement": [
+      "EAC0002",
+      "EAC0005",
+      "EAC0016"
+    ],
+    "defense-evasion": [
+      "EAC0005",
+      "EAC0014"
+    ],
+    "discovery": [
+      "EAC0005",
+      "EAC0012",
+      "EAC0001"
+    ],
+    "execution": [
+      "EAC0018",
+      "EAC0022"
+    ],
+    "command-and-control": [
+      "EAC0016"
+    ],
+    "persistence": [
+      "EAC0005",
+      "EAC0012",
+      "EAC0003"
+    ],
+    "privilege-escalation": [
+      "EAC0018"
+    ],
+    "initial-access": [],
+    "impact": [],
+    "exfiltration": [],
+    "resource-development": []
+  }
+}

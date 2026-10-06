@@ -1,0 +1,72 @@
+{# Aviso de licencia y oferta de fuente correspondiente (AGPLv3 art. 13).
+
+   Sin sidebar, igual que `landing.html` y `login.html`: la ruta es publica
+   incluso con autenticacion activa, asi que la navegacion de la aplicacion no
+   siempre es utilizable por quien llega aca. #}
+{% extends "base.html" %}
+{% block title %}{{ _("Acerca de - Apate") }}{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+<section class="panel" aria-labelledby="about-title">
+  <h1 id="about-title">{{ _("Acerca de esta instalaci&oacute;n") }}</h1>
+  <p class="muted">{{ _("Versi&oacute;n en ejecuci&oacute;n, licencia y c&oacute;mo obtener el c&oacute;digo fuente correspondiente.") }}</p>
+
+  <dl class="about-facts">
+    <dt>{{ _("Versi&oacute;n") }}</dt>
+    <dd class="mono">{{ build.version }}</dd>
+    <dt>{{ _("Revisi&oacute;n") }}</dt>
+    <dd class="mono">{% if build.short_commit %}{{ build.short_commit }}{% else %}{{ _("no declarada") }}{% endif %}</dd>
+    <dt>{{ _("Licencia") }}</dt>
+    <dd><a href="{{ build.license_url }}" rel="license noopener" target="_blank">{{ build.license_name }}</a> <span class="mono">({{ build.license_spdx }})</span></dd>
+  </dl>
+</section>
+
+<section class="panel" aria-labelledby="source-title">
+  <h2 id="source-title">{{ _("C&oacute;digo fuente correspondiente") }}</h2>
+  {% if build.declares_source %}
+    <p>{{ _("Esta instalaci&oacute;n declara que su c&oacute;digo fuente correspondiente est&aacute; disponible en:") }}</p>
+    <p><a href="{{ build.source_url }}" rel="noopener" target="_blank" class="mono">{{ build.source_url }}</a></p>
+    <p class="muted">{{ _("Quien opera esta instancia es responsable de que esa direcci&oacute;n sirva el fuente de la versi&oacute;n que est&aacute;s usando, incluidas sus modificaciones si las hubiera.") }}</p>
+  {% else %}
+    {# Sin URL declarada se dice exactamente eso, en vez de apuntar a un
+       repositorio que puede no ser el que corre ni ser alcanzable. Un enlace
+       roto aparenta cumplimiento sin darlo. #}
+    <p class="flash flash-error" role="status">{{ _("Esta instalaci&oacute;n no declar&oacute; d&oacute;nde est&aacute; su c&oacute;digo fuente correspondiente.") }}</p>
+    <p>{{ _("La AGPLv3 (art&iacute;culo 13) obliga a quien ofrece el programa a trav&eacute;s de una red a darle a sus usuarios remotos una oportunidad de recibir ese c&oacute;digo. Esa obligaci&oacute;n es de quien despliega, no del autor original.") }}</p>
+    <p class="muted">{{ _("Si administr&aacute;s esta instancia: defin&iacute; la variable de entorno APATE_SOURCE_URL apuntando al fuente de la versi&oacute;n que est&aacute;s corriendo. Ver docs/instalacion-produccion.md.") }}</p>
+  {% endif %}
+</section>
+
+<section class="panel" aria-labelledby="components-title">
+  <h2 id="components-title">{{ _("Componentes de terceros") }}</h2>
+  <p class="muted">{{ _("Cada componente conserva su propia licencia. Los marcados como incluidos viajan como c&oacute;digo fuente dentro de esta distribuci&oacute;n.") }}</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">{{ _("Componente") }}</th>
+          <th scope="col">{{ _("Licencia") }}</th>
+          <th scope="col">{{ _("Para qu&eacute; se usa") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for component in components %}
+        <tr>
+          <th scope="row">
+            {% if component.url %}<a href="{{ component.url }}" rel="noopener" target="_blank">{{ component.name }}</a>{% else %}{{ component.name }}{% endif %}
+            {% set installed = component.installed_version() %}
+            {% if installed %}<span class="mono muted">{{ installed }}</span>{% endif %}
+            {% if component.vendored %}<span class="tag">{{ _("incluido") }}</span>{% endif %}
+          </th>
+          <td class="mono">{{ component.license_spdx }}</td>
+          <td>{{ component.role }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<p><a href="{{ url_for('index') }}">{{ _("Volver al inicio") }}</a></p>
+{% endblock %}

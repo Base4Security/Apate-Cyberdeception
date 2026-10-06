@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Impacto de ciberengaño") }}{% if dashboard.is_mock %} — {{ _("vista previa") }}{% endif %}{% endblock %}
+{% block body_class %}impact-dashboard{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+  <section class="impact-screen" aria-labelledby="impact-title">
+    <header class="impact-header">
+      <div>
+        {# La pantalla vacia la barra lateral, asi que sin este enlace la unica
+           salida es el boton atras del navegador: un callejon sin salida. Va
+           dentro de la cabecera que ya existe para no sumar alto y romper el
+           criterio de 1920x1080 sin scroll. #}
+        <p class="impact-eyebrow"><a href="{{ url_for('index') }}">&larr; Apate</a> · <a href="{{ url_for('index') }}#features">{{ _("Funciones disponibles") }}</a> · {{ _("CENTRO DE IMPACTO") }}</p>
+        <h1 id="impact-title">{{ _("Impacto de ciberengaño") }}</h1>
+      </div>
+      {% if dashboard.is_mock %}
+        <div class="impact-preview-notice" role="status">
+          <strong>{{ _("Vista previa") }}</strong>
+          <span>{{ _("Datos de ejemplo · no representan la operación real") }}</span>
+        </div>
+      {% endif %}
+    </header>
+
+    <section class="impact-heatmap" aria-labelledby="impact-heatmap-title">
+      <div class="impact-section-heading">
+        <div>
+          <p class="impact-kicker">{{ _("Cobertura táctica") }}</p>
+          <h2 id="impact-heatmap-title">MITRE ATT&amp;CK</h2>
+        </div>
+        <p>{{ dashboard.generated_at }}</p>
+      </div>
+      <div class="impact-legend" aria-label="{{ _("Leyenda de cobertura") }}">
+        <span><i class="impact-swatch impact-swatch-matched"></i>{{ _("Cobertura confirmada") }}</span>
+        <span><i class="impact-swatch impact-swatch-not-observed"></i>{{ _("En diseño") }}</span>
+        <span><i class="impact-swatch impact-swatch-unexpected"></i>{{ _("Señal emergente") }}</span>
+      </div>
+      <div class="impact-heatmap-grid">
+        {% for column in dashboard.heatmap %}
+          <article class="impact-tactic">
+            <h3>{{ tactic_label(column.tactic) }}</h3>
+            <div class="impact-techniques">
+              {% for cell in column.cells %}
+                <div class="impact-technique{% if cell.status %} impact-technique-{{ cell.status }}{% endif %}" title="{{ cell.id }} — {{ cell.name }}">
+                  <span>{{ cell.id }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="impact-lower-grid" aria-label="{{ _("Métricas y actividad") }}">
+      <div class="impact-metrics" aria-label="{{ _("Indicadores clave") }}">
+        {% for metric in dashboard.metrics %}
+          <article class="impact-metric">
+            <p>{{ metric.label }}</p>
+            <strong>{{ metric.value }}</strong>
+            {% if metric.detail %}<small>{{ metric.detail }}</small>{% endif %}
+          </article>
+        {% endfor %}
+      </div>
+      <section class="impact-activity" aria-labelledby="impact-activity-title">
+        <div class="impact-section-heading compact">
+          <div><p class="impact-kicker">{{ _("Flujo de actividad") }}</p><h2 id="impact-activity-title">{{ _("Eventos recientes") }}</h2></div>
+          <span class="impact-live-dot">{{ _("SIMULADO") if dashboard.is_mock else _("REGISTRADO") }}</span>
+        </div>
+        <ol id="impact-activity-list" class="impact-activity-list">
+          {% for event in dashboard.activity %}
+            <li class="impact-activity-item impact-severity-{{ event.severity }}">
+              <time>{{ event.time }}</time><strong>{{ event.source }}</strong><span>{{ event.message }}</span>
+            </li>
+          {% else %}
+            <li class="impact-activity-item"><span>{{ _("No hay eventos registrados todavía.") }}</span></li>
+          {% endfor %}
+        </ol>
+      </section>
+    </section>
+
+    <section class="impact-infrastructure" aria-labelledby="impact-infrastructure-title">
+      <div class="impact-section-heading compact">
+        <div><p class="impact-kicker">{{ _("Superficie operativa") }}</p><h2 id="impact-infrastructure-title">{{ _("Estado de infraestructura") }}</h2></div>
+      </div>
+      <div class="impact-infrastructure-grid">
+        {% for item in dashboard.infrastructure %}
+          <article class="impact-infrastructure-item">
+            <span class="dot dot-{{ item.status }}" aria-hidden="true"></span>
+            <div><p>{{ item.label }}</p><strong>{{ item.value }}</strong><small>{{ item.detail }}</small></div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  </section>
+
+  {% if dashboard.is_mock %}<script>
+    (() => {
+      const events = {{ dashboard.activity | tojson }};
+      const list = document.getElementById("impact-activity-list");
+      let next = 0;
+      window.setInterval(() => {
+        const event = events[next++ % events.length];
+        const item = document.createElement("li");
+        item.className = `impact-activity-item impact-severity-${event.severity} impact-activity-entering`;
+        item.innerHTML = `<time>${event.time}</time><strong>${event.source}</strong><span>${event.message}</span>`;
+        list.prepend(item);
+        while (list.children.length > 4) list.lastElementChild.remove();
+        window.requestAnimationFrame(() => item.classList.remove("impact-activity-entering"));
+      }, 2600);
+    })();
+  </script>{% endif %}
+{% endblock %}

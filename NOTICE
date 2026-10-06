@@ -1,0 +1,90 @@
+Apate
+Copyright (C) 2025 BASE4 Security
+
+Este programa se distribuye bajo la GNU Affero General Public License v3.0 or later
+(AGPL-3.0-or-later). El texto completo está en el archivo LICENSE y en
+https://www.gnu.org/licenses/agpl-3.0.html.
+
+Este archivo inventaria los componentes de terceros que APATE incorpora o
+utiliza. Cada uno conserva su propia licencia y sus avisos de copyright: nada
+de lo que sigue queda relicenciado bajo la licencia de APATE por estar listado
+acá.
+
+La fuente de verdad de este inventario es `THIRD_PARTY_COMPONENTS` en
+`src/apate/provenance.py`; `tests/test_provenance.py` falla si este archivo se
+desactualiza respecto de aquél. La pantalla `/about` de la aplicación muestra
+la misma información al usuario, junto con la versión en ejecución y la oferta
+de código fuente correspondiente que exige el artículo 13 de la AGPLv3.
+
+Este archivo responde una pregunta de licencias y deliberadamente no declara
+versiones: las fija la instalación, no el inventario. Para la pregunta
+complementaria —qué versión exacta de cada componente corre, que es lo que un
+área de seguridad cruza contra los CVE publicados— el proyecto genera un SBOM
+en formato CycloneDX 1.6 desde el mismo `THIRD_PARTY_COMPONENTS`, resolviendo
+las versiones contra el entorno instalado:
+
+    python -m apate.sbom > apate.cdx.json
+
+
+COMPONENTES INCLUIDOS COMO CÓDIGO FUENTE
+========================================
+
+Viajan dentro de esta distribución, en los directorios indicados. Sus textos
+de licencia completos se conservan junto al código.
+
+- DOLOS-T — AGPL-3.0-or-later — Capacidad de decoys de red y host (https://github.com/Base4Security/DOLOS-T)
+- BUDA — AGPL-3.0-or-later — Capacidad de comportamiento de usuario simulado (https://github.com/Base4Security/BUDA)
+- Cyber Deception Playground — MIT — Entorno de ejercicio (stack Docker) (https://github.com/Base4Security/cyberdeception-playground)
+
+  src/DOLOST/LICENSE
+  src/BUDA/LICENSE
+  playground-stack/LICENSE
+
+DOLOS-T y BUDA se incorporan con correcciones locales aplicadas (estructuración
+de eventos sin eval(), cifrado de credenciales WinRM en reposo, corrección del
+worker de narrativas y limpieza de to_dict()); ver la sección "Atribución" del
+README. Las copias quedan congeladas al momento de vendorizarlas: una
+actualización del repositorio original no llega sola.
+
+
+DEPENDENCIAS DE EJECUCIÓN
+=========================
+
+Se instalan desde PyPI y no se distribuyen dentro de este repositorio.
+
+- Flask — BSD-3-Clause — Servidor web
+- Flask-SocketIO — MIT — Notificaciones en vivo
+- Flask-SQLAlchemy — BSD-3-Clause — Persistencia de identidades simuladas
+- Flask-Babel — BSD-3-Clause — Catálogos de traducción
+- PyYAML — MIT — Lectura del YAML de reglas
+- fpdf2 — LGPL-3.0-only — Exportación de informes a PDF
+- pypdf — BSD-3-Clause — Lectura de informes de CTI en PDF
+- docker — Apache-2.0 — Control del runtime de contenedores
+- requests — Apache-2.0 — Llamadas HTTP salientes
+- openai — Apache-2.0 — Generación de contenido asistida
+- python-dotenv — BSD-3-Clause — Carga de variables de entorno
+- python-evtx — Apache-2.0 — Lectura de registros de eventos de Windows
+- pywinrm — MIT — Ejecución remota vía WinRM
+- cryptography — Apache-2.0 OR BSD-3-Clause — Cifrado de secretos en reposo
+- PyJWT — MIT — Validación de tokens OIDC
+
+Nota sobre copyleft: la única dependencia copyleft de la lista es fpdf2
+(LGPL-3.0-only), usada como biblioteca y sin modificar. La LGPLv3 es compatible
+con la AGPLv3.
+
+
+COMPONENTES CARGADOS EN EL NAVEGADOR
+====================================
+
+No viajan en la distribución, pero el usuario los recibe al abrir la interfaz,
+servidos desde una CDN pública.
+
+- CodeMirror 5 — MIT — Editor de reglas con resaltado (se carga desde CDN) (https://codemirror.net/5/)
+- Socket.IO — MIT — Cliente de notificaciones en vivo (se carga desde CDN) (https://socket.io/)
+
+
+TIPOGRAFÍAS
+===========
+
+La landing pública (`site/index.html`) usa Archivo e IBM Plex servidas desde
+Google Fonts. La aplicación en sí no depende de ninguna tipografía externa.

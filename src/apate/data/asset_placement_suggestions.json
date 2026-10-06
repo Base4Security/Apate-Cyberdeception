@@ -1,0 +1,23 @@
+{
+  "_meta": {
+    "source": "NINGUNA -- no existe una fuente oficial que relacione el texto libre Asset.asset_type de APATE con los plugins de ciberengaño que esta instalación tenga registrados. Este archivo es un JUICIO INTERPRETATIVO de APATE sobre las superficies declaradas en PluginDescription; debe tratarse como ayuda de planificación, no como una recomendación verificada ni una orden de despliegue.",
+    "verification_date": "2026-08-28",
+    "methodology": "El vocabulario es deliberadamente pequeño y literal: server, service, account, data y workstation, más las dos etiquetas españolas servidor y cuenta ya usadas en pruebas y ejemplos del inventario. Asset.asset_type sigue siendo texto libre: una variante no incluida no se normaliza ni recibe una sugerencia. Para cada tipo se eligieron kinds cuyas superficies declaradas pueden representar un señuelo próximo al activo: red/host para server/service/workstation, identidad/comportamiento para account y archivos/credenciales para data. mock se excluye a propósito: es una capacidad simulada de referencia, no una propuesta de colocación. La criticidad no asigna prioridad, puntuación ni confianza; en high y critical solamente agrega honeytoken cuando todavía no estaba, porque una miga de archivos/credenciales puede complementar el señuelo de la superficie principal. Todos los kinds se filtran contra PluginRegistry.list_kinds() en tiempo de ejecución, así que el archivo no afirma que estén disponibles en una instalación concreta.",
+    "schema_version": "1.0"
+  },
+  "asset_type_kind_map": {
+    "server": ["dolost", "opencanary", "canarytoken"],
+    "service": ["dolost", "opencanary", "canarytoken"],
+    "account": ["buda", "canarytoken", "honeytoken"],
+    "data": ["honeytoken", "canarytoken"],
+    "workstation": ["dolost", "opencanary", "buda"],
+    "servidor": ["dolost", "opencanary", "canarytoken"],
+    "cuenta": ["buda", "canarytoken", "honeytoken"]
+  },
+  "criticality_kind_additions": {
+    "low": [],
+    "medium": [],
+    "high": ["honeytoken"],
+    "critical": ["honeytoken"]
+  }
+}

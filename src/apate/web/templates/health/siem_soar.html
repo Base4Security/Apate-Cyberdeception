@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}SIEM/SOAR - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('health.index') }}">{{ _("Salud y configuración") }}</a> / SIEM/SOAR</nav>{% endblock %}
+{% block content %}
+  {% include "health/_configuration_nav.html" %}
+  <div class="content-toolbar tools-page-header">
+    <div><h1><abbr title="{{ _("gestión de información y eventos de seguridad / orquestación, automatización y respuesta de seguridad") }}">SIEM/SOAR</abbr></h1><p class="muted">{{ _("Entrega manual de bundles") }} <abbr title="Structured Threat Information Expression">STIX</abbr> 2.1 {{ _("a un webhook del operador.") }}</p></div>
+    <span class="badge {{ 'health-configured' if webhook_url else 'health-disabled' }}">{{ _("configurada") if webhook_url else _("sin configurar") }}</span>
+  </div>
+  <aside class="assist-note"><strong>{{ _("Envío explícito, nunca automático") }}</strong><span>{{ _("Apate solo envía un bundle al pulsar el botón desde el informe de una operación cerrada. No se conecta al EventBus ni se dispara al observar") }} <abbr title="{{ _("Indicadores de compromiso") }}">IoC</abbr>s {{ _("o") }} <abbr title="{{ _("Tácticas, técnicas y procedimientos") }}">TTP</abbr>s.</span></aside>
+  <div class="settings-layout">
+    <form class="panel settings-form" method="post" action="{{ url_for('health.siem_soar') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <fieldset>
+        <legend>{{ _("Webhook de salida") }}</legend>
+        <label for="siem-soar-webhook-url">{{ _("URL del webhook") }}</label>
+        <input type="url" id="siem-soar-webhook-url" name="webhook_url" required value="{{ webhook_url }}" placeholder="https://siem.example/api/stix">
+        <label for="siem-soar-auth-token">{{ _("Token bearer opcional") }}</label>
+        <input type="password" id="siem-soar-auth-token" name="auth_token" autocomplete="new-password" placeholder="{{ _("configurado — dejar en blanco para conservarlo") if auth_token_configured else _("sin configurar") }}">
+        <p class="credential-status {{ 'configured' if auth_token_configured else 'missing' }}"><strong>{{ _("Token:") }}</strong> {{ _("configurado (su valor no se muestra).") if auth_token_configured else _("no configurado.") }} {{ _("Dejar el campo en blanco conserva el valor existente.") }}</p>
+      </fieldset>
+      <p><button type="submit" class="primary">{{ _("Guardar configuración") }}</button></p>
+    </form>
+    <aside class="panel">
+      <h2>{{ _("Entrega del informe") }}</h2>
+      <p class="muted">{{ _("Cada envío usa POST con") }} <code>application/stix+json</code>, {{ _("espera como máximo ocho segundos y reporta el resultado real. La configuración no ejecuta ninguna llamada de red.") }}</p>
+    </aside>
+  </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Comparar operaciones - Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('operations.list_operations') }}">{{ _("Operaciones") }}</a> / {{ _("Comparar") }}</nav>{% endblock %}
+{% block content %}
+  <h1>{{ _("Comparar operaciones") }}</h1>
+  <p class="muted">{{ _("Contraste descriptivo de datos reales. Apate no punt&uacute;a, recomienda ganadores ni decide cu&aacute;l operaci&oacute;n fue “mejor”.") }}</p>
+  <form method="get" class="compare-picker">
+    <label for="compare-left">{{ _("Primera operaci&oacute;n") }}</label>
+    <select id="compare-left" name="left" required><option value="">{{ _("Elegir&hellip;") }}</option>{% for operation in operations %}<option value="{{ operation.id }}" {% if operation.id == selected_left %}selected{% endif %}>{{ operation.name }}</option>{% endfor %}</select>
+    <label for="compare-right">{{ _("Segunda operaci&oacute;n") }}</label>
+    <select id="compare-right" name="right" required><option value="">{{ _("Elegir&hellip;") }}</option>{% for operation in operations %}<option value="{{ operation.id }}" {% if operation.id == selected_right %}selected{% endif %}>{{ operation.name }}</option>{% endfor %}</select>
+    <button type="submit" class="primary">{{ _("Comparar") }}</button>
+  </form>
+  {% if selected_left and selected_right and not comparison %}<div class="flash flash-error" role="alert">{{ _("Eleg&iacute; dos operaciones distintas y existentes.") }}</div>{% endif %}
+  {% if comparison %}
+    <div class="comparison-grid">
+      {% for side, ttps, observed in ((comparison.left, comparison.left_ttps, comparison.left_observed), (comparison.right, comparison.right_ttps, comparison.right_observed)) %}
+        <article class="card comparison-column">
+          <h2><a href="{{ url_for('operations.detail', operation_id=side.id) }}">{{ side.name }}</a></h2>
+          <dl><dt>{{ _("Estado") }}</dt><dd><span class="badge badge-{{ side.status.value }}">{{ operation_status_label(side.status.value) }}</span></dd><dt>{{ _("Adversario") }}</dt><dd>{{ side.adversary_profile.name }}</dd><dt>{{ _("Capacidades") }}</dt><dd>{{ side.plugins | length }}</dd><dt>{{ _("Escenarios") }}</dt><dd>{{ side.scenarios | length }}</dd></dl>
+          <h3><abbr title="{{ _("T&aacute;cticas, t&eacute;cnicas y procedimientos") }}">TTP</abbr>s {{ _("coincidentes") }}</h3><p class="tag-list">{% for item in ttps.matched_ttps %}<span class="tag mono">{{ item }}</span>{% else %}<span class="muted">{{ _("Ninguna") }}</span>{% endfor %}</p>
+          <h3>{{ _("Esperadas no observadas") }}</h3><p class="tag-list">{% for item in ttps.ttps_not_observed %}<span class="tag mono">{{ item }}</span>{% else %}<span class="muted">{{ _("Ninguna") }}</span>{% endfor %}</p>
+          <h3>{{ _("Observadas no esperadas") }}</h3><p class="tag-list">{% for item in ttps.unexpected_ttps %}<span class="tag mono">{{ item }}</span>{% else %}<span class="muted">{{ _("Ninguna") }}</span>{% endfor %}</p>
+        </article>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

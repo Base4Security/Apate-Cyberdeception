@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Plan y borrador') }} · {{ operation.name }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('operations.list_operations') }}">{{ _('Operaciones') }}</a> / <a href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ operation.name }}</a> / {{ _('Plan y borrador') }}</nav>{% endblock %}
+{% block content %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ _('&larr; Volver a la operación') }}</a></p>
+  <header class="page-header"><div><p class="eyebrow">{{ operation.name }}</p><h1>{{ _('Plan y borrador') }}</h1><p class="muted">{{ _('Esta vista es de lectura. La ejecución usa la versión activada; los cambios del borrador no la modifican.') }}</p></div></header>
+  <section class="panel" aria-labelledby="control-status-title">
+    <h2 id="control-status-title">{{ _('Autoridad de ejecución') }}</h2>
+    <dl class="operation-overview control-summary">
+      <dt>{{ _('Estado') }}</dt><dd>{{ state_label }}</dd>
+      <dt>{{ _('Revisión') }}</dt><dd>{{ state.revision }}</dd>
+      <dt>{{ _('Comandos pendientes de conciliación') }}</dt><dd>{{ pending_count }}</dd>
+      <dt>{{ _('Plan activo') }}</dt><dd>{% if active_plan %}<code>{{ active_plan.id }}</code>{% else %}{{ _('Todavía no hay un plan activado.') }}{% endif %}</dd>
+      {% if active_plan %}<dt>{{ _('Huella SHA-256 del plan') }}</dt><dd><code class="control-digest">{{ active_plan.digest }}</code></dd>{% endif %}
+    </dl>
+    {% if not active_plan %}<p role="status">{{ _('La operación está adoptada, pero no tiene una versión aprobada activa. No se presenta el borrador como autorizado.') }}</p>{% endif %}
+  </section>
+  {% if active_plan %}<section class="panel" aria-labelledby="control-diff-title">
+    <h2 id="control-diff-title">{{ _('Borrador frente al plan activo') }}</h2>
+    {% if comparison_available %}
+      <p role="status">{{ _('%(count)s sección(es) difieren del plan activo.', count=changed_count) }}</p>
+      <p class="muted">{{ _('Se comparan intención, reglas, activos, contexto y catálogos. Los resultados medidos, el estado operativo y los descriptores externos congelados quedan fuera de esta comparación.') }}</p>
+      <div class="table-scroll"><table><thead><tr><th scope="col">{{ _('Sección') }}</th><th scope="col">{{ _('Estado del borrador') }}</th></tr></thead><tbody>
+        {% for section in sections %}<tr><th scope="row">{{ section.label }}</th><td><span class="tag{% if section.changed %} accent{% endif %}">{{ _('Cambió') if section.changed else _('Sin cambios') }}</span></td></tr>{% endfor %}
+      </tbody></table></div>
+      {% if changed_count %}<p>{{ _('Para usar estos cambios en ejecución hay que proponer, revisar y activar otra versión con el flujo autorizado.') }}</p>{% endif %}
+    {% else %}<p role="status">{{ _('No se pudo comparar el borrador con el plan activo. La versión activada sigue siendo la única autoridad de ejecución.') }}</p>{% endif %}
+  </section>{% endif %}
+{% endblock %}

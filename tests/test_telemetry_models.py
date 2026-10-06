@@ -57,7 +57,10 @@ def test_from_event_unrecognized_payload_key_kept_in_raw_payload_but_not_promote
 
 
 def test_telemetry_record_roundtrip_to_dict_from_dict():
-    event = _make_event(payload={"kind": "access", "source_ip": "198.51.100.7", "ttp_id": "T1078"})
+    event = _make_event(
+        resource_id="decoy:srv-1",
+        payload={"kind": "access", "source_ip": "198.51.100.7", "ttp_id": "T1078"},
+    )
     record = TelemetryRecord.from_event(event)
 
     restored = TelemetryRecord.from_dict(record.to_dict())
@@ -69,6 +72,7 @@ def test_telemetry_record_roundtrip_to_dict_from_dict():
     assert restored.surface == record.surface
     assert restored.timestamp == record.timestamp
     assert restored.source_event_id == record.source_event_id
+    assert restored.resource_id == "decoy:srv-1"
     assert restored.ttp_id == record.ttp_id
     assert restored.iocs == record.iocs
     assert restored.payload == record.payload
@@ -77,3 +81,10 @@ def test_telemetry_record_roundtrip_to_dict_from_dict():
 def test_ioc_roundtrip_to_dict_from_dict():
     ioc = IoC(type="hash", value="deadbeef")
     assert IoC.from_dict(ioc.to_dict()) == ioc
+
+
+def test_legacy_telemetry_record_without_resource_id_remains_compatible():
+    data = TelemetryRecord.from_event(_make_event()).to_dict()
+    data.pop("resource_id")
+
+    assert TelemetryRecord.from_dict(data).resource_id is None

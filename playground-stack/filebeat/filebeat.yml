@@ -1,0 +1,270 @@
+filebeat.inputs:
+  # SSH Honeypot logs - only process current JSON file
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/ssh_honeypot/ssh_connections.json
+    fields:
+      service_name: ssh_honeypot
+      honeypot: true
+      log_type: deception
+    fields_under_root: true
+    # JSON parsing for .json files
+    json.keys_under_root: true
+    json.add_error_key: true
+    # Skip malformed JSON lines
+    json.ignore_missing: true
+    json.ignore_failure: true
+
+  # Frontend logs
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/frontend/*.log
+    fields:
+      service_name: frontend
+      log_type: application
+      security_relevant: true
+    fields_under_root: true
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+
+  # Backend logs
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/backend/*.log
+    fields:
+      service_name: backend
+      log_type: application
+      security_relevant: true
+    fields_under_root: true
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+
+  # MySQL logs
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/mysql/*.log
+      - /var/log/mysql/error.log
+    fields:
+      service_name: mysql
+      log_type: database
+      security_relevant: true
+    fields_under_root: true
+    multiline.pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+    multiline.negate: true
+    multiline.match: after
+
+# Global processors
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - timestamp:
+      field: timestamp
+      layouts:
+        - '2006-01-02T15:04:05.000Z'
+        - '2006-01-02T15:04:05Z'
+        - '2006-01-02 15:04:05'
+      test:
+        - '2023-01-01T00:00:00.000Z'
+  # Fix field mapping conflicts
+  - rename:
+      fields:
+        - from: "service"
+          to: "app_service"
+      when:
+        has_fields: ["service"]
+  
+  # Extract fake_activity from SSH honeypot JSON logs
+  - if:
+      and:
+        - equals:
+            service_name: ssh_honeypot
+        - has_fields: ["fake_activity"]
+    then:
+      - convert:
+          fields:
+            - from: "fake_activity.triggered"
+              to: "fake_activity_triggered"
+              type: "boolean"
+            - from: "fake_activity.source_ip"
+              to: "fake_activity_source_ip"
+              type: "string"
+            - from: "fake_activity.username"
+              to: "fake_activity_username"
+              type: "string"
+            - from: "fake_activity.event_type"
+              to: "fake_activity_event_type"
+              type: "string"
+            - from: "fake_activity.timestamp"
+              to: "fake_activity_timestamp"
+              type: "string"
+  
+  # Cat interceptor security detection
+  - if:
+      and:
+        - equals:
+            service: cat-interceptor
+        - has_fields: ["data.interception_type"]
+    then:
+      - add_fields:
+          target: security
+          fields:
+            attack_type: "FILE_SYSTEM_RECONNAISSANCE"
+            severity: "MEDIUM"
+            threat_detected: true
+            deception_triggered: true
+            command_intercepted: "cat"
+            reconnaissance_attempt: true
+
+  # Security threat detection — adds security.* AND mitre.* fields
+  # NOTE: detection tokens are emitted by the app into the `security_indicators`
+  # array (not the human-readable `message`), so conditions must match that field.
+  - if:
+      contains:
+        security_indicators: "SQL_INJECTION_ATTEMPT"
+    then:
+      - add_fields:
+          target: security
+          fields:
+            attack_type: "SQL_INJECTION"
+            severity: "HIGH"
+            threat_detected: true
+      - add_fields:
+          target: mitre
+          fields:
+            tactic: "Initial Access"
+            technique_id: "T1190"
+            technique_name: "Exploit Public-Facing Application"
+  - if:
+      contains:
+        security_indicators: "DANGEROUS_COMMAND"
+    then:
+      - add_fields:
+          target: security
+          fields:
+            attack_type: "COMMAND_INJECTION"
+            severity: "CRITICAL"
+            threat_detected: true
+      - add_fields:
+          target: mitre
+          fields:
+            tactic: "Execution"
+            technique_id: "T1059.004"
+            technique_name: "Command and Scripting Interpreter: Unix Shell"
+  - if:
+      contains:
+        security_indicators: "PATH_TRAVERSAL_ATTEMPT"
+    then:
+      - add_fields:
+          target: security
+          fields:
+            attack_type: "PATH_TRAVERSAL"
+            severity: "HIGH"
+            threat_detected: true
+      - add_fields:
+          target: mitre
+          fields:
+            tactic: "Discovery"
+            technique_id: "T1083"
+            technique_name: "File and Directory Discovery"
+  - if:
+      contains:
+        message: "SSH_BRUTE_FORCE"
+    then:
+      - add_fields:
+          target: security
+          fields:
+            attack_type: "SSH_BRUTE_FORCE"
+            severity: "HIGH"
+            threat_detected: true
+      - add_fields:
+          target: mitre
+          fields:
+            tactic: "Credential Access"
+            technique_id: "T1110.001"
+            technique_name: "Brute Force: Password Guessing"
+  - if:
+      contains:
+        security_indicators: "SUSPICIOUS_USERNAME"
+    then:
+      - add_fields:
+          target: security
+          fields:
+            attack_type: "CREDENTIAL_PROBING"
+            severity: "MEDIUM"
+            threat_detected: true
+      - add_fields:
+          target: mitre
+          fields:
+            tactic: "Credential Access"
+            technique_id: "T1110.001"
+            technique_name: "Brute Force: Password Guessing"
+  - if:
+      contains:
+        message: "HONEYTOKEN_ACCESS"
+    then:
+      - add_fields:
+          target: security
+          fields:
+            attack_type: "HONEYTOKEN_ACCESS"
+            severity: "CRITICAL"
+            threat_detected: true
+            deception_triggered: true
+      - add_fields:
+          target: mitre
+          fields:
+            tactic: "Initial Access"
+            technique_id: "T1190"
+            technique_name: "Exploit Public-Facing Application"
+  - if:
+      contains:
+        message: "CRITICAL"
+    then:
+      - add_fields:
+          target: security
+          fields:
+            severity: "CRITICAL"
+            threat_detected: true
+
+# Elasticsearch output - all logs to same index
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  index: "playground-logs-%{+yyyy.MM.dd}"
+  template.enabled: true
+  bulk_max_size: 50
+  timeout: 30s
+  max_retries: 3
+
+# Kibana setup
+setup.kibana:
+  host: "kibana:5601"
+
+# Template configuration
+setup.template.enabled: true
+setup.template.name: "playground-logs"
+setup.template.pattern: "playground-logs-*"
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 0
+
+# Logging configuration
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+
+# Queue configuration for better performance
+queue.mem:
+  events: 4096
+  flush.min_events: 2048
+  flush.timeout: 1s

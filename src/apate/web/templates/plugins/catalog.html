@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Cat&aacute;logo de capacidades - Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {{ _("Cat&aacute;logo de capacidades") }}</nav>{% endblock %}
+{% block content %}
+  {% include "plugins/_nav.html" %}
+  <div class="content-toolbar tools-page-header">
+    <div>
+      <h1>{{ _("Cat&aacute;logo de capacidades") }}</h1>
+      <p class="muted">{{ _("Motores y recursos reutilizables, organizados por funci&oacute;n y superficie.") }}</p>
+    </div>
+    <span class="badge">{{ capabilities | length }} {{ _("resultado(s)") }}</span>
+  </div>
+
+  <form class="panel capability-filters" method="get" aria-label="{{ _('Filtros del cat&aacute;logo') }}">
+    <label>{{ _("Tipo") }}<select name="type"><option value="">{{ _("Todos") }}</option><option value="motor" {% if filters.type == 'motor' %}selected{% endif %}>{{ _("Motor") }}</option><option value="perfil" {% if filters.type == 'perfil' %}selected{% endif %}>{{ _("Perfil") }}</option><option value="actividad" {% if filters.type == 'actividad' %}selected{% endif %}>{{ _("Actividad") }}</option><option value="contexto" {% if filters.type == 'contexto' %}selected{% endif %}>{{ _("Contexto") }}</option></select></label>
+    <label>{{ _("Superficie") }}<select name="surface"><option value="">{{ _("Todas") }}</option>{% for value in surfaces %}<option value="{{ value }}" {% if filters.surface == value %}selected{% endif %}>{{ surface_label(value) }}</option>{% endfor %}</select></label>
+    <label>{{ _("Proveedor") }}<select name="provider"><option value="">{{ _("Todos") }}</option>{% for value in providers %}<option value="{{ value }}" {% if filters.provider == value %}selected{% endif %}>{{ provider_label(value) }}</option>{% endfor %}</select></label>
+    <label>{{ _("Disponibilidad") }}<select name="availability"><option value="">{{ _("Todas") }}</option><option value="available" {% if filters.availability == 'available' %}selected{% endif %}>{{ _("Disponible") }}</option><option value="unavailable" {% if filters.availability == 'unavailable' %}selected{% endif %}>{{ _("No disponible") }}</option></select></label>
+    <div class="capability-filter-actions"><button type="submit" class="primary">{{ _("Filtrar") }}</button><a href="{{ url_for('capabilities.catalog') }}">{{ _("Limpiar") }}</a></div>
+  </form>
+
+  {% if capabilities %}
+    <div class="panel table-scroll capabilities-table">
+      <table>
+        <thead><tr><th>{{ _("Capacidad") }}</th><th>{{ _("Tipo") }}</th><th>{{ _("Superficie") }}</th><th>{{ _("Proveedor") }}</th><th>{{ _("Estado") }}</th><th>{{ _("Acciones") }}</th></tr></thead>
+        <tbody>
+          {% for item in capabilities %}
+            <tr data-capability-id="{{ item.resource_id }}">
+              <td><strong>{{ item.name }}</strong><br><span class="muted">{{ item.description }}</span></td>
+              <td><span class="tag">{{ resource_type_label(item.resource_type) }}</span></td>
+              <td>{{ surface_label(item.surface) }}</td>
+              <td>{{ provider_label(item.provider) }}</td>
+              <td><span class="badge {% if not item.available %}badge-muted{% endif %}">{{ _("Disponible") if item.available else _("No disponible") }}</span></td>
+              <td>
+                {% if item.edit_endpoint %}<a href="{{ item.edit_endpoint }}">{{ item.edit_label }}</a>{% endif %}
+                {% include "plugins/_use_form.html" %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state"><p>{{ _("No hay capacidades que coincidan con los filtros.") }}</p><a href="{{ url_for('capabilities.catalog') }}">{{ _("Limpiar filtros") }}</a></div>
+  {% endif %}
+
+  {% if tools_mounted %}
+    <p class="muted">{{ _("Administr&aacute; los recursos reutilizables desde") }} <a href="{{ url_for('capabilities.identity_profiles') }}">{{ _("Perfiles de identidad") }}</a>, <a href="{{ url_for('capabilities.behavior_activities') }}">{{ _("Tipos de actividad") }}</a> {{ _("y") }} <a href="{{ url_for('capabilities.behavior_context') }}">{{ _("Contexto de comportamiento") }}</a>.</p>
+  {% else %}
+    <p class="muted">{{ _("Los recursos externos aparecen como no disponibles hasta preparar sus integraciones en Salud y configuraci&oacute;n.") }} {{ _("La") }} <a href="{{ url_for('capabilities.behavior_context') }}">{{ _("biblioteca de contexto") }}</a> {{ _("permanece disponible.") }}</p>
+  {% endif %}
+{% endblock %}

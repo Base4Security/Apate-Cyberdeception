@@ -1,0 +1,30 @@
+# Contexto de build de la imagen de la demo (ver docs/despliegue-fly.md).
+# Se excluye todo lo que no hace falta en runtime: la imagen instala el
+# paquete y corre `examples/seed_demo.py`, nada mas.
+.git
+.gitattributes
+.venv
+venv
+tests
+docs
+logs
+.apate_data
+instance
+uploads
+buda.db
+context.json
+config_llm.json
+docker_client_config
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+*.egg-info
+CLAUDE.md
+AGENTS.md
+CONTRIBUTING.md
+CLA.md
+playground-stack/logs
+# `site/` y `deploy/landing/` no se excluyen: comparten este contexto con la
+# demo, y el build de la landing sirve `site/`. El Dockerfile de la demo copia
+# solo lo que necesita, asi que no terminan dentro de su imagen.

@@ -80,6 +80,7 @@ class TelemetryRecord:
     surface: str
     timestamp: datetime
     source_event_id: str
+    resource_id: Optional[str] = None
     ttp_id: Optional[str] = None
     iocs: list[IoC] = field(default_factory=list)
     payload: dict[str, Any] = field(default_factory=dict)
@@ -101,6 +102,7 @@ class TelemetryRecord:
             surface=event.surface,
             timestamp=event.timestamp,
             source_event_id=event.id,
+            resource_id=event.resource_id,
             ttp_id=event.payload.get("ttp_id"),
             iocs=iocs,
             payload=dict(event.payload),
@@ -115,6 +117,7 @@ class TelemetryRecord:
             "surface": self.surface,
             "timestamp": self.timestamp.isoformat(),
             "source_event_id": self.source_event_id,
+            "resource_id": self.resource_id,
             "ttp_id": self.ttp_id,
             "iocs": [ioc.to_dict() for ioc in self.iocs],
             "payload": dict(self.payload),
@@ -130,6 +133,7 @@ class TelemetryRecord:
             surface=data["surface"],
             timestamp=datetime.fromisoformat(data["timestamp"]),
             source_event_id=data["source_event_id"],
+            resource_id=data.get("resource_id"),
             ttp_id=data.get("ttp_id"),
             iocs=[IoC.from_dict(i) for i in data.get("iocs", [])],
             payload=dict(data.get("payload", {})),

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Vista atacante") }} - {{ operation.name }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('playground.index') }}">{{ _("Playground") }}</a> / {{ _("Atacante") }}</nav>{% endblock %}
+{% block content %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('playground.index') }}">{{ _("← Playground") }}</a></p>
+  <header class="playground-view-header">
+    <div>
+      <h1>{{ _("Vista atacante") }}</h1>
+      <p class="muted">{{ operation.name }} <span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span></p>
+    </div>
+    <nav class="playground-view-switcher" aria-label="{{ _("Perspectiva de Playground") }}">
+      <a class="active" aria-current="page" href="{{ url_for('playground.attacker_view', operation_id=operation.id) }}">{{ _("Atacante") }}</a>
+      <a href="{{ url_for('playground.defender_view', operation_id=operation.id) }}">{{ _("Defensor") }}</a>
+    </nav>
+  </header>
+  <aside class="playground-perspective-note">{{ _("Acciones ejecutadas por el contenedor atacante contra los señuelos de esta operación.") }}</aside>
+
+  <section class="panel playground-section" aria-labelledby="attacker-run-title">
+    <div class="panel-heading"><h2 id="attacker-run-title">{{ _("Lanzar atacante") }}</h2></div>
+    {% if attacker_run and attacker_run.status == "running" %}
+      <p><strong class="status-active">{{ _("En ejecución desde") }} <time data-local-time datetime="{{ attacker_run.started_at.isoformat() }}">{{ attacker_run.started_at.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></strong></p>
+      <p class="muted">{{ _("La corrida es global porque solo hay un contenedor atacante.") }} {{ _("Fases vistas:") }} {{ attacker_run.phases | join(", ") or _("todavía ninguna") }}. {{ _("La vista Defensor recibe cada fase MITRE en vivo.") }}</p>
+    {% elif attacker_run and attacker_run.operation_id != operation.id %}
+      <p class="muted">{{ _("El contenedor atacante está ocupado por la operación") }} {{ attacker_run.operation_name }}{% if attacker_run.status == "completed" %}; {{ _("su última corrida terminó") }}{% elif attacker_run.status == "failed" %}; {{ _("su última corrida falló") }}{% endif %}.</p>
+      <form method="post" action="{{ url_for('playground.run_attacker', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="primary small">{{ _("Lanzar atacante") }}</button></form>
+    {% elif session_active %}
+      {% if attacker_run and attacker_run.status == "failed" %}<p class="flash flash-error">{{ _("La última corrida falló:") }} {{ attacker_run.error }}</p>{% elif attacker_run and attacker_run.status == "completed" %}<p class="flash flash-success">{{ _("Última corrida terminada") }}{% if attacker_run.finished_at %} {{ _("a las") }} <time data-local-time datetime="{{ attacker_run.finished_at.isoformat() }}">{{ attacker_run.finished_at.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time>{% endif %}. {{ _("Fases vistas:") }} {{ attacker_run.phases | join(", ") or _("ninguna") }}.</p>{% endif %}
+      <form method="post" action="{{ url_for('playground.run_attacker', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="primary">{{ _("Lanzar atacante") }}</button></form>
+      <p class="muted">{{ _("La corrida puede tardar alrededor de 18 minutos. Si la app se reinicia, no puede recuperar ni cancelar el") }} <code>docker exec</code> {{ _("que quede ejecutándose.") }}</p>
+    {% else %}
+      <p class="flash flash-error">{{ _("Falta una sesión activa y el stack Playground levantado para esta operación. Iniciá el Playground antes de lanzar el atacante.") }}</p>
+    {% endif %}
+  </section>
+
+  <section class="panel playground-section" aria-labelledby="attacker-actions-title">
+  <div class="panel-heading"><h2 id="attacker-actions-title">{{ _("Acciones del atacante") }}</h2><span class="summary-count-badge">{{ events | length }}</span></div>
+  {% if events %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Fecha y hora") }}</th><th>{{ _("Tipo") }}</th><th>{{ _("Acción") }}</th><th>{{ _("Objetivo") }}</th><th><abbr title="{{ _("Táctica, técnica o procedimiento") }}">TTP</abbr></th></tr></thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td class="muted"><time data-local-time datetime="{{ event.timestamp.isoformat() }}">{{ event.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+            <td>{{ event_type_label(event.event_type.value) }}</td>
+            <td>{{ event.payload.get("kind", "-") }}</td>
+            <td>{{ event.payload.get("target", "-") }}</td>
+            <td>{{ event.ttp_id or "-" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <div class="empty-state compact-empty-state"><p class="muted">{{ _("Todavía no hay acciones del contenedor atacante registradas para esta operación.") }}</p></div>
+  {% endif %}
+  </section>
+{% endblock %}

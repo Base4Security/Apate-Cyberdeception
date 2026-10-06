@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Iniciar sesión - Apate") }}{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block content %}
+<section class="panel login-panel" aria-labelledby="login-title">
+  <h1 id="login-title">{{ _("Iniciar sesión") }}</h1>
+  <p class="muted">{{ _("Esta instancia tiene usuarios configurados. Iniciá sesión para continuar.") }}</p>
+  {% if redirect_login %}<p><a class="button primary" href="{{ url_for('oidc_start', next=next_url) }}">{{ _("Iniciar con el proveedor corporativo") }}</a></p><p class="muted">{{ _("Acceso de emergencia local:") }}</p>{% endif %}
+  <form method="post" action="{{ url_for('login') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <label for="display-name">{{ _("Nombre de usuario") }}</label>
+    <input id="display-name" name="display_name" type="text" autocomplete="username" required autofocus>
+    <label for="password">{{ _("Contraseña") }}</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <p><button type="submit" class="primary">{{ _("Iniciar sesión") }}</button></p>
+  </form>
+</section>
+{% endblock %}

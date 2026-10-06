@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Contexto de comportamiento") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('capabilities.catalog') }}">{{ _("Catálogo de capacidades") }}</a> / {{ _("Contexto de comportamiento") }}</nav>{% endblock %}
+{% block content %}
+  {% include "plugins/_nav.html" %}
+  <div class="content-toolbar tools-page-header">
+    <div><h1>{{ _("Contexto de comportamiento") }}</h1><p class="muted">{{ _("Biblioteca versionada de señales de análisis del comportamiento de usuarios y entidades") }} (<abbr title="User and Entity Behavior Analytics">UEBA</abbr>) {{ _("reutilizables para preparar operaciones.") }}</p></div>
+    <span class="badge">{{ sources | length }} {{ _("fuente(s)") }}</span>
+  </div>
+  <aside class="assist-note"><strong>{{ _("Extraer no es utilizar") }}</strong><span>{{ _("Cada registro de eventos de Windows") }} (<abbr title="Windows Event Log">EVTX</abbr>) {{ _("crea un candidato pendiente. Revisá el resultado y confirmalo en una segunda acción; ninguna operación lo selecciona automáticamente.") }}</span></aside>
+
+  <div class="context-library-layout">
+    <form class="panel context-upload-panel" id="behavior-context-upload-form" method="post" enctype="multipart/form-data" action="{{ url_for('capabilities.behavior_context_upload') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <h2>{{ _("Nueva fuente") }}</h2>
+      <label for="context-name">{{ _("Nombre") }}</label>
+      <input type="text" id="context-name" name="name" placeholder="{{ _("Autenticaciones de Finanzas · agosto") }}">
+      <label for="context-file">{{ _("Archivo de registro de eventos de Windows") }} (<abbr title="Windows Event Log">EVTX</abbr>)</label>
+      <input type="file" id="context-file" name="file" accept=".evtx" required>
+      <p class="muted">{{ _("Máximo 50 MiB. El EVTX se elimina al terminar; se conserva solo el resultado extraído y su huella SHA-256.") }}</p>
+      <button type="submit" class="primary">{{ _("Extraer candidato") }}</button>
+      <p id="behavior-context-upload-status" class="muted" role="status" aria-live="polite"></p>
+    </form>
+
+    <section aria-labelledby="context-library-title">
+      <h2 id="context-library-title">{{ _("Fuentes compartidas") }}</h2>
+      <div class="context-source-list">
+        {% for source in sources %}
+          <article class="panel context-source-card">
+            <div class="panel-heading">
+              <div><h3>{{ source.name }}</h3><span class="mono muted">{{ source.id }}</span></div>
+              <span class="badge {% if source.status.value == 'active' and source.integrity_ok %}badge-active{% elif source.status.value == 'pending' %}badge-planning{% else %}badge-muted{% endif %}">{{ resource_status_label(source.status.value) }}</span>
+            </div>
+            <dl>
+              <dt>{{ _("Procedencia") }}</dt><dd>{{ source.provenance }}</dd>
+              <dt>{{ _("Integridad") }}</dt><dd><span class="badge {{ 'badge-active' if source.integrity_ok else 'badge-compromised' }}">{{ _("verificada") if source.integrity_ok else _("alterada") }}</span> <span class="mono context-hash">{{ source.integrity_sha256 }}</span></dd>
+              <dt>{{ _("Uso") }}</dt><dd>{{ reference_counts.get(source.id, 0) }} {{ _("operación(es)") }}</dd>
+              <dt>{{ _("Creada") }}</dt><dd><time data-local-time datetime="{{ source.created_at.isoformat() }}">{{ source.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</time></dd>
+            </dl>
+            <details class="collapsible"><summary>{{ _("Revisar resultado extraído") }}</summary><div class="collapsible-body"><pre class="mono context-preview">{{ source.data | tojson(indent=2) }}</pre></div></details>
+            <div class="context-source-actions">
+              {% if source.status.value == 'pending' and not source.pending_operation_id %}
+                <form method="post" action="{{ url_for('capabilities.behavior_context_confirm', source_id=source.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <label class="checkbox-label"><input type="checkbox" name="confirm" value="CONFIRMAR" required> {{ _("Revisé el resultado y quiero activar esta fuente") }}</label>
+                  <button type="submit" class="primary small">{{ _("Confirmar fuente") }}</button>
+                </form>
+                <form class="inline" method="post" data-confirm="{{ _("¿Descartar este candidato pendiente?") }}" action="{{ url_for('capabilities.behavior_context_discard', source_id=source.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="danger small">{{ _("Descartar") }}</button></form>
+              {% elif source.status.value == 'pending' %}
+                <p class="muted">{{ _("Pendiente de confirmación en la operación") }} <span class="mono">{{ source.pending_operation_id }}</span>.</p>
+              {% elif source.status.value == 'active' %}
+                <form class="inline" method="post" data-confirm="{{ _("¿Archivar esta fuente? Las operaciones que ya la usan conservarán su referencia.") }}" action="{{ url_for('capabilities.behavior_context_archive', source_id=source.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="danger small">{{ _("Archivar") }}</button></form>
+              {% else %}
+                <p class="muted">{{ _("Archivada: no admite selecciones nuevas; las referencias existentes se preservan.") }}</p>
+              {% endif %}
+            </div>
+          </article>
+        {% else %}
+          <div class="empty-state"><p>{{ _("Todavía no hay fuentes de contexto.") }}</p><p>{{ _("Extraé un EVTX para crear el primer candidato.") }}</p></div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <script>
+    document.getElementById('behavior-context-upload-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = event.target.querySelector('button[type="submit"]');
+      const status = document.getElementById('behavior-context-upload-status');
+      button.disabled = true;
+      button.innerHTML = '<span class="btn-spinner"></span>' + {{ _("Extrayendo...")|tojson }};
+      status.textContent = {{ _("Guardando y validando el EVTX...")|tojson }};
+      try {
+        const response = await fetch(event.target.action, {method: 'POST', body: new FormData(event.target)});
+        if (!response.ok || !response.body) throw new Error('upload');
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+        let candidateReady = false;
+        while (true) {
+          const result = await reader.read();
+          if (result.done) break;
+          buffer += decoder.decode(result.value, {stream: true});
+          const events = buffer.split('\n\n');
+          buffer = events.pop();
+          events.forEach(function (entry) {
+            const value = entry.replace(/^data:\s*/, '');
+            if (value.startsWith('records:')) status.textContent = value.slice(8) + {{ _(" registros detectados; extrayendo señales...")|tojson }};
+            if (value.startsWith('candidate:')) {
+              candidateReady = true;
+              status.textContent = {{ _("Candidato listo para revisar.")|tojson }};
+            }
+            if (value.startsWith('error:')) throw new Error('extraction');
+          });
+        }
+        if (!candidateReady) throw new Error('candidate');
+        window.location.reload();
+      } catch (error) {
+        status.textContent = {{ _("No se pudo procesar el EVTX.")|tojson }};
+        button.disabled = false;
+        button.textContent = {{ _("Extraer candidato")|tojson }};
+      }
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,816 @@
+  <div class="tab-panel" id="tab-design" role="tabpanel" aria-labelledby="tab-control-design" tabindex="0">
+  <nav class="design-step-nav" aria-label="{{ _('Navegación dentro de Diseño') }}">
+    <span class="design-step-nav-label">{{ _("Ir a") }}</span>
+    <a href="#tab-profile">{{ _("Perfil") }} <span class="tab-count">{{ operation.adversary_profile.expected_ttps | length }} {{ _("TTP") }}</span></a>
+    <a href="#tab-roe">{{ _("Reglas") }} <span class="tab-count">{{ operation.strategic_decisions.objectives | length }} {{ _("obj.") }}</span></a>
+    <a href="#tab-scenarios">{{ _("Escenarios") }} <span class="tab-count">{{ operation.scenarios | length }}</span></a>
+    <a href="#tab-narrative">{{ _("Narrativa") }} <span class="tab-count">{{ '✓' if operation.narrative.description else 'parcial' }}</span></a>
+    <a href="#tab-plugins">{{ _("Capacidades") }} <span class="tab-count">{{ operation.plugins | length }}</span></a>
+  </nav>
+
+  <details class="collapsible design-step" open>
+  <summary>{{ _("Perfil de adversario") }} <span class="summary-count">{{ operation.adversary_profile.expected_ttps | length }} {{ _("TTP") }}</span></summary>
+  <section id="tab-profile" aria-labelledby="profile-title">
+  <h2 id="profile-title">{{ _("Paso 1 &middot; Perfil de adversario") }}</h2>
+  <dl>
+    <dt>{{ _("Nombre") }}</dt><dd>{{ operation.adversary_profile.name }}</dd>
+    <dt>{{ _("Motivaci&oacute;n") }}</dt><dd>{{ operation.adversary_profile.motivation or "-" }}</dd>
+    <dt>{{ _("Nivel de habilidad") }}</dt><dd>{{ operation.adversary_profile.skill_level }}</dd>
+    <dt><abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTPs esperadas") }}</abbr></dt>
+    <dd>
+      {% if operation.adversary_profile.expected_ttps %}
+        <span class="tag-list">
+          {% for ttp in operation.adversary_profile.expected_ttps %}<span class="tag mono">{{ ttp }}</span>{% endfor %}
+        </span>
+      {% else %}-{% endif %}
+    </dd>
+    <dt>{{ _("Activos cr&iacute;ticos objetivo") }}</dt>
+    <dd>
+      {% if operation.adversary_profile.target_assets %}
+        <div class="card-grid">
+          {% for target in resolved_target_assets %}
+            {% if target.asset %}
+              <article class="card compact-card"><strong>{{ target.asset.name }}</strong><br><code>{{ target.asset.identifier }}</code><br><span class="muted">{{ target.asset.asset_type }} · {{ criticality_label(target.asset.criticality) }}{% if target.asset.technical_identifier %} · {{ target.asset.technical_identifier }}{% endif %}</span></article>
+            {% else %}
+              <article class="card compact-card">
+                <strong>{{ target.reference }}</strong>
+                <p class="muted">{{ _("Referencia manual; no está en inventario.") }}</p>
+                <details class="collapsible">
+                  <summary>{{ _("Resolver referencia") }}</summary>
+                  <div class="collapsible-body">
+                    {% if inventory_assets %}
+                      <form method="post" action="{{ url_for('operations.resolve_target_asset', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="reference" value="{{ target.reference }}">
+                        <label for="resolve-existing-{{ loop.index }}">{{ _("Ficha existente") }}</label>
+                        <select id="resolve-existing-{{ loop.index }}" name="asset_identifier" required>
+                          <option value="">{{ _("-- Elegí una ficha --") }}</option>
+                          {% for asset in inventory_assets %}<option value="{{ asset.identifier }}">{{ asset.name }} — {{ asset.asset_type }}, {{ criticality_label(asset.criticality) }} ({{ asset.identifier }})</option>{% endfor %}
+                        </select>
+                        <button type="submit" class="small">{{ _("Resolver con ficha") }}</button>
+                      </form>
+                    {% else %}<p class="muted">{{ _("Todavía no hay fichas en el inventario para elegir.") }}</p>{% endif %}
+                    {% if not identity_authentication_active or current_identity.role.value == 'administration' %}
+                      <form method="post" action="{{ url_for('operations.create_and_resolve_target_asset', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="reference" value="{{ target.reference }}">
+                        <p class="muted">{{ _("Crear una ficha nueva y resolver solo esta referencia. Elegí un identificador estable; la frase no se reutiliza como identificador.") }}</p>
+                        <label for="resolve-id-{{ loop.index }}">{{ _("Identificador estable") }} <input id="resolve-id-{{ loop.index }}" name="identifier" required placeholder="{{ _('ASSET-FIN-01') }}"></label>
+                        <label for="resolve-name-{{ loop.index }}">{{ _("Nombre") }} <input id="resolve-name-{{ loop.index }}" name="name" required value="{{ target.reference }}"></label>
+                        <label for="resolve-type-{{ loop.index }}">{{ _("Tipo") }} <input id="resolve-type-{{ loop.index }}" name="asset_type" required list="tipos-con-sugerencia" placeholder="{{ suggestible_asset_types | join(', ') }}"></label>
+                        <label for="resolve-criticality-{{ loop.index }}">{{ _("Criticidad") }} <select id="resolve-criticality-{{ loop.index }}" name="criticality" required>{% for value, label in criticality_labels.items() %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></label>
+                        <label for="resolve-technical-{{ loop.index }}">{{ _("Identificador técnico (opcional)") }} <input id="resolve-technical-{{ loop.index }}" name="technical_identifier"></label>
+                        <button type="submit" class="small">{{ _("Crear y resolver") }}</button>
+                      </form>
+                    {% else %}<p class="muted">{{ _("Una persona de administración puede crear una ficha global; vos podés resolver contra una ficha existente.") }}</p>{% endif %}
+                  </div>
+                </details>
+              </article>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}-{% endif %}
+    </dd>
+  </dl>
+  <datalist id="tipos-con-sugerencia">{% for tipo in suggestible_asset_types %}<option value="{{ tipo }}"></option>{% endfor %}</datalist>
+
+  {% if operation.status.value in ("active", "compromised") %}
+    <h3><abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s sugeridas desde telemetr&iacute;a") }} <span class="muted">{{ _("(perfil de adversario vivo)") }}</span></h3>
+    <p class="muted">
+      {{ _("Observadas por telemetr&iacute;a en esta operaci&oacute;n pero todav&iacute;a no cargadas en el\n      perfil de adversario. Incorporarlas es una decisi&oacute;n del operador, nunca autom&aacute;tico\n      -- mismo criterio de \"asistir, nunca decidir\" que ya usan las sugerencias de Engage (paso 4) y\n      el prefill de Reoperar. Ning&uacute;n checkbox viene premarcado.") }}
+    </p>
+    {% if suggested_ttps %}
+      <form method="post" action="{{ url_for('operations.incorporate_suggested_ttps', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        {% for ttp in suggested_ttps %}
+          <label class="checkbox-label">
+            <input type="checkbox" name="incorporate_ttps" value="{{ ttp.id }}">
+            <span class="mono">{{ ttp.id }}</span>{% if ttp.name %} {{ ttp.name }}{% endif %}
+          </label>
+        {% endfor %}
+        <p><button type="submit" class="small primary">{{ _("Incorporar seleccionadas") }}</button></p>
+      </form>
+    {% else %}
+      <p class="muted">{{ _("Sin") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s observadas fuera del perfil todav&iacute;a.") }}</p>
+    {% endif %}
+  {% endif %}
+  </section>
+  </details>
+
+  <details class="collapsible design-step">
+  <summary>{{ _("Reglas de interacción") }} <span class="summary-count">{{ operation.strategic_decisions.objectives | length }} {{ _("obj.") }}</span></summary>
+  <section id="tab-roe" aria-labelledby="roe-title">
+  <h2 id="roe-title">{{ _("Paso 2 &middot; Reglas de interacci&oacute;n") }}</h2>
+  <dl>
+    <dt>{{ _("Entorno") }}</dt><dd>{{ environment_label(operation.roe.environment.value) }}</dd>
+    <dt>{{ _("Acciones permitidas") }}</dt><dd class="mono">{{ operation.roe.allowed_actions | join(", ") or "-" }}</dd>
+    <dt>{{ _("Acciones prohibidas") }}</dt><dd class="mono">{{ operation.roe.forbidden_actions | join(", ") or "-" }}</dd>
+    <dt>{{ _("Restricciones legales") }}</dt><dd>{{ operation.roe.legal_constraints | join("; ") or "-" }}</dd>
+    <dt>{{ _("Contacto de escalamiento") }}</dt><dd>{{ operation.roe.escalation_contact or "-" }}</dd>
+    <dt>{{ _("Fecha de cierre planificada") }}</dt>
+    <dd>{{ operation.closure_criteria.end_date.date() if operation.closure_criteria.end_date else "-" }}</dd>
+  </dl>
+
+  <section class="panel" aria-labelledby="operation-rules-title">
+    <h3 id="operation-rules-title">{{ _("Reglas del motor de decisión") }}</h3>
+    <p class="muted">{{ _("Son reglas globales compartidas por las operaciones. El alcance de abajo se calcula por el") }} <code>plugin_id</code> {{ _("de cada condición y las capacidades vinculadas a esta operación.") }}</p>
+    <aside class="assist-note">
+      <strong>{{ _("Cuándo se evalúan") }}</strong>
+        <span>{{ _("Las reglas se evalúan ante eventos de Playground, acciones manuales y telemetría recibida por la ingesta periódica o los puentes externos. Las acciones manuales siguen siendo decisiones del operador; el motor solo reacciona a los eventos que publican.") }}</span>
+    </aside>
+    {% if operation_rules_error %}
+      <p class="flash flash-error">{{ operation_rules_error }}</p>
+    {% elif operation_rules %}
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>{{ _("Regla") }}</th><th>{{ _("Condición") }}</th><th>{{ _("Acciones") }}</th><th>{{ _("Alcance aquí") }}</th></tr></thead>
+          <tbody>
+          {% for scoped_rule in operation_rules %}
+            {% set rule = scoped_rule.rule %}
+            <tr>
+              <td><strong>{{ rule.name }}</strong></td>
+              <td>
+                {% if rule.when.closure_due %}
+                  <span class="tag mono">closure_due</span>
+                {% else %}
+                  <span class="tag mono">event_type={{ rule.when.event_type.value }}</span>
+                  {% if rule.when.plugin_id %}<span class="tag mono">plugin_id={{ rule.when.plugin_id }}</span>{% endif %}
+                  {% if rule.when.payload %}<span class="tag mono">payload={{ rule.when.payload }}</span>{% endif %}
+                {% endif %}
+              </td>
+              <td>{% for action in rule.then %}<span class="mono">{{ action.kind.value }}{% if action.plugin_id %}:{{ action.plugin_id }}{% elif action.to %}:{{ action.to.value }}{% endif %}</span>{% if not loop.last %}, {% endif %}{% endfor %}</td>
+              <td>
+                {% if scoped_rule.applies %}<strong class="status-active">{{ _("Aplicaría en esta operación") }}</strong>{% else %}<strong class="status-closed">{{ _("No aplica a esta operación") }}</strong>{% endif %}
+                <br><span class="muted">{{ scoped_rule.scope_message }}</span>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="muted">{{ _("No hay reglas globales cargadas todavía.") }}</p>
+    {% endif %}
+    {# Sin esto la sección informa pero no deja actuar: el operador se entera
+       de que las reglas existen y sigue teniendo que ir a buscar el editor. #}
+    <p><a href="{{ url_for('rules.show_rules') }}">{% if operation_rules %}{{ _("Editar el documento global de reglas") }}{% else %}{{ _("Escribir la primera regla") }}{% endif %}</a></p>
+    {% include "rules/_rejected_actions.html" %}
+  </section>
+
+  <h3>{{ _("Editar reglas de interacci&oacute;n") }}</h3>
+  {% if operation.roe.allowed_actions %}
+    <aside class="assist-note">
+      <strong>{{ _("Allowlist activa") }}</strong><span>{{ _("Todo lo dem&aacute;s est&aacute; bloqueado; el motor solo puede ejecutar") }} {{ operation.roe.allowed_actions | join(" y ") }}.</span>
+    </aside>
+  {% else %}
+    <aside class="assist-note">
+      <strong>{{ _("Sin allowlist") }}</strong><span>{{ _("Hoy no hay allowlist: el motor puede ejecutar cualquier acci&oacute;n que no est&eacute; prohibida.") }}</span>
+    </aside>
+  {% endif %}
+  <form method="post" action="{{ url_for('operations.update_roe', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <fieldset>
+      <legend>{{ _("L&iacute;mites que aplica el motor de reglas") }}</legend>
+      <p class="muted">{{ _("El entorno es de solo lectura en esta vista. Las reglas de interacci&oacute;n afectan decisiones autom&aacute;ticas; no cambian acciones manuales del operador.") }}</p>
+      <div class="form-grid">
+        <div>
+          <h4>{{ _("Acciones permitidas") }}</h4>
+          {% for action_kind in roe_action_kinds %}
+            <label class="checkbox-label"><input type="checkbox" name="allowed_actions" value="{{ action_kind }}"{% if action_kind in operation.roe.allowed_actions %} checked{% endif %}> {{ action_kind }}</label>
+          {% endfor %}
+          <label>{{ _("Firmas granulares permitidas, una por l&iacute;nea") }}
+            <textarea name="allowed_action_signatures" rows="3" class="mono" placeholder="retire:mock-1&#10;transition:closed">{{ roe_allowed_granular_signatures | join('\n') }}</textarea>
+          </label>
+        </div>
+        <div>
+          <h4>{{ _("Acciones prohibidas") }}</h4>
+          {% for action_kind in roe_action_kinds %}
+            <label class="checkbox-label"><input type="checkbox" name="forbidden_actions" value="{{ action_kind }}"{% if action_kind in operation.roe.forbidden_actions %} checked{% endif %}> {{ action_kind }}</label>
+          {% endfor %}
+          <label>{{ _("Firmas granulares prohibidas, una por l&iacute;nea") }}
+            <textarea name="forbidden_action_signatures" rows="3" class="mono" placeholder="retire:mock-1&#10;transition:closed">{{ roe_forbidden_granular_signatures | join('\n') }}</textarea>
+          </label>
+        </div>
+      </div>
+      <datalist id="roe-known-plugins">
+        {% for binding in operation.plugins %}<option value="{{ binding.plugin_id }}">{% endfor %}
+      </datalist>
+      <label for="roe-plugin-suggestion">{{ _("Capacidad para usar en una firma granular") }}
+        <input id="roe-plugin-suggestion" type="text" list="roe-known-plugins" class="mono" placeholder="{{ _('Eleg&iacute; un identificador vinculado') }}">
+      </label>
+      <p class="muted">{{ _("Us&aacute; firmas como") }} <code>{{ _("retire:plugin_id") }}</code> {{ _("o") }} <code>{{ _("transition:closed") }}</code>. {{ _("La sugerencia sirve para copiar el identificador t&eacute;cnico en una de las listas de arriba.") }}</p>
+      <label>{{ _("Restricciones legales, una por l&iacute;nea") }}
+        <textarea name="legal_constraints" rows="3">{{ operation.roe.legal_constraints | join('\n') }}</textarea>
+      </label>
+      <label>{{ _("Contacto de escalamiento") }}
+        <input type="text" name="escalation_contact" value="{{ operation.roe.escalation_contact }}">
+      </label>
+      <p><button type="submit" class="primary small">{{ _("Guardar reglas de interacci&oacute;n") }}</button></p>
+    </fieldset>
+  </form>
+
+  <h3>{{ _("Condiciones de cierre por evento (Gating Criteria)") }}</h3>
+  <p class="muted">{{ _("El motor cerrar&aacute; la operaci&oacute;n cuando un evento cumpla cualquiera de estas condiciones. El cierre es un l&iacute;mite innegociable y no dispara ning&uacute;n plugin.") }}</p>
+  {% if operation.closure_criteria.trigger_conditions %}
+    <div class="gating-condition-list">
+      {% for condition in operation.closure_criteria.trigger_conditions %}
+        <article class="gating-condition-item">
+          <div class="gating-condition-summary">
+            <strong>{{ event_type_label(condition.event_type.value) }}</strong>
+            {% if condition.plugin_id %}<span class="tag mono">plugin_id={{ condition.plugin_id }}</span>{% endif %}
+            {% if condition.payload %}
+              {% for key, value in condition.payload.items() %}<span class="tag mono">{{ key }}={{ value }}</span>{% endfor %}
+            {% else %}
+              <span class="muted">{{ _("Cualquier payload") }}</span>
+            {% endif %}
+          </div>
+          <form class="inline" method="post" data-confirm="{{ _('¿Eliminar esta Gating Criteria?') }}" action="{{ url_for('operations.delete_trigger_condition', operation_id=operation.id, index=loop.index0) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="danger small">{{ _("Eliminar") }}</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Sin condiciones de cierre por evento configuradas.") }}</p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('operations.add_trigger_condition', operation_id=operation.id) }}" class="gating-condition-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <fieldset>
+      <legend>{{ _("Agregar Gating Criteria") }}</legend>
+      <div class="gating-condition-fields">
+        <label>{{ _("Tipo de evento") }}
+          <select name="event_type" required>
+            <option value="">{{ _("Seleccionar...") }}</option>
+            {% for event_type in event_types %}<option value="{{ event_type.value }}">{{ event_type_label(event_type.value) }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>{{ _("Plugin (opcional)") }}
+          <input type="text" name="plugin_id" list="gating-known-plugins" class="mono" placeholder="{{ _('Vac&iacute;o = cualquiera') }}">
+        </label>
+        <label>{{ _("Clave del payload (opcional)") }}
+          <input type="text" name="payload_key" class="mono" placeholder="{{ _('Ej. ttp_id') }}">
+        </label>
+        <label>{{ _("Valor del payload (opcional)") }}
+          <input type="text" name="payload_value" class="mono" placeholder="{{ _('Ej. T1078') }}">
+        </label>
+      </div>
+      <datalist id="gating-known-plugins">
+        {% for binding in operation.plugins %}<option value="{{ binding.plugin_id }}">{% endfor %}
+      </datalist>
+      <p class="muted">{{ _("El par del payload exige coincidencia exacta. Dejalo vac&iacute;o para cerrar ante cualquier evento del tipo/plugin elegidos.") }}</p>
+      <button type="submit" class="small primary">{{ _("Agregar condici&oacute;n") }}</button>
+    </fieldset>
+  </form>
+
+  <h3>{{ _("Decisiones estrat&eacute;gicas") }}</h3>
+  <dl>
+    <dt>{{ _("Objetivos") }}</dt>
+    <dd>
+      {% if operation.strategic_decisions.objectives %}
+        <span class="tag-list">
+          {% for objective in operation.strategic_decisions.objectives %}<span class="badge">{{ strategic_objective_label(objective.value) }}</span>{% endfor %}
+        </span>
+      {% else %}-{% endif %}
+    </dd>
+    <dt>{{ _("Estimaci&oacute;n de recursos") }}</dt><dd>{{ operation.strategic_decisions.resource_estimate or "-" }}</dd>
+  </dl>
+  {% if operation.strategic_decisions.roles %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Rol") }}</th><th>{{ _("Responsable") }}</th></tr></thead>
+      <tbody>
+        {% for role, responsible in operation.strategic_decisions.roles.items() %}
+          <tr><td>{{ role }}</td><td>{{ responsible or "-" }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Sin roles asignados.") }}</p>
+  {% endif %}
+  </section>
+  </details>
+
+  <details class="collapsible design-step">
+  <summary>{{ _("Escenarios") }} <span class="summary-count">{{ operation.scenarios | length }}</span></summary>
+  <section id="tab-scenarios" aria-labelledby="scenarios-title">
+  <h2 id="scenarios-title">{{ _("Paso 3 &middot; Escenarios") }}</h2>
+  {% if operation.scenarios %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Descripci&oacute;n") }}</th><th>{{ _("TTPs relacionadas") }}</th><th>{{ _("Nivel de enga&ntilde;o") }}</th></tr></thead>
+      <tbody>
+        {% for scenario in operation.scenarios %}
+          <tr>
+            <td><a href="{{ url_for('telemetry.detail', operation_id=operation.id, scenario_id=scenario.id) }}">{{ scenario.description }}</a></td>
+            <td class="mono">{{ scenario.related_ttps | join(", ") or "-" }}</td>
+            <td>{{ deception_level_label(scenario.deception_level.value) }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Sin escenarios asociados.") }}</p>
+  {% endif %}
+
+  <h3>{{ _("Agregar escenario") }}</h3>
+  <form method="post" action="{{ url_for('operations.add_scenario', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="description">{{ _("Descripci&oacute;n") }}</label>
+    <input type="text" id="description" name="description" required>
+    <label for="catalog_related_ttps"><abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s relacionadas del cat&aacute;logo (opcional)") }}</label>
+    <select id="catalog_related_ttps" name="catalog_related_ttps" multiple size="8" class="mono">
+      {% for tactic, techniques in techniques_by_tactic.items() %}
+        <optgroup label="{{ tactic_label(tactic) }}">
+          {% for technique in techniques %}
+            <option value="{{ technique.id }}">{{ technique.id }} — {{ technique.name }}</option>
+          {% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
+    <label for="related_ttps">{{ _("Otras TTPs relacionadas (texto libre, separadas por coma)") }}</label>
+    <input type="text" id="related_ttps" name="related_ttps" class="mono" placeholder="{{ _('T1046, T1078 o una TTP fuera del catálogo') }}">
+    <label for="deception_level">{{ _("Nivel de enga&ntilde;o") }}</label>
+    <select id="deception_level" name="deception_level">
+      {% for level in deception_levels %}
+        <option value="{{ level.value }}" {% if level.value == "basic" %}selected{% endif %}>{{ deception_level_label(level.value) }}</option>
+      {% endfor %}
+    </select>
+      <p><button type="submit">{{ _("Agregar escenario") }}</button></p>
+  </form>
+  </section>
+  </details>
+
+  <details class="collapsible design-step">
+  <summary>{{ _("Narrativa") }} <span class="summary-count">{{ '✓' if operation.narrative.description else 'parcial' }}</span></summary>
+  <section id="tab-narrative" aria-labelledby="narrative-title">
+  <h2 id="narrative-title">{{ _("Paso 5 &middot; Narrativa") }}</h2>
+  <dl>
+    <dt>{{ _("Nombre") }}</dt><dd>{{ operation.narrative.name }}</dd>
+    <dt>{{ _("Descripci&oacute;n") }}</dt><dd>{{ operation.narrative.description or "-" }}</dd>
+    <dt>{{ _("Porcentaje de similitud") }}</dt><dd>{{ operation.narrative.similarity_percentage }}</dd>
+    <dt>{{ _("Impacto psicol&oacute;gico") }}</dt><dd>{{ operation.narrative.psychological_impact or "-" }}</dd>
+  </dl>
+  </section>
+  </details>
+
+  <details class="collapsible design-step">
+  <summary>{{ _("Capacidades vinculadas") }} <span class="summary-count">{{ operation.plugins | length }}</span></summary>
+  <section id="tab-plugins" aria-labelledby="plugins-title">
+    {% if request.args.get('catalog_kind') %}
+      <aside class="assist-note"><strong>{{ _("Capacidad elegida en el Cat&aacute;logo") }}</strong><span><code>{{ request.args.get('catalog_kind') }}</code> {{ _("est&aacute; lista para que completes y confirmes su vinculaci&oacute;n. Nada fue aplicado autom&aacute;ticamente.") }}</span></aside>
+    {% endif %}
+  <h2 id="plugins-title">{{ _("Paso 4 &middot; Capacidades vinculadas") }}</h2>
+  {% if operation.plugins %}
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ _("Identificador t&eacute;cnico") }}</th><th>{{ _("Tipo") }}</th><th>{{ _("Superficie") }}</th><th>{{ _("Escenario") }}</th><th>{{ _("Activos protegidos") }}</th>
+          <th>{{ _("Lleva a") }}</th>
+          <th>{{ _("Adversario cree (Pensar)") }}</th><th>{{ _("Adversario hace (Hacer)") }}</th><th>{{ _("M&eacute;trica de &eacute;xito") }}</th>
+          <th>{{ _("Actividades de Engage") }}</th><th>{{ _("Resultado medido") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for binding in operation.plugins %}
+          {% set scenario = operation.find_scenario(binding.scenario_id) %}
+          <tr>
+            <td><a href="{{ url_for('telemetry.detail', operation_id=operation.id, plugin_id=binding.plugin_id) }}" class="mono">{{ binding.plugin_id }}</a></td>
+            <td>
+              {% if binding.plugin_kind %}
+                <span class="tag" title="{{ _('Tipo declarado para esta capacidad') }} ({{ binding.plugin_kind }})">{{ capability_kind_label(binding.plugin_kind) }}</span>
+              {% else %}
+                <span class="muted" title="{{ _('Tipo no especificado') }}">-</span>
+              {% endif %}
+            </td>
+            <td><a href="{{ url_for('telemetry.detail', operation_id=operation.id, surface=binding.surface) }}">{{ binding.surface }}</a></td>
+            <td>
+              {% if scenario %}
+                <a href="{{ url_for('telemetry.detail', operation_id=operation.id, scenario_id=scenario.id) }}">{{ scenario.description }}</a>
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if binding.protected_asset_ids %}
+                <span class="tag-list">{% for asset_id in binding.protected_asset_ids %}<span class="tag mono">{{ asset_id }}</span>{% endfor %}</span>
+              {% else %}-{% endif %}
+            </td>
+            <td>
+              {% if binding.leads_to_plugin_id %}
+                {% set breadcrumb_target = operation.find_plugin_binding(binding.leads_to_plugin_id) %}
+                {% if breadcrumb_target %}
+                  <span class="tag mono" title="{{ _('Breadcrumb: esta capacidad lleva a') }} '{{ binding.leads_to_plugin_id }}'">{{ _("&rarr;") }} {{ binding.leads_to_plugin_id }}</span>
+                {% else %}
+                  <span class="tag mono health-unavailable" title="'{{ binding.leads_to_plugin_id }}' {{ _('no está vinculado a esta operación') }}">{{ _("&rarr;") }} {{ binding.leads_to_plugin_id }} {{ _("(no encontrado)") }}</span>
+                {% endif %}
+              {% else %}-{% endif %}
+            </td>
+            <td>{{ binding.effect.expected_adversary_belief or "-" }}</td>
+            <td>{{ binding.effect.expected_adversary_action or "-" }}</td>
+            <td>{{ binding.effect.success_metric or "-" }}</td>
+            <td>
+              {% if binding.effect.engage_activity_ids %}
+                <span class="tag-list">
+                  {% for activity_id in binding.effect.engage_activity_ids %}
+                    {% set activity = get_engage_activity(activity_id) %}
+                    <span class="tag" title="{{ activity_id }}">{{ activity.name if activity else activity_id }}</span>
+                  {% endfor %}
+                </span>
+              {% else %}-{% endif %}
+            </td>
+            <td>
+              {% if binding.effect.measured_outcome %}
+                <p class="muted measured-note">
+                  {{ _("Medido por") }} {{ binding.effect.measured_by or "?" }} {{ _("el") }}
+                  {% if binding.effect.measured_at %}<time data-local-time datetime="{{ binding.effect.measured_at.isoformat() }}">{{ binding.effect.measured_at.strftime("%Y-%m-%d %H:%M UTC") }}</time>{% else %}?{% endif %}
+                </p>
+              {% endif %}
+              <form class="inline" method="post" action="{{ url_for('operations.record_measured_outcome', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <input type="text" name="measured_outcome" value="{{ binding.effect.measured_outcome }}" placeholder="{{ _('Qu&eacute; pas&oacute; en realidad...') }}">
+                {% if evidence_candidates.get(binding.plugin_id) %}
+                  <details><summary>{{ _("Vincular eventos que sustentan el resultado") }}</summary>
+                    {% for event in evidence_candidates[binding.plugin_id] %}
+                      <label class="small"><input type="checkbox" name="evidence_event_ids" value="{{ event.id }}"{% if event.id in binding.effect.evidence_event_ids %} checked{% endif %}>
+                        {{ event.timestamp.strftime("%Y-%m-%d %H:%M UTC") }} · {{ event.ttp_id or event.payload.get('kind', event.event_type.value) }}
+                      </label>
+                    {% endfor %}
+                  </details>
+                {% endif %}
+                <button type="submit" class="small">{{ "Actualizar" if binding.effect.measured_outcome else "Registrar" }}</button>
+              </form>
+              {% if binding.effect.evidence_event_ids %}<p class="muted">{{ _("Evidencia vinculada:") }}
+                {% for event_id in binding.effect.evidence_event_ids %}<a href="{{ url_for('telemetry.detail', operation_id=operation.id, view='events', event_id=event_id) }}">{{ loop.index }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+              </p>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <div class="empty-state"><p class="muted">{{ _("Esta operaci&oacute;n todav&iacute;a no tiene capacidades vinculadas. Vincul&aacute; una para preparar escenarios y despliegues.") }}</p><a href="{{ url_for('capabilities.catalog') }}">{{ _("Explorar el Cat&aacute;logo de capacidades") }}</a></div>
+  {% endif %}
+
+  {% if operation.plugins %}
+    <section class="panel">
+      <h3>{{ _("Editar cobertura declarada") }}</h3>
+      <p class="muted">{{ _("Elegí manualmente qué activos objetivo inventariados protege cada capacidad ya creada. Guardar una selección vacía limpia la relación; las referencias previas sin ficha se conservan hasta que las quites explícitamente. No despliega ni crea capacidades.") }}</p>
+      {% if resolved_target_assets | selectattr('asset') | list %}
+        {% for binding in operation.plugins %}
+          <form class="inline" method="post" action="{{ url_for('operations.update_plugin_asset_coverage', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <label for="coverage-{{ loop.index }}"><code>{{ binding.plugin_id }}</code></label>
+            <select id="coverage-{{ loop.index }}" name="protected_asset_ids" multiple aria-label="{{ _('Activos protegidos por') }} {{ binding.plugin_id }}">
+              {% for target in resolved_target_assets %}
+                {% if target.asset %}
+                  <option value="{{ target.asset.identifier }}"{% if target.asset.identifier in binding.protected_asset_ids %} selected{% endif %}>{{ target.asset.name }} — {{ target.asset.asset_type }}, {{ criticality_label(target.asset.criticality) }}</option>
+                {% endif %}
+              {% endfor %}
+              {% for asset_id in binding.protected_asset_ids %}
+                {% if asset_id not in resolved_inventory_target_ids %}
+                  <option value="{{ asset_id }}" selected>{{ asset_id }} {{ _("— referencia sin ficha (conservada)") }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <button type="submit" class="small">{{ _("Guardar cobertura") }}</button>
+          </form>
+        {% endfor %}
+      {% else %}
+        <p class="muted">{{ _("No hay activos objetivo inventariados en esta operación. Primero incorporá una ficha del inventario que corresponda a la referencia objetivo.") }}</p>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  <h3>{{ _("Vincular capacidad") }}</h3>
+  <form method="post" action="{{ url_for('operations.add_plugin_binding', operation_id=operation.id) }}" data-guard-unsaved data-undo-label="{{ _('Deshacer última edición') }}" data-undo-description="{{ _('Solo revierte campos locales; nunca acciones ya ejecutadas.') }}" data-undo-status="{{ _('Última edición local revertida. Guardar sigue siendo una decisión explícita.') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="plugin_id">{{ _("Identificador t&eacute;cnico") }}</label>
+    <input type="text" id="plugin_id" name="plugin_id" required class="mono" placeholder="{{ _('decoy-red-1, identidad-1, honeytoken-1...') }}">
+    <label for="plugin_kind">{{ _("Tipo de capacidad (opcional)") }}</label>
+    <select id="plugin_kind" name="plugin_kind">
+      <option value="">{{ _("-- Sin especificar --") }}</option>
+      {% for kind in plugin_kinds %}
+        <option value="{{ kind }}" data-surface="{{ plugin_surfaces[kind] }}"{% if request.args.get('catalog_kind') == kind %} selected{% endif %}>{{ capability_kind_label(kind) }}</option>
+      {% endfor %}
+    </select>
+    <p class="muted">
+      {{ _("Eleg&iacute; el tipo para mostrar la configuraci&oacute;n correspondiente. Si se deja vac&iacute;o, Apate\n      intentar&aacute; reconocerlo a partir del identificador por compatibilidad.") }}
+    </p>
+
+    <fieldset id="bind-dolost-fields" style="display:none">
+      <legend>{{ _("Decoy inicial (opcional)") }}</legend>
+      <p class="muted">
+        {{ _("Configur&aacute; ac&aacute; mismo el primer decoy, o dej&aacute; el Hostname en blanco y\n        agreg&aacute; decoys despu&eacute;s desde \"Despliegue\" -- ninguno de\n        estos campos es obligatorio en este paso.") }}
+      </p>
+      <div class="panel-grid">
+        <div>
+          <label for="bind-Hostname">{{ _("Hostname") }}</label>
+          <input type="text" id="bind-Hostname" name="Hostname" placeholder="{{ _('SshService') }}" class="mono">
+        </div>
+        <div>
+          <label for="bind-Description">{{ _("Descripci&oacute;n") }}</label>
+          <input type="text" id="bind-Description" name="Description" placeholder="{{ _('Servicio SSH senuelo') }}">
+        </div>
+        <div>
+          <label for="bind-IP">{{ _("IP") }}</label>
+          <input type="text" id="bind-IP" name="IP" placeholder="172.16.127.150" class="mono">
+        </div>
+        <div>
+          <label for="bind-Subnet">{{ _("Subnet") }}</label>
+          <input type="text" id="bind-Subnet" name="Subnet" placeholder="172.16.127.0/24" class="mono">
+        </div>
+        <div>
+          <label for="bind-Gateway">{{ _("Gateway") }}</label>
+          <input type="text" id="bind-Gateway" name="Gateway" placeholder="172.16.127.100" class="mono">
+        </div>
+        <div>
+          <label for="bind-DeceptionNetwork">{{ _("Deception Network") }}</label>
+          <input type="text" id="bind-DeceptionNetwork" name="DeceptionNetwork" placeholder="{{ _('NetworkOpSSH') }}">
+        </div>
+        <div>
+          <label for="bind-ServicePorts">{{ _("Service Ports") }}</label>
+          <input type="text" id="bind-ServicePorts" name="ServicePorts" placeholder="{'22/tcp': 32}" class="mono">
+        </div>
+        <div>
+          <label for="bind-Service">{{ _("Servicio") }}</label>
+          <input type="text" id="bind-Service" name="Service" placeholder="{{ _('ssh') }}">
+        </div>
+        <div>
+          <label for="bind-DecoyFiles">{{ _("Decoy Files") }}</label>
+          <input type="text" id="bind-DecoyFiles" name="DecoyFiles" placeholder="{{ _('decoy_ssh') }}" class="mono">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset id="bind-buda-fields" style="display:none">
+      <legend>{{ _("Narrativa (opcional)") }}</legend>
+      <label class="checkbox-label">
+        <input type="checkbox" id="create_buda_narrative" name="create_buda_narrative">
+        {{ _("Crear narrativa de comportamiento simulado para esta operaci&oacute;n ahora") }}
+      </label>
+      <p class="muted">
+        {{ _("Los datos (t&iacute;tulo, objetivo, perfil de atacante) se derivan autom&aacute;ticamente de\n        esta operaci&oacute;n -- no hace falta completarlos a mano. Los perfiles de usuario (") }}<abbr title="{{ _('Windows Remote Management') }}">{{ _("WinRM") }}</abbr>{{ _(") se\n        asignan despu&eacute;s desde \"Despliegue\".") }}
+      </p>
+    </fieldset>
+
+    <fieldset id="bind-honeytoken-fields" style="display:none">
+      <legend>{{ _("Honeytokens de archivo (opcional)") }}</legend>
+      <p class="muted">
+        {{ _("Prepar&aacute; la ubicaci&oacute;n y los nombres ahora. Crear los archivos es una acci&oacute;n\n        separada y siempre requiere confirmaci&oacute;n desde \"Despliegue\".") }}
+      </p>
+      <label for="honeytoken_directory">{{ _("Directorio") }}</label>
+      <input type="text" id="honeytoken_directory" name="honeytoken_directory" class="mono" placeholder="{{ _('C:\\\\deception\\\\finance') }}">
+      <label for="honeytoken_filenames">{{ _("Archivos (uno por l&iacute;nea o separados por coma)") }}</label>
+      <textarea id="honeytoken_filenames" name="honeytoken_filenames" rows="3" class="mono" placeholder="{{ _('credenciales.csv&#10;passwords_backup.txt') }}"></textarea>
+      <label for="honeytoken_ttp_id">{{ _("TTP asociada") }}</label>
+      <input type="text" id="honeytoken_ttp_id" name="honeytoken_ttp_id" value="T1552.001" class="mono">
+    </fieldset>
+
+    <fieldset id="bind-canarytoken-fields" style="display:none">
+      <legend>{{ _("Canarytoken (opcional)") }}</legend>
+      <p class="muted">
+        {{ _("Prepar&aacute; la configuraci&oacute;n ahora. Crear el token en el servidor de Canarytokens es una\n        acci&oacute;n separada desde \"Despliegue\" -- ninguno de estos campos es obligatorio en este paso.") }}
+      </p>
+      <label for="canarytoken_base_url">{{ _("URL base de la instancia self-hosted") }}</label>
+      <input type="text" id="canarytoken_base_url" name="canarytoken_base_url" class="mono" placeholder="{{ _('http://canarytokens.local/&lt;path-de-api-de-tu-instancia&gt;') }}">
+      <p class="muted">
+        {{ _("Incluye lo que sea que tu instancia monte antes de") }} <code>{{ _("/generate") }}</code> {{ _("-- el repositorio\n        p&uacute;blico usa un path ofuscado que no es igual en todos los despliegues, nunca se asume fijo.") }}
+      </p>
+      <label for="canarytoken_token_type">{{ _("Tipo de token") }}</label>
+      <input type="text" id="canarytoken_token_type" name="canarytoken_token_type" class="mono" placeholder="{{ _('dns, aws_keys, ms_word, qr_code...') }}">
+      <label for="canarytoken_memo">{{ _("Memo") }}</label>
+      <input type="text" id="canarytoken_memo" name="canarytoken_memo" placeholder="{{ _('Miga en el escritorio del ejecutivo ficticio') }}">
+      <label for="canarytoken_email">{{ _("Email de alerta") }}</label>
+      <input type="email" id="canarytoken_email" name="canarytoken_email" placeholder="{{ _('soc@ejemplo.com') }}">
+      <p class="muted">
+        {{ _("La API real de Canarytokens exige memo y, adem&aacute;s, email o webhook -- Apate siempre usa\n        email y nunca registra un webhook (ver documentaci&oacute;n: un endpoint entrante abrir&iacute;a\n        superficie de red nueva, y el propio servidor de Canarytokens bloquea por defecto la entrega a\n        direcciones IP privadas). La detecci&oacute;n es por consulta manual (\"Consultar ahora\"), no push.") }}
+      </p>
+      <label for="canarytoken_ttp_id">{{ _("TTP asociada (opcional)") }}</label>
+      <input type="text" id="canarytoken_ttp_id" name="canarytoken_ttp_id" class="mono" placeholder="{{ _('sin mapeo MITRE oficial por tipo -- a criterio del operador') }}">
+    </fieldset>
+
+    <fieldset id="bind-opencanary-fields" style="display:none">
+      <legend>{{ _("OpenCanary (opcional)") }}</legend>
+      <p class="muted">
+        {{ _("Prepar&aacute; la configuraci&oacute;n ahora. Desplegar el contenedor real es una acci&oacute;n\n        separada desde \"Despliegue\" -- ninguno de estos campos es obligatorio en este paso.") }}
+      </p>
+      <label for="opencanary_services">{{ _("Servicios a habilitar (uno por l&iacute;nea, formato \"servicio:puerto\")") }}</label>
+      <textarea id="opencanary_services" name="opencanary_services" rows="3" class="mono" placeholder="{{ _('ssh:2222&#10;ftp:2121&#10;http:8080') }}"></textarea>
+      <label for="opencanary_network_mode">{{ _("Modo de red") }}</label>
+      <select id="opencanary_network_mode" name="opencanary_network_mode">
+        <option value="bridge" selected>bridge - {{ _("puertos mapeados expl&iacute;citamente (recomendado)") }}</option>
+        <option value="host">host - {{ _("IP real del atacante, sin protecci&oacute;n ante conflicto de puertos") }}</option>
+      </select>
+      <p class="muted">
+        <strong>{{ _("bridge") }}</strong> {{ _("(default): un puerto ya ocupado en el host hace fallar el despliegue con un\n        error claro, antes de arrancar nada.") }} <strong>{{ _("host") }}</strong>{{ _(": se pierde ese aislamiento -- un conflicto\n        de puerto queda") }} <strong>{{ _("silencioso") }}</strong> {{ _("dentro de OpenCanary (hallazgo verificado contra el\n        c&oacute;digo real, ver documentaci&oacute;n) -- a cambio, los eventos muestran la IP real de quien\n        se conecta en vez del gateway del bridge de Docker. Eleg&iacute; \"host\" solo si priorizás el dato\n        real del atacante por sobre la detecci&oacute;n de conflictos.") }}
+      </p>
+      <label for="opencanary_ttp_id">{{ _("TTP asociada (opcional)") }}</label>
+      <input type="text" id="opencanary_ttp_id" name="opencanary_ttp_id" class="mono" placeholder="{{ _('sin mapeo MITRE unico -- a criterio del operador, segun el servicio') }}">
+    </fieldset>
+
+    <label for="surface">{{ _("Superficie") }}</label>
+    <input type="text" id="surface" name="surface" placeholder="{{ _('Red / host, Identidad / comportamiento...') }}" required>
+    <p class="muted">{{ _("Al elegir un tipo se propone su superficie habitual. Podés editarla: cada capacidad conserva la superficie específica que declares.") }}</p>
+    <label for="scenario_id">{{ _("Escenario que implementa") }}</label>
+    <select id="scenario_id" name="scenario_id">
+      <option value="">{{ _("-- Ninguno --") }}</option>
+      {% for scenario in operation.scenarios %}
+        <option value="{{ scenario.id }}"{% if request.args.get('prefill_scenario_id') == scenario.id %} selected{% endif %}>{{ scenario.description }}</option>
+      {% endfor %}
+    </select>
+    <label for="protected_asset_ids">{{ _("Activos objetivo que protege (opcional)") }}</label>
+    <select id="protected_asset_ids" name="protected_asset_ids" multiple size="{% if resolved_target_assets | length > 6 %}6{% else %}{{ resolved_target_assets | length or 2 }}{% endif %}">
+      {% for target in resolved_target_assets %}
+        {% if target.asset %}
+          <option value="{{ target.asset.identifier }}">{{ target.asset.name }} — {{ target.asset.asset_type }}, {{ criticality_label(target.asset.criticality) }} ({{ target.asset.identifier }})</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    {% if resolved_target_assets | selectattr('asset') | list %}
+      <p class="muted">{{ _("Declaralo explícitamente: no se infiere desde hostnames, rutas ni texto. Solo se ofrecen activos objetivo que ya están en el inventario.") }}</p>
+    {% else %}
+      <p class="muted">{{ _("No hay activos objetivo inventariados en esta operación. El mapa mostrará las referencias manuales, pero una capacidad solo puede vincularse a una ficha del inventario.") }}</p>
+    {% endif %}
+    <label for="leads_to_plugin_id">{{ _("Lleva a (breadcrumb &rarr; recurso, opcional)") }}</label>
+    <select id="leads_to_plugin_id" name="leads_to_plugin_id">
+      <option value="">{{ _("-- Ninguna --") }}</option>
+      {% for existing in operation.plugins %}
+        <option value="{{ existing.plugin_id }}">{{ existing.plugin_id }}</option>
+      {% endfor %}
+    </select>
+    <p class="muted">
+      {{ _("Si esta capacidad es una miga (ej. un honeytoken) que lleva al adversario hacia otra ya\n      vinculada, eleg&iacute; a cu&aacute;l -- el destino tiene que existir ya (creado antes que esta\n      miga). Solo relaciona, no cambia el comportamiento de ning&uacute;n plugin.") }}
+    </p>
+    <label for="expected_adversary_belief">{{ _("Qu&eacute; debe creer el adversario (Pensar)") }}</label>
+    <input type="text" id="expected_adversary_belief" name="expected_adversary_belief">
+    <label for="expected_adversary_action">{{ _("Qu&eacute; queremos que haga (Hacer)") }}</label>
+    <input type="text" id="expected_adversary_action" name="expected_adversary_action">
+    <label for="success_metric">{{ _("M&eacute;trica de &eacute;xito") }}</label>
+    <input type="text" id="success_metric" name="success_metric">
+
+    <details class="collapsible" id="engage-matrix-details">
+      <summary>
+        {{ _("Actividades de MITRE Engage (opcional, cat&aacute;logo de referencia)") }}
+        <span class="summary-count" id="engage-matrix-count">{{ _("0 seleccionadas") }}</span>
+      </summary>
+      <div class="collapsible-body">
+        <div class="engage-matrix">
+          {% for group in engagement_activities_by_goal %}
+            <div class="card engage-matrix-column">
+              <h4>{{ group.goal.name }}</h4>
+              {% for entry in group.approaches %}
+                <div class="engage-approach">
+                  <p class="muted engage-approach-name"><strong>{{ entry.approach.name }}</strong></p>
+                  {% for activity in entry.activities %}
+                    <label class="checkbox-label">
+                      <input type="checkbox" id="engage-{{ entry.approach.id }}-{{ activity.id }}" name="engage_activity_ids" value="{{ activity.id }}">
+                      {{ activity.name }}
+                      {% if activity.id in suggested_engage_activity_ids %}
+                        <span class="tag accent" title="{{ _('Sugerida a partir de las TTPs esperadas del perfil de adversario') }}">{{ _("sugerida por TTP") }}</span>
+                      {% endif %}
+                      {% if activity.id in suggested_engage_activity_ids_by_objective %}
+                        <span class="tag accent" title="{{ _('Sugerida a partir de los objetivos estrat&eacute;gicos de la operaci&oacute;n (apate.engage.suggest_activities_for_objectives) -- juicio interpretativo de Apate, sin fuente oficial verificada (ver docs/roadmap.md)') }}">{{ _("sugerida (objetivo)") }}</span>
+                      {% endif %}
+                    </label>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <p class="muted">
+          {{ _("Solo actividades de tipo \"engagement\" (Expose/Affect/Elicit) -- las \"strategic\" (Prepare/\n          Understand) son de nivel operaci&oacute;n, no de un plugin puntual (ver tab \"Preparaci&oacute;n\").\n          Una misma actividad puede aparecer bajo m&aacute;s de un Approach (ej. \"Lures\" en Detect/Direct/\n          Disrupt): marcarla en cualquiera alcanza, no hace falta repetir la selecci&oacute;n. Las marcadas") }}
+          <span class="tag accent">{{ _("sugerida (TTP)") }}</span> {{ _("coinciden con la t&aacute;ctica de alguna de las\n          TTPs esperadas del perfil de adversario (paso 1, cat&aacute;logo oficial verificado); las\n          marcadas") }} <span class="tag accent">{{ _("sugerida (objetivo)") }}</span> {{ _("coinciden con alguno de los\n          objetivos estrat&eacute;gicos elegidos (paso 2) -- a diferencia de la anterior, esta segunda\n          sugerencia es un") }} <strong>{{ _("juicio interpretativo de Apate") }}</strong>{{ _(", sin ning&uacute;n dataset\n          oficial que lo respalde (ver") }} <code>{{ _("apate.engage.suggest_activities_for_objectives") }}</code>{{ _("). Las\n          dos son solo una indicaci&oacute;n, no se preseleccionan ni se fuerza nada: segu&iacute;\n          eligiendo manualmente qu&eacute; marcar.") }}
+        </p>
+      </div>
+    </details>
+
+    <p><button type="submit" class="primary">{{ _("Vincular capacidad") }}</button></p>
+  </form>
+
+  <h3>{{ _("Puentes de telemetría externa") }} <span class="muted">{{ _("(sin desplegar ni controlar la fuente)") }}</span></h3>
+  <p class="muted">
+    {{ _("Ingiere eventos de una fuente Elasticsearch externa (T-Pot, cualquier stack con su propio ELK) y los\n    traduce a eventos propios -- correlacionables contra las TTPs esperadas de esta operación con la\n    misma infraestructura de informes/heatmap que ya existe, sin lógica nueva para eso. Distinto de una\n    capacidad vinculada arriba: acá Apate solo") }} <strong>{{ _("lee") }}</strong>{{ _(", nunca despliega ni controla la fuente.") }}
+  </p>
+  {% if operation.telemetry_bridges %}
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>{{ _("Nombre") }}</th><th>{{ _("Elasticsearch") }}</th><th>{{ _("Índice") }}</th><th>{{ _("Mapeo de campos") }}</th><th>{{ _("Última consulta") }}</th><th>{{ _("Acción") }}</th></tr>
+        </thead>
+        <tbody>
+          {% for source in operation.telemetry_bridges %}
+            <tr>
+              <td>{{ source.name }}</td>
+              <td class="mono">{{ source.elastic_url }}</td>
+              <td class="mono">{{ source.index }}</td>
+              <td>
+                {% if source.field_mapping %}
+                  <span class="tag-list">
+                    {% for key, path in source.field_mapping.items() %}<span class="tag mono" title="{{ path }}">{{ key }}</span>{% endfor %}
+                  </span>
+                {% else %}-{% endif %}
+              </td>
+              <td>
+                {% if source.last_fetch_at %}<time data-local-time datetime="{{ source.last_fetch_at.isoformat() }}">{{ source.last_fetch_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</time>{% else %}<span class="muted">{{ _("Nunca") }}</span>{% endif %}
+              </td>
+              <td>
+                <form class="inline" method="post" data-slow-action action="{{ url_for('operations.fetch_telemetry_bridge', operation_id=operation.id, source_id=source.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="small" data-loading-text="{{ _('Consultando...') }}">{{ _("Consultar ahora") }}</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Todavía no hay ninguna fuente de telemetría externa configurada.") }}</p>
+  {% endif %}
+
+  <h3 class="as-h4">{{ _("Agregar fuente") }}</h3>
+  <form method="post" action="{{ url_for('operations.add_telemetry_bridge', operation_id=operation.id) }}" data-guard-unsaved data-undo-label="{{ _('Deshacer última edición') }}" data-undo-description="{{ _('Solo revierte campos locales; nunca acciones ya ejecutadas.') }}" data-undo-status="{{ _('Última edición local revertida. Guardar sigue siendo una decisión explícita.') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="telemetry-bridge-name">{{ _("Nombre") }}</label>
+    <input type="text" id="telemetry-bridge-name" name="name" required placeholder="{{ _('T-Pot demo') }}">
+    <label for="telemetry-bridge-elastic-url">{{ _("URL de Elasticsearch") }}</label>
+    <input type="text" id="telemetry-bridge-elastic-url" name="elastic_url" required class="mono" placeholder="{{ _('http://localhost:9200') }}">
+    <label for="telemetry-bridge-index">{{ _("Índice") }}</label>
+    <input type="text" id="telemetry-bridge-index" name="index" required class="mono" placeholder="{{ _('tpot-*') }}">
+    <label for="telemetry-bridge-surface">{{ _("Superficie") }}</label>
+      <input type="text" id="telemetry-bridge-surface" name="surface" value="network" placeholder="network">
+    <label for="telemetry-bridge-timestamp-field">{{ _("Campo de timestamp") }}</label>
+    <input type="text" id="telemetry-bridge-timestamp-field" name="timestamp_field" value="@timestamp" class="mono">
+    <label for="telemetry-bridge-mapping">{{ _("Mapeo de campos (uno por línea: \"clave_de_payload: ruta.en.el.documento\")") }}</label>
+    <textarea id="telemetry-bridge-mapping" name="field_mapping" rows="5" class="mono" placeholder="{{ _('ttp_id: mitre.technique_id&#10;detail: message&#10;source_ip: src_ip') }}"></textarea>
+    <p class="muted">
+      {{ _("Claves reconocidas por el resto de la aplicaci&oacute;n:") }} <code>{{ _("ttp_id") }}</code>, <code>{{ _("detail") }}</code>, <code>{{ _("source_ip") }}</code>,
+      <code>{{ _("credential") }}</code>, <code>{{ _("hash") }}</code>, <code>{{ _("domain") }}</code>, <code>{{ _("url") }}</code>, <code>{{ _("kind") }}</code> {{ _("--\n      cualquier otra clave se guarda igual en el evento, sin promoverse a indicador estructurado. Mapeo\n      declarativo, no un motor de transformación: solo copia el valor del campo indicado.") }}
+    </p>
+    <p><button type="submit" class="primary">{{ _("Agregar fuente") }}</button></p>
+  </form>
+
+  <script>
+    // Muestra el fieldset de configuracion inline (decoy/narrativa)
+    // segun el plugin_kind elegido -- mismo patron simple de show/hide
+    // por JS puro, sin framework nuevo.
+    (function () {
+      const select = document.getElementById('plugin_kind');
+      const dolostFields = document.getElementById('bind-dolost-fields');
+      const budaFields = document.getElementById('bind-buda-fields');
+      const honeytokenFields = document.getElementById('bind-honeytoken-fields');
+      const canarytokenFields = document.getElementById('bind-canarytoken-fields');
+      const opencanaryFields = document.getElementById('bind-opencanary-fields');
+      const surface = document.getElementById('surface');
+
+      function toggleBindFields() {
+        dolostFields.style.display = select.value === 'dolost' ? 'block' : 'none';
+        budaFields.style.display = select.value === 'buda' ? 'block' : 'none';
+        honeytokenFields.style.display = select.value === 'honeytoken' ? 'block' : 'none';
+        canarytokenFields.style.display = select.value === 'canarytoken' ? 'block' : 'none';
+        opencanaryFields.style.display = select.value === 'opencanary' ? 'block' : 'none';
+      }
+
+      function suggestSurface() {
+        const option = select.options[select.selectedIndex];
+        if (option.dataset.surface && !surface.value.trim()) {
+          surface.value = option.dataset.surface;
+        }
+      }
+
+      select.addEventListener('change', function () {
+        toggleBindFields();
+        suggestSurface();
+      });
+      toggleBindFields();
+      suggestSurface();
+    })();
+
+    // Reorganizacion posterior a la primera verificacion visual (ver
+    // docs/roadmap.md): la matriz de Engage queda colapsada por defecto
+    // (details.collapsible) -- este resumen es lo unico que necesita JS,
+    // para que se pueda ver cuantas actividades quedaron marcadas sin
+    // tener que reabrir la matriz entera.
+    (function () {
+      const countEl = document.getElementById('engage-matrix-count');
+      const checkboxes = document.querySelectorAll('input[name="engage_activity_ids"]');
+
+      function updateCount() {
+        const checked = document.querySelectorAll('input[name="engage_activity_ids"]:checked').length;
+        countEl.textContent = checked + ' ' + (checked === 1 ? {{ _("seleccionada") | tojson }} : {{ _("seleccionadas") | tojson }});
+      }
+
+      checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', updateCount);
+      });
+      updateCount();
+    })();
+
+    document.querySelectorAll('[data-timeline-filter]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const source = button.dataset.timelineFilter;
+        document.querySelectorAll('[data-timeline-filter]').forEach(function (item) { item.classList.toggle('active', item === button); });
+        document.querySelectorAll('[data-timeline-source]').forEach(function (item) {
+          item.hidden = source !== 'all' && item.dataset.timelineSource !== source;
+        });
+      });
+    });
+  </script>
+  </section>
+  </details>
+  </div>

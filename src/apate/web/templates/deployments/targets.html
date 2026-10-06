@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {{ _("Destinos de despliegue") }}</nav>{% endblock %}
+{% block title %}{{ _("Destinos de despliegue - Apate") }}{% endblock %}
+{% block content %}
+  <header class="page-header">
+    <div><p class="eyebrow">{{ _("Control plane") }}</p><h1>{{ _("Destinos de despliegue") }}</h1></div>
+  </header>
+  <p>{{ _("Un destino describe dónde puede actuar APATE. La contraseña de servicio se cifra y nunca se incorpora a planes ni pantallas.") }}</p>
+
+  <section class="panel" aria-labelledby="new-target-title">
+    <h2 id="new-target-title">{{ _("Agregar Active Directory") }}</h2>
+    <form method="post" action="{{ url_for('deployments.targets') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid">
+        <label>{{ _("Nombre") }}<input name="name" required placeholder="{{ _('Directorio corporativo') }}"></label>
+        <label>{{ _("Servidor o colector WinRM") }}<input name="address" required placeholder="dc01.example.test"></label>
+        <label>{{ _("Dominio o grupo de fuentes") }}<input name="domain" placeholder="example.test"></label>
+        <label>{{ _("Tipo de fuente") }}<select name="source_role"><option value="dc">{{ _("Controlador de dominio") }}</option><option value="wec">{{ _("Colector WEC") }}</option></select></label>
+        <label>{{ _("Usuario de servicio") }}<input name="administrative_username" required autocomplete="username" placeholder="EXAMPLE\svc-apate"></label>
+        <label>{{ _("Contraseña de servicio") }}<input type="password" name="administrative_password" required autocomplete="new-password"></label>
+        <label>{{ _("Transporte") }}<select name="transport"><option value="ntlm">NTLM</option><option value="kerberos">Kerberos</option><option value="credssp">CredSSP</option></select></label>
+        <label>{{ _("Certificado TLS") }}<select name="server_cert_validation"><option value="validate">{{ _("Validar") }}</option><option value="ignore">{{ _("Ignorar — solo laboratorio") }}</option></select></label>
+        <label>{{ _("ID de activo opcional") }}<input name="asset_id"></label>
+      </div>
+      <label>{{ _("OU autorizadas, una por línea") }}<textarea name="ou_allowlist" rows="3" required placeholder="OU=Deception,DC=example,DC=test"></textarea></label>
+      <label>{{ _("Sufijos UPN autorizados, uno por línea") }}<textarea name="allowed_upn_suffixes" rows="2" required placeholder="example.test"></textarea></label>
+      <p class="muted">{{ _("Preparar un plan comprobará conectividad, permisos, la OU y la lectura del Security log sin crear todavía ninguna cuenta.") }}</p>
+      <button type="submit" class="primary">{{ _("Guardar destino") }}</button>
+    </form>
+  </section>
+
+  <section class="panel" aria-labelledby="new-file-target-title">
+    <h2 id="new-file-target-title">{{ _('Agregar destino de archivos') }}</h2>
+    <p class="muted">{{ _('Usá un directorio local o un share SMB montado para el proceso APATE. El servicio necesita permiso de escritura en las carpetas autorizadas.') }}</p>
+    <form method="post" action="{{ url_for('deployments.create_filesystem_target') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid"><label>{{ _('Nombre') }}<input name="name" required></label><label>{{ _('Raíz absoluta montada') }}<input name="address" required placeholder="C:\\shares\\finance"></label><label>{{ _('ID de activo opcional') }}<input name="asset_id"></label></div>
+      <label>{{ _('Carpetas autorizadas relativas, una por línea') }}<textarea name="allowed_subdirs" rows="3" required placeholder="finance"></textarea></label>
+      <button type="submit" class="primary">{{ _('Guardar destino de archivos') }}</button>
+    </form>
+    {% if filesystem_targets %}<h3>{{ _('Destinos de archivos configurados') }}</h3><ul>{% for target in filesystem_targets %}<li><strong>{{ target.name }}</strong> · <span class="mono">{{ target.address }}</span> · {{ target.config.allowed_subdirs|join(', ') }}</li>{% endfor %}</ul>{% endif %}
+  </section>
+
+  <section class="panel" aria-labelledby="targets-title">
+    <h2 id="targets-title">{{ _("Destinos configurados") }}</h2>
+    {% if targets %}
+      <div class="table-scroll"><table><thead><tr><th>{{ _("Nombre") }}</th><th>{{ _("Dirección") }}</th><th>{{ _("OU autorizadas") }}</th><th>{{ _("Sufijos UPN") }}</th><th>{{ _("Credencial") }}</th></tr></thead><tbody>
+      {% for target in targets %}<tr><td>{{ target.name }}<br><span class="muted">{{ _('Revisión') }} {{ target.revision }} · {{ target.config.get('domain', '') }} · {{ target.config.get('source_role', 'dc') }}</span></td><td class="mono">{{ target.address }}</td><td>{% for ou in target.config.ou_allowlist %}<span class="tag mono">{{ ou }}</span>{% endfor %}</td><td>{{ target.config.allowed_upn_suffixes|join(', ') }}</td><td>
+        <details><summary>{{ _("Editar alcance versionado") }}</summary><form method="post" action="{{ url_for('deployments.update_target_scope', target_id=target.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="revision" value="{{ target.revision }}">
+          <label>{{ _("Servidor o colector WinRM") }}<input name="address" value="{{ target.address }}" required></label>
+          <label>{{ _("Dominio o grupo de fuentes") }}<input name="domain" value="{{ target.config.get('domain', '') }}"></label>
+          <label>{{ _("Tipo de fuente") }}<select name="source_role"><option value="dc"{% if target.config.get('source_role', 'dc') == 'dc' %} selected{% endif %}>{{ _("Controlador de dominio") }}</option><option value="wec"{% if target.config.get('source_role') == 'wec' %} selected{% endif %}>{{ _("Colector WEC") }}</option></select></label>
+          <label>{{ _("OU autorizadas, una por línea") }}<textarea name="ou_allowlist" rows="3" required>{{ target.config.ou_allowlist|join('\n') }}</textarea></label>
+          <label>{{ _("Sufijos UPN autorizados, uno por línea") }}<textarea name="allowed_upn_suffixes" rows="2" required>{{ target.config.allowed_upn_suffixes|join('\n') }}</textarea></label>
+          <button type="submit">{{ _("Guardar nueva revisión") }}</button></form>
+          {% if target_histories[target.id] %}<p class="muted">{{ _("Revisiones anteriores:") }} {% for old in target_histories[target.id] %}{{ old.revision }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+        </details>
+        <details><summary>{{ _("Rotar cuenta de servicio") }}</summary><form method="post" action="{{ url_for('deployments.update_target_credential', target_id=target.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label>{{ _("Usuario de servicio") }}<input name="administrative_username" required autocomplete="username"></label><label>{{ _("Nueva contraseña") }}<input type="password" name="administrative_password" required autocomplete="new-password"></label><button type="submit">{{ _("Actualizar credencial") }}</button></form></details>
+      </td></tr>{% endfor %}
+      </tbody></table></div>
+    {% else %}<p class="empty-state">{{ _("Todavía no hay destinos. Configurá el primer controlador de dominio o Windows Event Collector.") }}</p>{% endif %}
+  </section>
+  {% if source_groups %}<section class="panel" aria-labelledby="source-health-title"><h2 id="source-health-title">{{ _('Cobertura por dominio o grupo') }}</h2>
+    <p class="muted">{{ _('Un destino por DC relevante o un WEC central; el total de registros monitoreados no garantiza cobertura de todo el dominio.') }}</p>
+    <ul>{% for domain, counts in source_groups.items() %}<li><strong>{{ domain }}</strong> · {{ counts.sources }} {{ _('fuentes configuradas') }} · {{ counts.active }} {{ _('despliegues monitoreados') }}{% if counts.errors %} · {{ counts.errors }} {{ _('con errores recientes') }}{% endif %}</li>{% endfor %}</ul>
+  </section>{% endif %}
+{% endblock %}

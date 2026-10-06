@@ -67,6 +67,31 @@ def test_list_ttps_dedupes_and_sorts(tmp_path):
     assert collector.list_ttps("op-1") == ["T1046", "T1078"]
 
 
+def test_list_ttps_by_operation_delegates_to_repository(tmp_path):
+    # Fase 4 post-BlackHat (ver docs/roadmap.md): la consulta agregada
+    # cross-operacion -- el colector no la resuelve el mismo, delega
+    # tal cual en el repositorio.
+    collector = TelemetryCollector(repository=JSONFileTelemetryRepository(tmp_path))
+
+    collector.handle_event(_make_event(operation_id="op-1", event_type=EventType.TTP_OBSERVED, payload={"ttp_id": "T1078"}))
+    collector.handle_event(_make_event(operation_id="op-2", event_type=EventType.TTP_OBSERVED, payload={"ttp_id": "T1046"}))
+
+    result = collector.list_ttps_by_operation(["op-1", "op-2"])
+
+    assert result == {"op-1": ["T1078"], "op-2": ["T1046"]}
+
+
+def test_list_events_by_operation_delegates_grouped_records(tmp_path):
+    collector = TelemetryCollector(repository=JSONFileTelemetryRepository(tmp_path))
+    collector.handle_event(_make_event(operation_id="op-1", payload={"kind": "one"}))
+    collector.handle_event(_make_event(operation_id="op-2", payload={"kind": "two"}))
+
+    result = collector.list_events_by_operation(["op-1", "op-2"])
+
+    assert result["op-1"][0].payload["kind"] == "one"
+    assert result["op-2"][0].payload["kind"] == "two"
+
+
 def test_attach_subscribes_to_an_additional_bus(tmp_path):
     # Un mismo colector "central" puede escuchar mas de una operacion:
     # se lo construye sin bus y se lo va enganchando a medida que se

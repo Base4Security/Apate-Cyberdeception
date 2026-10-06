@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Editar actividad") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('capabilities.catalog') }}">{{ _("Catálogo de capacidades") }}</a> / <a href="{{ url_for('capabilities.behavior_activities') }}">{{ _("Actividades") }}</a> / {{ _("Editar") }}</nav>{% endblock %}
+{% block content %}{% include "plugins/_nav.html" %}<p class="detail-breadcrumb"><a href="{{ url_for('capabilities.behavior_activities') }}">&larr; {{ _("Actividades") }}</a></p><h1>{{ _("Editar tipo de actividad") }}</h1><form class="panel tools-edit-form" method="post" action="{{ url_for('capabilities.behavior_activity_edit', activity_id=activity.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label for="activity_type">{{ _("Tipo de actividad") }}</label><input type="text" id="activity_type" name="activity_type" required value="{{ activity.activity_type }}"><label for="details">{{ _("Detalle") }}</label><textarea id="details" name="details" rows="3">{{ activity.details or "" }}</textarea><label for="user_profiles">{{ _("Perfiles asignados") }}</label><select multiple id="user_profiles" name="user_profiles">{% for profile in user_profiles %}<option value="{{ profile.id }}" {% if profile in activity.user_profiles %}selected{% endif %}>{{ profile.name }} ({{ profile.role }})</option>{% endfor %}</select>
+<label for="commands">{{ _("Comandos aprobados") }}</label>
+<p class="muted" id="commands-help">{{ _("Un comando por línea. Es lo único que la narrativa ejecuta sobre los servidores del binding: si está vacío, la narrativa se niega a arrancar y dice cuál falta. Nada que no esté acá llega a correr.") }}</p>
+<textarea id="commands" name="commands" rows="6" aria-describedby="commands-help" spellcheck="false">{{ activity.approved_commands() | join("\n") }}</textarea>
+<p><button type="button" id="buda-generate-commands">{{ _("Proponer comandos con IA") }}</button> <span id="buda-commands-status" class="muted" role="status" aria-live="polite"></span></p>
+<aside id="buda-commands-suggestion" class="suggestion-preview" hidden aria-labelledby="buda-commands-title"><strong id="buda-commands-title">{{ _("Propuesta generada") }}</strong><p class="muted">{{ _("Revisala antes de usarla: al guardar, esto es lo que va a ejecutarse sobre servidores reales.") }}</p><ul id="buda-commands-list"></ul><button type="button" id="buda-apply-commands">{{ _("Agregar al repertorio") }}</button></aside>
+<p><button type="submit" class="primary">{{ _("Guardar cambios") }}</button> <a href="{{ url_for('capabilities.behavior_activities') }}">{{ _("Cancelar") }}</a></p></form>
+<script>
+(() => {
+  const boton = document.getElementById('buda-generate-commands');
+  const estado = document.getElementById('buda-commands-status');
+  const panel = document.getElementById('buda-commands-suggestion');
+  const lista = document.getElementById('buda-commands-list');
+  const area = document.getElementById('commands');
+  let propuesta = null;
+  boton.addEventListener('click', async () => {
+    estado.textContent = {{ _("Generando…")|tojson }};
+    panel.hidden = true;
+    try {
+      const respuesta = await fetch({{ url_for('capabilities.behavior_activity_generate_commands', activity_id=activity.id)|tojson }}, {method: 'POST', headers: Object.assign({'Content-Type': 'application/json'}, window.apateCsrfHeaders())});
+      const resultado = await respuesta.json();
+      if (!respuesta.ok) { estado.textContent = resultado.error || {{ _("No se pudo generar.")|tojson }}; return; }
+      propuesta = resultado.commands || [];
+      lista.replaceChildren(...propuesta.map(cmd => { const li = document.createElement('li'); li.textContent = cmd; return li; }));
+      panel.hidden = false;
+      estado.textContent = {{ _("Propuesta lista para revisar. No se guardó nada todavía.")|tojson }};
+    } catch (error) {
+      estado.textContent = {{ _("No se pudo generar.")|tojson }};
+    }
+  });
+  document.getElementById('buda-apply-commands').addEventListener('click', () => {
+    if (!propuesta || !propuesta.length) return;
+    const actual = area.value.trim();
+    area.value = (actual ? actual + '\n' : '') + propuesta.join('\n');
+    estado.textContent = {{ _("Agregada al borrador. Revisala y guardá para aprobarla.")|tojson }};
+    panel.hidden = true;
+  });
+})();
+</script>
+{% endblock %}

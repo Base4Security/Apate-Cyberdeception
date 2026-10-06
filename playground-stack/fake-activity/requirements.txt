@@ -1,0 +1,4 @@
+faker==19.6.2
+requests==2.31.0
+flask==2.3.3
+paramiko==3.3.1

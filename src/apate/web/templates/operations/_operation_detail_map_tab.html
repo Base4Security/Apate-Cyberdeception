@@ -1,0 +1,519 @@
+  <div class="tab-panel" id="tab-mapa" role="tabpanel" aria-labelledby="tab-control-mapa" tabindex="0">
+    {# Sin numero de paso a proposito: la metodologia CTI-a-ciberengano tiene
+       7 pasos y este tab no es ninguno de ellos -- es una vista de lectura
+       sobre lo que los pasos 1-5 ya cargaron. #}
+    <h2>{{ _("Mapa de la operaci&oacute;n") }}</h2>
+
+    <div class="tabs operation-map-lens-switcher" role="radiogroup" aria-label="{{ _('Lentes del mapa de la operaci&oacute;n') }}">
+      <button type="button" class="tab-link active" role="radio" aria-checked="true" tabindex="0" data-map-lens="operation-tree">{{ _("Estructura") }}</button>
+      <button type="button" class="tab-link" role="radio" aria-checked="false" tabindex="-1" data-map-lens="deception-path">{{ _("Evidencia") }}</button>
+      <button type="button" class="tab-link" role="radio" aria-checked="false" tabindex="-1" data-map-lens="operation-relations">{{ _("Resumen") }}</button>
+      <button type="button" class="tab-link" role="radio" aria-checked="false" tabindex="-1" data-map-lens="asset-coverage">{{ _("Activos") }}</button>
+    </div>
+
+    <section class="panel operation-tree" id="operation-tree" aria-labelledby="operation-tree-title" data-map-lens-panel="operation-tree">
+      <div class="panel-heading">
+        <div>
+          <h2 id="operation-tree-title">{{ _("&Aacute;rbol de la operaci&oacute;n") }}</h2>
+          <p class="muted">{{ _("Jerarqu&iacute;a real Operaci&oacute;n &rarr; Escenario &rarr; Capacidad, con estado en vivo por nodo. Solo lectura: cada nodo lleva al tab donde se edita, nada se cambia desde ac&aacute;.") }}</p>
+        </div>
+        <a class="button small" href="{{ url_for('operations.operation_tree_graphml', operation_id=operation.id) }}" title="{{ _('GraphML -- abre en Gephi/yEd, incluye recursos concretos (decoys, perfiles, honeytokens, Canarytokens y OpenCanary) como nodos propios') }}">{{ _("Descargar GraphML (Gephi)") }}</a>
+      </div>
+      {% if operation_tree.has_content %}
+        <label>{{ _('Buscar escenario o capacidad en el árbol') }}<input id="op-tree-filter" type="search" autocomplete="off" placeholder="{{ _('Nombre, ID o superficie') }}"></label>
+        <div class="op-tree-wrap">
+          <svg class="op-tree-lines" aria-hidden="true"></svg>
+          <ul class="op-tree">
+            <li class="op-tree-node-item">
+              <div class="op-tree-node op-tree-node-operation" data-tree-id="root">
+                <span class="op-tree-kind">{{ _("Operaci&oacute;n") }}</span>
+                <strong>{{ operation.name }}</strong>
+                <span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span>
+                <small class="muted">{{ _("Adversario:") }} {{ operation.adversary_profile.name }}</small>
+              </div>
+              <ul class="op-tree-children">
+                {% for scenario_entry in operation_tree.scenarios %}
+                  <li class="op-tree-node-item">
+                    <a class="op-tree-node op-tree-node-scenario{{ ' op-tree-node-muted' if scenario_entry.unassigned }}" data-tree-id="{{ scenario_entry.anchor_id }}" data-tree-parent="root" href="#tab-scenarios">
+                      <span class="op-tree-kind">{{ _("Escenario") }}</span>
+                      <strong>{{ scenario_entry.label }}</strong>
+                        {% if scenario_entry.scenario %}
+                          <small class="muted">{{ _("Nivel") }} {{ scenario_entry.scenario.deception_level.value }}</small>
+                        {% endif %}
+                        {% if scenario_entry.ttp_stats %}
+                          <span class="tag-list op-tree-ttp-badges">
+                            <span class="tag ttp-cell-matched">{{ scenario_entry.ttp_stats.matched }}/{{ scenario_entry.ttp_stats.total }} <abbr title="{{ _('T&aacute;ctica, t&eacute;cnica o procedimiento') }}">{{ _("TTP") }}</abbr> {{ _("coincidente(s)") }}</span>
+                            {% if scenario_entry.ttp_stats.not_observed %}<span class="tag ttp-cell-not-observed">{{ scenario_entry.ttp_stats.not_observed }} {{ _("sin observar") }}</span>{% endif %}
+                          </span>
+                        {% elif scenario_entry.scenario %}
+                          <small class="muted">{{ _("Sin") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s relacionadas") }}</small>
+                        {% endif %}
+                    </a>
+                    {% if scenario_entry.scenario %}
+                      <a class="op-tree-link op-tree-link-inline" href="{{ url_for('operations.detail', operation_id=operation.id, prefill_scenario_id=scenario_entry.scenario.id, _anchor='tab-plugins') }}">{{ _("+ Vincular capacidad acá") }}</a>
+                    {% endif %}
+                    <ul class="op-tree-children">
+                      {% for binding_entry in scenario_entry.bindings %}
+                        {% set binding = binding_entry.binding %}
+                        <li class="op-tree-node-item">
+                          <a class="op-tree-node op-tree-node-capability deception-state-{{ binding_entry.state }}" data-tree-id="{{ binding_entry.anchor_id }}" data-tree-parent="{{ scenario_entry.anchor_id }}"{% if binding_entry.leads_to_target_anchor_id %} data-tree-leads-to="{{ binding_entry.leads_to_target_anchor_id }}"{% endif %} href="#tab-plugins">
+                            <span class="op-tree-kind">{{ binding_entry.kind_label or "Capacidad" }}</span>
+                            <strong class="mono">{{ binding.plugin_id }}</strong>
+                            <small class="muted">{{ binding_entry.state_label }} {{ _("&middot;") }} {{ binding.surface or "sin superficie" }}</small>
+                            {% if binding_entry.leads_to_plugin_id %}<small class="op-tree-breadcrumb-hint">{{ _("&#128279; lleva a") }} {{ binding_entry.leads_to_plugin_id }}</small>{% endif %}
+                          </a>
+                          <ul class="op-tree-children">
+                            <li class="op-tree-node-item">
+                              <div class="op-tree-node op-tree-node-detail" data-tree-id="{{ binding_entry.anchor_id }}:detail" data-tree-parent="{{ binding_entry.anchor_id }}">
+                                <div class="op-tree-detail-section">
+                                  <span class="op-tree-kind">{{ _("Actividades de Engage") }}</span>
+                                  {% if binding_entry.engage_activities %}
+                                    <span class="tag-list">
+                                      {% for activity in binding_entry.engage_activities %}
+                                        <span class="tag" title="{{ activity.id }}">{{ activity.name }}</span>
+                                      {% endfor %}
+                                    </span>
+                                  {% else %}<small class="muted">{{ _("Ninguna seleccionada") }}</small>{% endif %}
+                                </div>
+                                <div class="op-tree-detail-section">
+                                  <span class="op-tree-kind">{{ _("Efecto (Ver-Pensar-Hacer)") }}</span>
+                                  {% if binding_entry.effect_has_content %}
+                                    <small>{{ binding.effect.expected_adversary_belief or "-" }} {{ _("&middot;") }} {{ binding.effect.expected_adversary_action or "-" }}</small>
+                                    <small class="muted">{{ _("M&eacute;trica:") }} {{ binding.effect.success_metric or "-" }}</small>
+                                  {% else %}<small class="muted">{{ _("Sin efecto planificado todav&iacute;a") }}</small>{% endif %}
+                                  {% if binding.effect.measured_outcome %}
+                                    <small class="op-tree-measured">{{ _("Medido:") }} {{ binding.effect.measured_outcome }}</small>
+                                  {% else %}<small class="muted">{{ _("Sin resultado medido") }}</small>{% endif %}
+                                </div>
+                                <div class="op-tree-detail-section">
+                                  <span class="op-tree-kind">{{ _("Recurso concreto") }}</span>
+                                  {% if binding_entry.resources %}
+                                    <ul class="op-tree-resource-list">
+                                      {% for resource in binding_entry.resources %}
+                                        <li>
+                                          <span class="dot dot-{{ 'up' if resource.state == 'active' else ('down' if resource.state == 'deployed' else 'unknown') }}"></span>
+                                          <span class="mono">{{ resource.label }}</span>
+                                          <small class="muted">{{ resource.detail }}</small>
+                                        </li>
+                                      {% endfor %}
+                                    </ul>
+                                  {% elif binding_entry.resource_supported %}
+                                    <small class="muted">{{ _("Sin recurso configurado todav&iacute;a") }}</small>
+                                  {% else %}
+                                    <small class="muted">{{ _("No aplica para este tipo de capacidad") }}</small>
+                                  {% endif %}
+                                </div>
+                                {% if binding_entry.leads_to_plugin_id or binding_entry.leads_from_plugin_ids %}
+                                  <div class="op-tree-detail-section">
+                                    <span class="op-tree-kind">{{ _("Breadcrumbs") }}</span>
+                                    {% if binding_entry.leads_to_plugin_id %}
+                                      {% if binding_entry.leads_to_broken %}
+                                        <small class="op-tree-breadcrumb-broken">{{ _("&#9888; Lleva a") }} <span class="mono">{{ binding_entry.leads_to_plugin_id }}</span> {{ _("-- no encontrado en esta operaci&oacute;n") }}</small>
+                                      {% else %}
+                                        <small>{{ _("&#128279; Lleva a") }} <a class="mono" href="#tab-plugins">{{ binding_entry.leads_to_plugin_id }}</a></small>
+                                      {% endif %}
+                                    {% endif %}
+                                    {% if binding_entry.leads_from_plugin_ids %}
+                                      <small class="muted">{{ _("Recibe una miga de:") }} {% for source_id in binding_entry.leads_from_plugin_ids %}<a class="mono" href="#tab-plugins">{{ source_id }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</small>
+                                    {% endif %}
+                                  </div>
+                                {% endif %}
+                              </div>
+                            </li>
+                          </ul>
+                        </li>
+                      {% else %}
+                        <li class="op-tree-node-item"><p class="op-tree-empty-branch">{{ _("Sin capacidades vinculadas a este escenario todav&iacute;a.") }}</p></li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <script>
+          (() => {
+            const wrap = document.querySelector('.op-tree-wrap');
+            if (!wrap) return;
+            const svg = wrap.querySelector('.op-tree-lines');
+            const mq = window.matchMedia('(min-width: 761px)');
+
+            function draw() {
+              while (svg.firstChild) svg.removeChild(svg.firstChild);
+              if (!mq.matches) { svg.setAttribute('viewBox', '0 0 0 0'); return; }
+              const wrapRect = wrap.getBoundingClientRect();
+              const width = wrap.scrollWidth;
+              const height = wrap.scrollHeight;
+              svg.setAttribute('width', width);
+              svg.setAttribute('height', height);
+              svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+              const nodeEls = Array.from(wrap.querySelectorAll('[data-tree-id]')).filter(el => el.getClientRects().length);
+              const byId = new Map(nodeEls.map((el) => [el.dataset.treeId, el]));
+              nodeEls.forEach((el) => {
+                const parentId = el.dataset.treeParent;
+                if (!parentId) return;
+                const parent = byId.get(parentId);
+                if (!parent) return;
+                const pr = parent.getBoundingClientRect();
+                const cr = el.getBoundingClientRect();
+                const x1 = pr.right - wrapRect.left + wrap.scrollLeft;
+                const y1 = pr.top + pr.height / 2 - wrapRect.top + wrap.scrollTop;
+                const x2 = cr.left - wrapRect.left + wrap.scrollLeft;
+                const y2 = cr.top + cr.height / 2 - wrapRect.top + wrap.scrollTop;
+                const midX = (x1 + x2) / 2;
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`);
+                const live = el.classList.contains('deception-state-active') || el.classList.contains('deception-state-observed');
+                path.setAttribute('class', 'op-tree-edge' + (live ? ' op-tree-edge-live' : ''));
+                svg.appendChild(path);
+              });
+
+              // Breadcrumbs (referencia declarada: CounterCraft): "lleva a"
+              // ES una relacion entre dos capacidades que puede cruzar
+              // escenarios distintos -- no es un vinculo padre/hijo de la
+              // jerarquia estricta de arriba, asi que se dibuja aparte, con
+              // su propio estilo (discontinuo), conectando el borde
+              // superior/inferior segun la posicion relativa real (no
+              // siempre "de izquierda a derecha" como los del arbol
+              // estructural: el destino de una miga puede estar en
+              // cualquier columna/fila).
+              nodeEls.forEach((el) => {
+                const targetId = el.dataset.treeLeadsTo;
+                if (!targetId) return;
+                const target = byId.get(targetId);
+                if (!target) return;
+                const fr = el.getBoundingClientRect();
+                const tr = target.getBoundingClientRect();
+                const fromBelow = fr.top > tr.top;
+                const x1 = fr.left + fr.width / 2 - wrapRect.left + wrap.scrollLeft;
+                const y1 = (fromBelow ? fr.top : fr.bottom) - wrapRect.top + wrap.scrollTop;
+                const x2 = tr.left + tr.width / 2 - wrapRect.left + wrap.scrollLeft;
+                const y2 = (fromBelow ? tr.bottom : tr.top) - wrapRect.top + wrap.scrollTop;
+                const midY = (y1 + y2) / 2;
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`);
+                path.setAttribute('class', 'op-tree-edge op-tree-edge-breadcrumb');
+                svg.appendChild(path);
+              });
+            }
+
+            let raf = null;
+            function scheduleDraw() {
+              if (raf) cancelAnimationFrame(raf);
+              raf = requestAnimationFrame(draw);
+            }
+
+            window.__apateMapTreeRedraw = function () {
+              requestAnimationFrame(function () {
+                scheduleDraw();
+                requestAnimationFrame(draw);
+              });
+            };
+
+            const filter = document.getElementById('op-tree-filter');
+            if (filter) filter.addEventListener('input', () => {
+              const query = filter.value.trim().toLocaleLowerCase();
+              wrap.querySelectorAll('.op-tree-node-scenario').forEach(scenario => {
+                const scenarioItem = scenario.closest('.op-tree-node-item');
+                const scenarioMatch = scenario.textContent.toLocaleLowerCase().includes(query);
+                let matchingBinding = false;
+                scenarioItem.querySelectorAll('.op-tree-node-capability').forEach(binding => {
+                  const matches = !query || scenarioMatch || binding.textContent.toLocaleLowerCase().includes(query);
+                  binding.closest('.op-tree-node-item').style.display = matches ? '' : 'none';
+                  matchingBinding = matchingBinding || matches;
+                });
+                scenarioItem.style.display = !query || scenarioMatch || matchingBinding ? '' : 'none';
+              });
+              scheduleDraw();
+            });
+
+            new ResizeObserver(scheduleDraw).observe(wrap);
+            window.addEventListener('resize', scheduleDraw);
+            mq.addEventListener('change', scheduleDraw);
+            scheduleDraw();
+            requestAnimationFrame(() => requestAnimationFrame(draw));
+          })();
+        </script>
+      {% else %}
+        <div class="empty-state compact-empty-state"><p>{{ _("Agreg&aacute; escenarios y capacidades para que el &aacute;rbol tenga algo que mostrar.") }}</p><a href="#tab-scenarios">{{ _("Completar escenarios") }}</a></div>
+      {% endif %}
+    </section>
+
+    <section class="panel deception-path" id="deception-path" aria-labelledby="deception-path-title" data-map-lens-panel="deception-path" hidden>
+      <div class="panel-heading">
+        <div>
+          <h2 id="deception-path-title">{{ _("Camino visual de enga&ntilde;o") }}</h2>
+          <p class="muted">{{ _("Relaciones persistidas de esta operaci&oacute;n. Las conexiones organizan evidencia y configuraci&oacute;n; no afirman causalidad.") }}</p>
+          {% if deception_path.summarized_event_count %}<p role="status" class="muted">{{ _('%(shown)s eventos recientes se muestran individualmente; %(grouped)s anteriores se agrupan por capacidad y TTP. La telemetría conserva el detalle completo.', shown=deception_path.individual_event_count, grouped=deception_path.summarized_event_count) }}</p>{% endif %}
+        </div>
+        <span class="summary-count-badge">{{ deception_path.nodes | length }} {{ _("nodos") }}</span>
+      </div>
+      {% if deception_path.has_content %}
+        <div class="deception-path-layout">
+          <div class="deception-graph" aria-label="{{ _('Grafo de solo lectura') }}" tabindex="0">
+            {% for layer in deception_path.layers %}
+              <section class="deception-layer" aria-labelledby="deception-layer-{{ layer.id }}">
+                <h3 id="deception-layer-{{ layer.id }}">{{ layer.label }}</h3>
+                {% if layer.nodes %}
+                  <div class="deception-node-list">
+                    {% for node in layer.nodes %}
+                      <button type="button" class="deception-node deception-state-{{ node.state }}" data-deception-node="{{ node.id }}" aria-pressed="false">
+                        <span>{{ node.kind }}</span><strong>{{ node.label }} <span aria-hidden="true"></span></strong><small>{{ node.state | replace('planned', 'planificado') | replace('deployed', 'desplegado') | replace('active', 'activo') | replace('observed', 'observado') }}</small>
+                      </button>
+                    {% endfor %}
+                  </div>
+                {% else %}<p class="muted">{{ _("Sin nodos relacionados.") }}</p>{% endif %}
+              </section>
+            {% endfor %}
+          </div>
+          <aside class="card deception-inspector" aria-live="polite" aria-labelledby="deception-inspector-title">
+            <h3 id="deception-inspector-title">{{ _("Seleccion&aacute; un nodo") }}</h3>
+            <p id="deception-inspector-detail" class="muted">{{ _("El inspector muestra estado, procedencia y conexiones sin editar datos.") }}</p>
+            <dl class="operation-overview">
+              <dt>{{ _("Tipo") }}</dt><dd id="deception-inspector-kind">-</dd>
+              <dt>{{ _("Estado") }}</dt><dd id="deception-inspector-state">-</dd>
+              <dt>{{ _("Conexiones") }}</dt><dd id="deception-inspector-edges">-</dd>
+            </dl>
+            <a id="deception-inspector-link" class="button small" href="#" hidden>{{ _("Abrir evidencia") }}</a>
+          </aside>
+        </div>
+        <details class="collapsible deception-path-table">
+          <summary>{{ _("Representaci&oacute;n tabular") }} <span class="summary-count">{{ deception_path.edges | length }} {{ _("relaciones") }}</span></summary>
+          <div class="collapsible-body table-scroll"><table>
+            <thead><tr><th>{{ _("Origen") }}</th><th>{{ _("Relaci&oacute;n") }}</th><th>{{ _("Destino") }}</th></tr></thead>
+            <tbody>{% for edge in deception_path.edges %}
+              {% set source = deception_path.nodes | selectattr('id', 'equalto', edge.source) | first %}
+              {% set target = deception_path.nodes | selectattr('id', 'equalto', edge.target) | first %}
+              <tr><td>{{ source.kind }}: {{ source.label }}</td><td>{{ edge.relation }}</td><td>{{ target.kind }}: {{ target.label }}</td></tr>
+            {% endfor %}</tbody>
+          </table></div>
+        </details>
+        <p class="muted relationship-note">{{ _("“Retirado” solo aparecer&aacute; cuando exista una fuente persistida inequ&iacute;voca; la ausencia de actividad no se interpreta como retiro.") }}</p>
+        <script type="application/json" id="deception-path-data">{{ deception_path | tojson }}</script>
+        <script>
+          (() => {
+            const data = JSON.parse(document.getElementById('deception-path-data').textContent);
+            const byId = Object.fromEntries(data.nodes.map(node => [node.id, node]));
+            // Traducidas del lado del servidor: escritas como literales JS
+            // quedaban fuera del catalogo y se mostraban siempre en espanol.
+            const labels = {
+              planned: {{ _("Planificado") | tojson }},
+              deployed: {{ _("Desplegado") | tojson }},
+              active: {{ _("Activo") | tojson }},
+              observed: {{ _("Observado") | tojson }},
+              retired: {{ _("Retirado") | tojson }},
+            };
+            const title = document.getElementById('deception-inspector-title');
+            const detail = document.getElementById('deception-inspector-detail');
+            const kind = document.getElementById('deception-inspector-kind');
+            const state = document.getElementById('deception-inspector-state');
+            const edgeField = document.getElementById('deception-inspector-edges');
+            const link = document.getElementById('deception-inspector-link');
+            document.querySelectorAll('[data-deception-node]').forEach(button => button.addEventListener('click', () => {
+              document.querySelectorAll('[data-deception-node]').forEach(item => item.setAttribute('aria-pressed', 'false'));
+              button.setAttribute('aria-pressed', 'true');
+              const node = byId[button.dataset.deceptionNode];
+              const related = data.edges.filter(edge => edge.source === node.id || edge.target === node.id).map(edge => {
+                const other = byId[edge.source === node.id ? edge.target : edge.source];
+                return edge.relation + ': ' + other.label;
+              });
+              title.textContent = node.label; detail.textContent = node.detail; kind.textContent = node.kind;
+              state.textContent = labels[node.state] || node.state; edgeField.textContent = related.join(' · ') || {{ _("Sin conexiones") | tojson }};
+              link.hidden = !node.href; if (node.href) link.href = node.href;
+            }));
+          })();
+        </script>
+      {% else %}
+        <div class="empty-state compact-empty-state"><p>{{ _("Agreg&aacute;") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s, escenarios y capacidades para construir relaciones verificables.") }}</p><a href="#tab-profile">{{ _("Completar preparaci&oacute;n") }}</a></div>
+      {% endif %}
+    </section>
+
+    <section class="panel asset-coverage-map" id="asset-coverage" data-map-lens-panel="asset-coverage" hidden aria-labelledby="asset-coverage-title">
+      <h2 id="asset-coverage-title">{{ _("Cobertura declarada de activos") }}</h2>
+      <p class="muted">{{ _("Solo relaciones declaradas por cada capacidad. No se infiere cobertura desde hostnames, rutas o nombres; una capacidad sin activo puede ser deliberada y no se presenta como error.") }}</p>
+      {% if asset_coverage.has_content %}
+        {% if asset_coverage.covered %}
+          <section>
+            <h3>{{ _("Activos con capacidad declarada") }} <span class="muted">({{ asset_coverage.covered | length }})</span></h3>
+            <div class="panel-grid asset-coverage-grid">
+              {% for target in asset_coverage.covered %}
+                <article class="card">
+                  <h4>{{ target.label }}</h4>
+                  {% if target.asset %}
+                    <p><code>{{ target.asset.identifier }}</code> · {{ target.asset.asset_type }} · {{ criticality_label(target.asset.criticality) }}</p>
+                    {% if target.asset.technical_identifier %}<p class="muted">{{ target.asset.technical_identifier }}</p>{% endif %}
+                  {% else %}<p class="muted">{{ _("Referencia manual, no inventariada.") }}</p>{% endif %}
+                  <p>{{ _("Protegido por:") }} {% for binding in target.bindings %}<a class="tag mono" href="#tab-plugins">{{ binding.plugin_id }}</a>{% if not loop.last %} {% endif %}{% endfor %}</p>
+                </article>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+
+        {% if asset_coverage.uncovered %}
+          <section class="asset-coverage-uncovered">
+            <h3>{{ _("Activos objetivo sin capacidad") }} <span class="muted">({{ asset_coverage.uncovered | length }})</span></h3>
+            <p class="muted">{{ _("Ordenados por criticidad. Esta lista es un hallazgo de planificación, no una puntuación ni un error automático.") }}</p>
+            <ul>
+              {% for target in asset_coverage.uncovered %}
+                <li>
+                  <strong>{{ target.label }}</strong>{% if target.asset %} — {{ target.asset.asset_type }}, {{ criticality_label(target.asset.criticality) }} (<code>{{ target.asset.identifier }}</code>)
+                    {% if target.placement_suggestions %}
+                      <p class="muted">{{ _("Sugerencias de colocación, para revisión manual:") }}</p>
+                      <span class="tag-list">{% for suggestion in target.placement_suggestions %}<span class="tag" title="{{ suggestion.surface }}">{{ suggestion.display_name }}</span>{% endfor %}</span>
+                      <p class="muted">{{ _("Juicio interpretativo de Apate según tipo y criticidad; no crea ni despliega una capacidad.") }}</p>
+                    {% else %}
+                      <p class="muted">{{ _("No hay sugerencia para este tipo de activo libre. El mapa no adivina una taxonomía.") }}</p>
+                    {% endif %}
+                  {% else %} {{ _("— referencia manual no inventariada") }}{% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+
+        {% if asset_coverage.unassigned_capabilities %}
+          <section>
+            <h3>{{ _("Capacidades sin activo declarado") }} <span class="muted">({{ asset_coverage.unassigned_capabilities | length }})</span></h3>
+            <p class="muted">{{ _("Pueden ser migas deliberadas o una relación pendiente; el mapa no lo decide.") }}</p>
+            <span class="tag-list">{% for binding in asset_coverage.unassigned_capabilities %}<a class="tag mono" href="#tab-plugins">{{ binding.plugin_id }}</a>{% endfor %}</span>
+          </section>
+        {% endif %}
+
+        {% if asset_coverage.unresolved_references %}
+          <section>
+            <h3>{{ _("Referencias de cobertura fuera de los activos objetivo") }} <span class="muted">({{ asset_coverage.unresolved_references | length }})</span></h3>
+            <p class="muted">{{ _("Se conservan visibles para no perder una declaración que ya no resuelve en el perfil de la operación.") }}</p>
+            <ul>
+              {% for unresolved in asset_coverage.unresolved_references %}
+                <li><code>{{ unresolved.reference }}</code> {{ _("— declarada por") }} {% for binding in unresolved.bindings %}<a class="tag mono" href="#tab-plugins">{{ binding.plugin_id }}</a>{% if not loop.last %} {% endif %}{% endfor %}</li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+      {% else %}
+        <div class="empty-state compact-empty-state"><p>{{ _("Esta operación aún no tiene activos objetivo ni capacidades vinculadas. El mapa de activos mostrará las relaciones explícitas cuando existan.") }}</p><a href="#tab-profile">{{ _("Completar activos objetivo") }}</a></div>
+      {% endif %}
+    </section>
+
+    <details class="collapsible" id="operation-relations" data-map-lens-panel="operation-relations" hidden>
+      <summary>{{ _("Relaciones de la operaci&oacute;n") }} <span class="summary-count">{{ _("vista de contexto") }}</span></summary>
+      <div class="collapsible-body relationship-flow" aria-label="{{ _('Operaci&oacute;n, escenarios, plugins, Engage y efecto medido') }}">
+        <div class="relationship-node"><span class="muted">{{ _("Operaci&oacute;n") }}</span><strong>{{ operation.name }}</strong></div>
+        <span aria-hidden="true">{{ _("&rarr;") }}</span>
+        <a class="relationship-node" href="#tab-scenarios"><span class="muted">{{ _("Escenarios") }}</span><strong>{{ operation.scenarios | length }}</strong></a>
+        <span aria-hidden="true">{{ _("&rarr;") }}</span>
+        <a class="relationship-node" href="#tab-plugins"><span class="muted">{{ _("Capacidades") }}</span><strong>{{ operation.plugins | length }}</strong></a>
+        <span aria-hidden="true">{{ _("&rarr;") }}</span>
+        <a class="relationship-node" href="#tab-preparation"><span class="muted">{{ _("Engage cubierto") }}</span><strong>{{ preparation_coverage | selectattr('status', 'equalto', 'covered') | list | length }}/8</strong></a>
+        <span aria-hidden="true">{{ _("&rarr;") }}</span>
+        <div class="relationship-node"><span class="muted">{{ _("Efectos medidos") }}</span><strong>{{ operation.plugins | selectattr('effect.measured_outcome') | list | length }}/{{ operation.plugins | length }}</strong></div>
+      </div>
+      <p class="muted relationship-note">{{ _("Resume asociaciones persistidas y cobertura calculada; las flechas organizan el contexto y no afirman causalidad.") }}</p>
+    </details>
+
+    <details class="collapsible operation-timeline" id="operation-timeline">
+      <summary>{{ _("Actividad de la operaci&oacute;n") }} <span class="summary-count">{{ operation_timeline | length }} {{ _("hito(s)") }}</span></summary>
+      <div class="collapsible-body">
+        <p class="muted">{{ _("Vista cronol&oacute;gica de fuentes independientes. No implica causalidad: la telemetr&iacute;a y las acciones manuales son persistentes; las reglas solo aparecen mientras la sesi&oacute;n de Playground siga viva.") }}</p>
+        <div class="timeline-toolbar" role="group" aria-label="{{ _('Filtrar actividad') }}">
+          <button type="button" class="small active" data-timeline-filter="all">{{ _("Todo") }}</button>
+          <button type="button" class="small" data-timeline-filter="operation">{{ _("Operaci&oacute;n") }}</button>
+          <button type="button" class="small" data-timeline-filter="manual">{{ _("Manual") }}</button>
+          <button type="button" class="small" data-timeline-filter="telemetry">{{ _("Telemetr&iacute;a") }}</button>
+          <button type="button" class="small" data-timeline-filter="rules">{{ _("Reglas") }}</button>
+        </div>
+        <ol class="timeline-list">
+          {% for entry in operation_timeline %}
+            <li data-timeline-source="{{ entry.source }}">
+              <time data-local-time datetime="{{ entry.timestamp.isoformat() }}">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time>
+              <span class="tag">{{ entry.source }}</span>
+              <strong>{{ entry.title }}</strong>
+              <span class="muted">{{ entry.detail }}</span>
+            </li>
+          {% endfor %}
+        </ol>
+      </div>
+    </details>
+
+    <script>
+      (function () {
+        const mapPanel = document.getElementById('tab-mapa');
+        if (!mapPanel) return;
+
+        const lensButtons = Array.from(mapPanel.querySelectorAll('[data-map-lens]'));
+        const lensPanels = Array.from(mapPanel.querySelectorAll('[data-map-lens-panel]'));
+
+        function setActiveMapLens(rawLensId, options) {
+          const forceDraw = options && options.forceDraw;
+          const candidate = String(rawLensId || 'operation-tree').replace(/^#/, '');
+          const known = lensPanels.map(function (panel) { return panel.dataset.mapLensPanel; });
+          const target = known.includes(candidate) ? candidate : 'operation-tree';
+
+          lensButtons.forEach(function (button) {
+            const isActive = button.dataset.mapLens === target;
+            button.classList.toggle('active', isActive);
+            button.setAttribute('aria-checked', String(isActive));
+            button.tabIndex = isActive ? 0 : -1;
+          });
+          lensPanels.forEach(function (panel) {
+            const isActive = panel.dataset.mapLensPanel === target;
+            if (isActive) {
+              panel.removeAttribute('hidden');
+            } else {
+              panel.setAttribute('hidden', 'hidden');
+            }
+          });
+
+          if (forceDraw && target === 'operation-tree' && window.__apateMapTreeRedraw) {
+            window.__apateMapTreeRedraw();
+          }
+
+          return target;
+        }
+
+        lensButtons.forEach(function (button) {
+          button.addEventListener('click', function () {
+            const activeLens = setActiveMapLens(button.dataset.mapLens, {forceDraw: true});
+            if (location.hash === '#' + activeLens) {
+              return;
+            }
+            history.replaceState(null, '', '#' + activeLens);
+          });
+          // Navegacion por flechas, obligatoria en un role="radiogroup" con
+          // roving tabindex: las lentes inactivas quedan en tabindex="-1", asi
+          // que sin esto quien navega por teclado llega al grupo y no puede
+          // cambiar de lente. Mismo patron que la barra de tabs principal en
+          // detail.html, para no tener dos comportamientos de teclado
+          // distintos en la misma pagina.
+          button.addEventListener('keydown', function (event) {
+            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+            event.preventDefault();
+            const current = lensButtons.indexOf(button);
+            let target = current;
+            if (event.key === 'ArrowLeft') target = (current - 1 + lensButtons.length) % lensButtons.length;
+            if (event.key === 'ArrowRight') target = (current + 1) % lensButtons.length;
+            if (event.key === 'Home') target = 0;
+            if (event.key === 'End') target = lensButtons.length - 1;
+            lensButtons[target].click();
+            lensButtons[target].focus();
+          });
+        });
+
+        window.apateMapLenses = window.apateMapLenses || {};
+        window.apateMapLenses.activate = function (rawHash) {
+          const target = setActiveMapLens(rawHash, {forceDraw: true});
+          const targetElement = document.getElementById(target);
+          if (targetElement) {
+            targetElement.scrollIntoView({behavior: 'auto', block: 'start'});
+          }
+          return target;
+        };
+
+        setActiveMapLens(location.hash, {forceDraw: true});
+
+        window.__apateMapTreeRedraw = window.__apateMapTreeRedraw || function () {};
+      })();
+    </script>
+  </div>

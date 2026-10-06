@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Salud de la operación') }} · {{ operation.name }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ operation.name }}</a> / {{ _('Salud de la operación') }}</nav>{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">{{ operation.name }}</p><h1>{{ _('Salud de la operación') }}</h1></div></header>
+<p>{{ _('El silencio de un señuelo no significa que la fuente esté caída. APATE separa actividad observada, sondeo de eventos y comprobación del recurso.') }}</p>
+<p class="muted">{{ _('Monitor AD:') }} {{ _('activo') if monitoring.enabled else _('desactivado') }} · {{ _('Último ciclo:') }} {% if monitoring.last_poll %}<time data-local-time datetime="{{ monitoring.last_poll }}">{{ monitoring.last_poll }}</time>{% else %}{{ _('sin ejecutar desde el arranque') }}{% endif %}</p>
+{% if health %}<div class="table-scroll"><table><thead><tr><th>{{ _('Capacidad y destino') }}</th><th>{{ _('Estado del recurso') }}</th><th>{{ _('Salud') }}</th><th>{{ _('Último sondeo correcto') }}</th><th>{{ _('Última comprobación del recurso') }}</th><th>{{ _('Última actividad observada') }}</th><th>{{ _('Error reciente') }}</th></tr></thead><tbody>
+{% for item in health %}<tr><td>{{ item.record.plugin_id }}<br><small>{{ item.record.target_id }}</small></td><td>{{ item.record.status.value }}</td><td><span class="badge badge-{{ item.health }}">{{ {'healthy': _('Correcta'), 'degraded': _('Degradada'), 'stale': _('Sondeo atrasado'), 'unverified': _('Sin comprobación desde el arranque'), 'inactive': _('Inactiva')}[item.health] }}</span></td>
+<td>{% if item.last_success %}<time data-local-time datetime="{{ item.last_success }}">{{ item.last_success }}</time>{% else %}—{% endif %}</td>
+<td>{% if item.last_refresh %}<time data-local-time datetime="{{ item.last_refresh }}">{{ item.last_refresh }}</time> · {{ item.last_refresh_status or '' }}{% else %}—{% endif %}</td>
+<td>{% if item.last_observed_event %}<time data-local-time datetime="{{ item.last_observed_event }}">{{ item.last_observed_event }}</time>{% else %}{{ _('Sin actividad; no implica fallo') }}{% endif %}</td><td>{{ item.error or '—' }}</td></tr>{% endfor %}
+</tbody></table></div>{% else %}<p class="empty-state">{{ _('Todavía no hay despliegues que comprobar.') }}</p>{% endif %}
+<p><a href="{{ url_for('deployments.operation_deployments', operation_id=operation.id) }}">{{ _('Ver planes y despliegues') }}</a></p>
+{% endblock %}

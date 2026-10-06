@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('operations.list_operations') }}">{{ _("Operaciones") }}</a> / <a href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ operation.name }}</a> / {{ _("Despliegues") }}</nav>{% endblock %}
+{% block title %}{{ _("Despliegues") }} · {{ operation.name }}{% endblock %}
+{% block content %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ _("&larr; Volver a la operación") }}</a></p>
+  <header class="page-header"><div><p class="eyebrow">{{ _("Control plane") }}</p><h1>{{ _("Despliegues") }} · {{ operation.name }}</h1></div></header>
+  <p>{{ _("APATE primero prepara un plan verificable. El destino solo cambia cuando confirmás ese plan.") }}</p>
+
+  {% if can_operate %}
+  <section class="panel" aria-labelledby="prepare-title">
+    <h2 id="prepare-title">{{ _("Preparar honeyuser") }}</h2>
+    {% if targets %}
+    <form method="post" action="{{ url_for('deployments.prepare_honeyuser', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid">
+        <label>{{ _("Destino") }}<select name="target_id" id="honeyuser-target" required>{% for target in targets %}<option value="{{ target.id }}">{{ target.name }} · {{ target.address }}</option>{% endfor %}</select></label>
+        <label>{{ _("ID de capacidad") }}<input name="plugin_id" list="operation-plugin-ids" required placeholder="honeyuser-finanzas"><datalist id="operation-plugin-ids">{% for binding in operation.plugins %}<option value="{{ binding.plugin_id }}">{% endfor %}</datalist></label>
+        <label>{{ _("sAMAccountName") }}<input name="sam_account_name" required maxlength="20" placeholder="laura.fernandez"></label>
+        <label>{{ _("Nombre visible") }}<input name="display_name" required placeholder="Laura Fernández"></label>
+        <label>{{ _("Nombre") }}<input name="given_name"></label>
+        <label>{{ _("Apellido") }}<input name="surname"></label>
+        <label>{{ _("OU exacta") }}<select name="ou_dn" id="honeyuser-ou" required>{% for target in targets %}{% for ou in target.config.ou_allowlist %}<option value="{{ ou }}" data-target="{{ target.id }}"{% if target.id != targets[0].id %} disabled hidden{% endif %}>{{ ou }}</option>{% endfor %}{% endfor %}</select></label>
+        <label>{{ _("Sufijo UPN") }}<select name="upn_suffix" id="honeyuser-upn" required>{% for target in targets %}{% for suffix in target.config.allowed_upn_suffixes %}<option value="{{ suffix }}" data-target="{{ target.id }}"{% if target.id != targets[0].id %} disabled hidden{% endif %}>{{ suffix }}</option>{% endfor %}{% endfor %}</select></label>
+      </div>
+      <button type="submit" class="primary">{{ _("Validar y preparar plan") }}</button>
+    </form>
+    {% else %}<p class="empty-state">{{ _("No hay destinos configurados.") }} {% if can_administer %}<a href="{{ url_for('deployments.targets') }}">{{ _("Configurar Active Directory") }}</a>{% endif %}</p>{% endif %}
+  </section>
+  {% endif %}
+
+  {% if can_operate and filesystem_targets %}
+  <section class="panel" aria-labelledby="prepare-file-title"><h2 id="prepare-file-title">{{ _('Preparar honeyfile') }}</h2>
+    <p class="muted">{{ _('El contenido debe ser señuelo; el plan lo conserva para la revisión del operador. No ingreses credenciales reales.') }}</p>
+    <form method="post" action="{{ url_for('deployments.prepare_honeyfile', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid"><label>{{ _('Destino de archivos') }}<select name="target_id" required>{% for target in filesystem_targets %}<option value="{{ target.id }}">{{ target.name }} · {{ target.address }}</option>{% endfor %}</select></label>
+      <label>{{ _('ID de capacidad') }}<input name="plugin_id" list="operation-plugin-ids" required></label>
+      <label>{{ _('Ruta relativa del archivo') }}<input name="relative_path" required placeholder="finance/credenciales.txt"></label></div>
+      <label>{{ _('Contenido señuelo') }}<textarea name="content" rows="5" required></textarea></label>
+      <label>{{ _('Contenido para rotación opcional') }}<textarea name="rotation_content" rows="3"></textarea></label>
+      <button type="submit" class="primary">{{ _('Validar y preparar plan de archivo') }}</button>
+    </form>
+  </section>
+  {% endif %}
+
+  <section class="panel" aria-labelledby="plans-title">
+    <h2 id="plans-title">{{ _("Planes y ejecuciones") }}</h2>
+    {% if plans %}
+      {% for plan in plans|sort(attribute='created_at', reverse=true) %}
+        {% set record = records_by_plan.get(plan.id) %}
+        {% set approval = approval_statuses.get(plan.id) if approvals_enabled else none %}
+        <article class="panel deployment-provider-panel">
+          <div class="deployment-provider-heading"><div><h3>{{ plan.parameters.get('user_principal_name', plan.plugin_id) }}</h3><p class="muted">{{ plan.target.name }} · {{ plan.plugin_id }}</p></div><span class="badge badge-{{ record.status.value if record else 'planned' }}">{{ record.status.value if record else _('planificado') }}</span></div>
+          <ul>{% for change in plan.changes %}<li><strong>{{ change.action.value }}</strong> · {{ change.summary }}</li>{% endfor %}</ul>
+          {% if record %}<p>{{ record.detail }}</p>{% if record.external_resource_ids %}<p class="mono muted">{{ record.external_resource_ids|join(' · ') }}</p>{% endif %}{% endif %}
+          {% if approvals_enabled and not record %}
+            <p class="muted">{% if approval and approval.approver_id %}{{ _('Aprobado por una segunda persona') }}{% elif approval %}{{ _('Pendiente de aprobación de una segunda persona') }}{% else %}{{ _('Plan anterior sin solicitud de aprobación; prepará un plan nuevo') }}{% endif %}</p>
+          {% endif %}
+          {% if record and record.connector_kind == 'active-directory-honeyuser' and record.status.value in ('active', 'degraded') %}
+            {% set monitor = monitoring_status.records.get(record.id) %}
+            <p class="muted">{{ _("Monitoreo:") }} {% if monitor and monitor.last_success %}{{ _("último sondeo correcto") }} <time data-local-time datetime="{{ monitor.last_success }}">{{ monitor.last_success }}</time>{% else %}{{ _("aún sin sondeo correcto en este proceso") }}{% endif %}{% if monitor and monitor.last_error %} · {{ _("último error:") }} {{ monitor.last_error }}{% endif %}</p>
+            {% if monitor and monitor.last_refresh %}<p class="muted">{{ _("Estado reconciliado:") }} {{ monitor.last_refresh_status }} · <time data-local-time datetime="{{ monitor.last_refresh }}">{{ monitor.last_refresh }}</time>{% if monitor.last_refresh_error %} · {{ monitor.last_refresh_error }}{% endif %}</p>{% endif %}
+          {% endif %}
+          {% if can_operate %}<div class="deployment-actions">
+            {% if approvals_enabled and approval and not approval.approver_id and current_identity and current_identity.id != approval.maker_id and not record %}<form method="post" action="{{ url_for('deployments.approve_plan', operation_id=operation.id, plan_id=plan.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _('Aprobar este plan') }}</button></form>{% endif %}
+            {% if not record %}<form method="post" data-confirm="{{ _('Esto creará el archivo señuelo en el destino. ¿Ejecutar el plan confirmado?') if plan.connector_kind == 'filesystem-honeyfile' else _('Esto creará o reconciliará la cuenta señuelo en Active Directory. ¿Ejecutar el plan confirmado?') }}" action="{{ url_for('deployments.execute_plan', operation_id=operation.id, plan_id=plan.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button class="primary" type="submit">{{ _('Confirmar y crear archivo') if plan.connector_kind == 'filesystem-honeyfile' else _("Confirmar y crear en AD") }}</button></form>{% endif %}
+            {% if record and record.status.value in ('failed', 'degraded') %}<form method="post" action="{{ url_for('deployments.retry', operation_id=operation.id, record_id=record.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _("Reintentar aplicación") }}</button></form>{% endif %}
+            {% if record and record.status.value in ('active', 'degraded') %}
+              <form method="post" action="{{ url_for('deployments.refresh', operation_id=operation.id, record_id=record.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _("Comprobar estado") }}</button></form>
+              {% if plan.connector_kind == 'active-directory-honeyuser' %}<form method="post" action="{{ url_for('deployments.poll', operation_id=operation.id, record_id=record.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _("Traer autenticaciones") }}</button></form>{% endif %}
+              <form method="post" data-confirm="{{ _('Se reemplazará el contenido señuelo. ¿Rotar ahora?') if plan.connector_kind == 'filesystem-honeyfile' else _('Se cambiará la contraseña señuelo. ¿Rotar ahora?') }}" action="{{ url_for('deployments.rotate', operation_id=operation.id, record_id=record.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _('Rotar contenido') if plan.connector_kind == 'filesystem-honeyfile' else _("Rotar credencial") }}</button></form>
+              <form method="post" data-confirm="{{ _('El archivo señuelo será eliminado. ¿Retirar ahora?') if plan.connector_kind == 'filesystem-honeyfile' else _('La cuenta se deshabilitará, no se borrará. ¿Retirar el honeyuser?') }}" action="{{ url_for('deployments.retire', operation_id=operation.id, record_id=record.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="danger">{{ _("Retirar") }}</button></form>
+            {% endif %}
+          </div>{% endif %}
+        </article>
+      {% endfor %}
+    {% else %}<p class="empty-state">{{ _("Todavía no hay planes de despliegue para esta operación.") }}</p>{% endif %}
+  </section>
+  <script>
+    (() => {
+      const target = document.getElementById('honeyuser-target');
+      if (!target) return;
+      const fields = ['honeyuser-ou', 'honeyuser-upn'].map(id => document.getElementById(id));
+      target.addEventListener('change', () => {
+        fields.forEach(field => {
+          if (!field) return;
+          Array.from(field.options).forEach(option => {
+            const available = option.dataset.target === target.value;
+            option.disabled = !available;
+            option.hidden = !available;
+          });
+          field.selectedIndex = Array.from(field.options).findIndex(option => !option.disabled);
+        });
+      });
+    })();
+  </script>
+{% endblock %}

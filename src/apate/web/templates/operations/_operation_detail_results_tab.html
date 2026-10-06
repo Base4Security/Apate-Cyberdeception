@@ -1,0 +1,105 @@
+  <div class="tab-panel" id="tab-resultados" role="tabpanel" aria-labelledby="tab-control-resultados" tabindex="0">
+    {# Sin numero de paso a proposito: la metodologia CTI-a-ciberengano tiene
+       7 pasos y este tab no es ninguno de ellos -- es una vista de lectura
+       sobre lo observado. Los pasos 6/7 (retroalimentacion CTI, reoperar)
+       viven en los informes que esta misma vista ofrece descargar. #}
+    <h2>{{ _("Resultados") }}</h2>
+    <section class="operation-metrics panel" id="operation-metrics" aria-labelledby="operation-metrics-title">
+      <div class="panel-heading">
+        <div><h2 id="operation-metrics-title">{{ _("M&eacute;tricas operacionales") }}</h2><p class="muted">{{ _("Alcance: solo esta operaci&oacute;n. An&aacute;lisis secundario, sin scores ni interpretaciones autom&aacute;ticas.") }}</p></div>
+        <a class="button small" href="{{ url_for('telemetry.detail', operation_id=operation.id, view='events') }}">{{ _("Explorar telemetr&iacute;a") }}</a>
+      </div>
+      <div class="panel-grid operational-metrics-grid">
+        <article class="card kpi-card"><dl><dt>{{ _("Eventos persistidos") }}</dt><dd class="kpi-value">{{ operation_metrics.event_count }}</dd></dl><small>{{ _("Fuente: Telemetr&iacute;a &middot; per&iacute;odo: historial completo") }}</small></article>
+        <article class="card kpi-card"><dl><dt><abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s observadas") }}</dt><dd class="kpi-value">{{ operation_metrics.observed_ttp_count }}</dd></dl><small>{{ _("Fuente: Telemetr&iacute;a &middot; distintas en el historial") }}</small></article>
+        <article class="card kpi-card"><dl><dt><abbr title="{{ _('Indicadores de compromiso') }}">{{ _("IoC") }}</abbr>{{ _("s observados") }}</dt><dd class="kpi-value">{{ operation_metrics.ioc_count }}</dd></dl><small>{{ _("Fuente: Telemetr&iacute;a &middot; tipo+valor distintos") }}</small></article>
+        <article class="card kpi-card"><dl><dt>{{ _("Cobertura esperada") }}</dt><dd class="kpi-value">{{ operation_metrics.matched_ttp_count }}/{{ operation_metrics.expected_ttp_count }}</dd></dl><small>{{ _("Fuente: perfil esperado vs.") }} <abbr title="{{ _('T&aacute;ctica, t&eacute;cnica o procedimiento') }}">{{ _("TTP") }}</abbr> {{ _("observada &middot; no es un score") }}</small></article>
+        <article class="card kpi-card"><dl><dt>{{ _("Efectos medidos") }}</dt><dd class="kpi-value">{{ operation_metrics.measured_effect_count }}/{{ operation_metrics.binding_count }}</dd></dl><small>{{ _("Fuente: modelo actual &middot; resultado humano registrado") }}</small></article>
+        <article class="card kpi-card"><dl><dt>{{ _('Efectos con evento vinculado') }}</dt><dd class="kpi-value">{{ operation_metrics.evidenced_effect_count }}/{{ operation_metrics.measured_effect_count }}</dd></dl><small>{{ _('Solo cuenta eventos existentes de la misma capacidad; los demás esperan evidencia') }}</small></article>
+        <article class="card kpi-card"><dl><dt>{{ _("Proveedores observados") }}</dt><dd class="kpi-value">{{ operation_metrics.provider_counts | length }}</dd></dl><small>{{ _("Fuente: bindings + eventos &middot;") }} {% if operation_metrics.provider_counts %}{% for item in operation_metrics.provider_counts %}{{ item.provider }}: {{ item.count }}{% if not loop.last %}, {% endif %}{% endfor %}{% else %}{{ _("sin eventos") }}{% endif %}</small></article>
+      </div>
+      <p class="metrics-period muted">
+        {{ _("Ventana observada:") }}
+        {% if operation_metrics.first_observed_at %}
+          <time data-local-time datetime="{{ operation_metrics.first_observed_at.isoformat() }}">{{ operation_metrics.first_observed_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</time>
+          {{ _("&rarr;") }} <time data-local-time datetime="{{ operation_metrics.last_observed_at.isoformat() }}">{{ operation_metrics.last_observed_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</time>.
+        {% else %}{{ _("sin registros persistidos todav&iacute;a.") }}{% endif %}
+        {{ _("Los conteos del modelo son una fotograf&iacute;a del estado actual.") }}
+      </p>
+    </section>
+
+    <section class="operation-resources panel" id="operation-resources" aria-label="{{ _('Resultados y recursos') }}">
+      <h3>{{ _("Recursos y salida") }}</h3>
+      <div class="detail-action-grid">
+        <div class="detail-action-card">
+          <h4>{{ _("Taller") }}</h4>
+          <p class="muted">{{ _("Material para facilitar conducci&oacute;n y documentaci&oacute;n.") }}</p>
+          <div class="detail-action-links">
+            <a class="button small" href="{{ url_for('operations.workshop_kit', operation_id=operation.id) }}">{{ _("Descargar kit de taller (Markdown)") }}</a>
+            <a class="button small" href="{{ url_for('operations.workshop_kit', operation_id=operation.id, format='pdf') }}">{{ _("Descargar kit de taller (PDF)") }}</a>
+          </div>
+        </div>
+        <div class="detail-action-card">
+          <h4>{{ _("Informes") }}</h4>
+          <p class="muted">{{ _("Solo en estado cerrado.") }}</p>
+          <div class="detail-action-links">
+            {% if operation.status.value == "closed" %}
+              <a class="button small" href="{{ url_for('operations.report', operation_id=operation.id, format='markdown') }}">{{ _("Descargar Markdown") }}</a>
+              <a class="button small" href="{{ url_for('operations.report', operation_id=operation.id, format='json') }}">{{ _("Descargar JSON") }}</a>
+              <a class="button small" href="{{ url_for('operations.report', operation_id=operation.id, format='pdf') }}">{{ _("Descargar PDF") }}</a>
+              <a class="button small" href="{{ url_for('operations.report', operation_id=operation.id, format='stix') }}" title="{{ _('STIX: formato estructurado de inteligencia de amenazas, pensado para alimentar un SIEM/SOAR/EDR u otra herramienta de CTI') }}">{{ _("Descargar") }} <abbr title="{{ _('Structured Threat Information Expression') }}">{{ _("STIX") }}</abbr> 2.1</a>
+              {% if siem_soar_configured %}
+                <form method="post" action="{{ url_for('operations.send_report_to_siem_soar', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="button small">{{ _("Enviar a") }} <abbr title="{{ _('gesti&oacute;n de informaci&oacute;n y eventos de seguridad / orquestaci&oacute;n, automatizaci&oacute;n y respuesta de seguridad') }}">{{ _("SIEM/SOAR") }}</abbr></button>
+                </form>
+              {% else %}
+                <a class="button small" href="{{ url_for('health.siem_soar') }}">{{ _("Configurar webhook") }} <abbr title="{{ _('gesti&oacute;n de informaci&oacute;n y eventos de seguridad / orquestaci&oacute;n, automatizaci&oacute;n y respuesta de seguridad') }}">{{ _("SIEM/SOAR") }}</abbr></a>
+              {% endif %}
+            {% else %}
+              <span class="muted">{{ _("A&uacute;n no disponible") }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="detail-action-card">
+          <h3 class="as-h4">{{ _("Observabilidad") }}</h3>
+          <p class="muted">{{ _("Ver telemetr&iacute;a y eventos en vivo.") }}</p>
+          <div class="detail-action-links">
+            <a href="{{ url_for('telemetry.detail', operation_id=operation.id) }}" class="button small detail-action-link">
+              {{ _("Abrir telemetría") }} <span aria-hidden="true">{{ _("&rarr;") }}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% if operation.status.value == "closed" %}
+      <h3>{{ _("Matriz de") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTPs") }}</abbr> <span class="muted">{{ _("(MITRE ATT&amp;CK)") }}</span></h3>
+      <p class="ttp-legend">
+        <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-matched"></span> {{ _("Coincidente") }}</span>
+        <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-not-observed"></span> {{ _("Esperada, no observada") }}</span>
+        <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-unexpected"></span> {{ _("Observada, no esperada") }}</span>
+        <span class="ttp-legend-item"><span class="ttp-swatch"></span> {{ _("Sin relaci&oacute;n con esta operaci&oacute;n") }}</span>
+      </p>
+      <div class="ttp-heatmap">
+        {% for column in ttp_heatmap.columns %}
+          <div class="ttp-heatmap-column">
+            <h3>{{ tactic_label(column.tactic) }}</h3>
+            {% for cell in column.cells %}
+              <div class="ttp-cell{% if cell.status %} ttp-cell-{{ cell.status }}{% endif %}"
+                   title="{{ cell.technique.id }} -- {{ cell.technique.name }}">
+                <span class="mono">{{ cell.technique.id }}</span> {{ cell.technique.name }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      {% if ttp_heatmap.uncatalogued %}
+        <p class="muted">
+          {{ _("TTPs fuera del cat&aacute;logo curado (sin celda en la grilla de arriba):") }}
+          {% for item in ttp_heatmap.uncatalogued %}
+            <span class="mono">{{ item.id }}</span> ({{ item.label }}){% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </p>
+      {% endif %}
+    {% endif %}
+  </div>

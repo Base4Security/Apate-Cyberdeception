@@ -1,24 +1,84 @@
 {% extends "base.html" %}
-{% block title %}{{ tr('Telemetría') }} · Apate Core{% endblock %}
-{% block section_name %}{{ tr('Telemetría') }}{% endblock %}
+{% block title %}{% if live_mode %}{{ _("Actividad en vivo") }}{% else %}{{ _("Telemetr&iacute;a") }}{% endif %} {{ _("- Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {% if live_mode %}<a href="{{ url_for('telemetry.index') }}">{{ _("Telemetr&iacute;a") }}</a> / {{ _("Actividad en vivo") }}{% else %}{{ _("Telemetr&iacute;a") }}{% endif %}</nav>{% endblock %}
 {% block content %}
-  <h1>{{ tr('Telemetría') }}</h1>
-  <p class="muted">{{ tr('Elegí una operación para ver sus eventos, IoCs y TTPs observadas.') }}</p>
+  <div class="content-toolbar">
+    <div>
+      <h1>{% if live_mode %}{{ _("Actividad en vivo") }}{% else %}{{ _("Telemetr&iacute;a") }}{% endif %} <span class="muted">({{ operations | length }})</span></h1>
+      <p class="muted">{{ _("Eleg&iacute; una operaci&oacute;n para") }} {% if live_mode %}{{ _("seguir actividad reciente sin perder su contexto") }}{% else %}{{ _("analizar eventos,") }} <abbr title="{{ _('Indicadores de compromiso') }}">{{ _("IoC") }}</abbr>{{ _("s y") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s observadas") }}{% endif %}.</p>
+    </div>
+  </div>
 
   {% if operations %}
+    <section class="panel telemetry-operation-picker" aria-labelledby="telemetry-operations-title">
+      <div class="panel-heading">
+        <div>
+          <h2 id="telemetry-operations-title">{{ _("Operaciones disponibles") }}</h2>
+          <p class="muted">{{ _("La telemetr&iacute;a permanece aislada por operaci&oacute;n.") }}</p>
+        </div>
+        <p class="muted table-toolbar-count" id="telemetry-operation-count" role="status" aria-live="polite"></p>
+      </div>
+      <div class="table-toolbar telemetry-operation-toolbar">
+        <div class="table-toolbar-field">
+          <label for="telemetry-operation-search">{{ _("Buscar operaci&oacute;n") }}</label>
+          <input type="search" id="telemetry-operation-search" placeholder="{{ _('Nombre o estado&hellip;') }}" autocomplete="off">
+        </div>
+        <button type="button" class="small table-toolbar-clear" id="telemetry-operation-clear">{{ _("Limpiar") }}</button>
+      </div>
+    <div class="table-scroll">
     <table>
-      <thead><tr><th>{{ tr('Operación') }}</th><th>{{ tr('Estado') }}</th><th></th></tr></thead>
+      <thead><tr><th>{{ _("Operaci&oacute;n") }}</th><th>{{ _("Estado") }}</th><th><span class="visually-hidden">{{ _("Acci&oacute;n") }}</span></th></tr></thead>
       <tbody>
         {% for operation in operations %}
-          <tr>
-            <td>{{ operation.name }}</td>
-            <td><span class="badge badge-{{ operation.status.value }}">{{ status_label(operation.status.value) }}</span></td>
-            <td><a href="{{ url_for('telemetry.detail', operation_id=operation.id) }}">{{ tr('Ver telemetría') }}</a></td>
+          <tr data-telemetry-operation data-search="{{ operation.name }} {{ operation.status.value }}">
+            <td>
+              <a class="operation-name" href="{{ url_for('telemetry.detail', operation_id=operation.id, view='live') if live_mode else url_for('telemetry.detail', operation_id=operation.id) }}">{{ operation.name }}</a>
+              <span class="operation-row-id mono">{{ operation.id[:8] }}</span>
+            </td>
+            <td><span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span></td>
+            <td><a class="button small operation-open" href="{{ url_for('telemetry.detail', operation_id=operation.id, view='live') if live_mode else url_for('telemetry.detail', operation_id=operation.id) }}">{% if live_mode %}{{ _("Ver en vivo") }}{% else %}{{ _("Analizar") }}{% endif %} <span aria-hidden="true">&rarr;</span></a></td>
           </tr>
         {% endfor %}
+        <tr id="telemetry-operations-no-results" class="hidden"><td colspan="3" class="operations-no-results"><strong>{{ _("Sin coincidencias") }}</strong><span class="muted">{{ _("Prob&aacute; con otro nombre o estado.") }}</span></td></tr>
       </tbody>
     </table>
+    </div>
+    </section>
+    <script>
+      (function () {
+        const input = document.getElementById('telemetry-operation-search');
+        const clear = document.getElementById('telemetry-operation-clear');
+        const count = document.getElementById('telemetry-operation-count');
+        const empty = document.getElementById('telemetry-operations-no-results');
+        const rows = Array.from(document.querySelectorAll('[data-telemetry-operation]'));
+        const params = new URLSearchParams(window.location.search);
+        input.value = params.get('q') || '';
+
+        function applySearch() {
+          const query = input.value.trim().toLowerCase();
+          let visible = 0;
+          rows.forEach(function (row) {
+            const show = !query || row.dataset.search.toLowerCase().includes(query);
+            row.classList.toggle('hidden', !show);
+            if (show) visible += 1;
+          });
+          count.textContent = {{ _("Mostrando") | tojson }} + ' ' + visible + ' ' + {{ _("de") | tojson }} + ' ' + rows.length;
+          clear.disabled = !query;
+          empty.classList.toggle('hidden', visible !== 0);
+          query ? params.set('q', input.value) : params.delete('q');
+          history.replaceState(null, '', window.location.pathname + (params.size ? '?' + params.toString() : ''));
+        }
+
+        input.addEventListener('input', applySearch);
+        clear.addEventListener('click', function () { input.value = ''; applySearch(); input.focus(); });
+        applySearch();
+      })();
+    </script>
   {% else %}
-    <p class="muted">{{ tr('Todavía no hay operaciones creadas.') }}</p>
+    <div class="empty-state">
+      <h2>{{ _("Todav&iacute;a no hay operaciones") }}</h2>
+      <p class="muted">{{ _("La telemetr&iacute;a se organiza por operaci&oacute;n. Cre&aacute; la primera para empezar a registrar eventos.") }}</p>
+      <a class="button primary" href="{{ url_for('operations.new_operation_form') }}">{{ _("Crear operaci&oacute;n") }}</a>
+    </div>
   {% endif %}
 {% endblock %}

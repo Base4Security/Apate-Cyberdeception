@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Editar activo") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('assets.index') }}">{{ _("Inventario de activos") }}</a> / {{ asset.identifier }}</nav>{% endblock %}
+{% block content %}
+  <h1>{{ _("Editar activo") }}</h1>
+  <form method="post" class="card"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <p><strong>{{ _("Identificador estable:") }}</strong> <code>{{ asset.identifier }}</code></p>
+    <label>{{ _("Nombre") }} <input name="name" required value="{{ asset.name }}"></label>
+    <label>{{ _("Tipo") }} <input name="asset_type" required list="tipos-con-sugerencia" value="{{ asset.asset_type }}"></label>
+<datalist id="tipos-con-sugerencia">{% for tipo in suggestible_asset_types %}<option value="{{ tipo }}"></option>{% endfor %}</datalist>
+    <label>{{ _("Criticidad") }}
+      <select name="criticality" required>{% for value, label in criticality_labels.items() %}<option value="{{ value }}" {% if value == asset.criticality %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <label>{{ _("Identificador técnico (opcional)") }} <input name="technical_identifier" value="{{ asset.technical_identifier }}"></label>
+    <button type="submit">{{ _("Guardar cambios") }}</button> <a class="button secondary" href="{{ url_for('assets.index') }}">{{ _("Cancelar") }}</a>
+  </form>
+{% endblock %}

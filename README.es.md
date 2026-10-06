@@ -1,92 +1,72 @@
-# Apate Core
+# Apate
 
-[English](README.md) · Español
+**Orquestación abierta de ciberengaño centrada en la operación.**
 
-**Una herramienta abierta de ciberengaño centrada en la operación, con interfaz gráfica local.**
+[English](README.md)
 
-Apate Core reúne el modelo de operación, reglas deterministas, eventos de plugins y telemetría básica. Su interfaz permite crear y revisar operaciones, editar reglas YAML y explorar eventos observados. El honeypot incluido es **simulado**: el recorrido funciona sin desplegar señuelos reales ni conectarse a infraestructura corporativa.
+Apate permite diseñar una operación de engaño, vincular señuelos y comportamientos de identidad simulados, observar interacciones, aplicar reglas deterministas dentro de las reglas de interacción y revisar la evidencia. Su consola está disponible en español e inglés. Ningún LLM autoriza ni decide despliegues.
 
-> **Las capturas son de la GUI real de Apate Core en inglés**, ejecutada localmente con datos sintéticos en inglés de [`examples/seed_gui.py`](examples/seed_gui.py). No son maquetas ni imágenes de Parallax. El selector **EN / ES** permite volver al español.
+Este repositorio contiene la **edición comunitaria completa**. [Parallax Deception](https://parallaxdeception.com/) es el producto comercial previsto sobre Apate. Sus módulos empresariales se desarrollan en un paquete privado separado; Apate no tiene límites artificiales ni un bloqueo por licencia.
 
-## La herramienta
+## Capacidades
 
-### Operaciones
+| Área | Incluido en Apate |
+| --- | --- |
+| Operaciones | Perfil de adversario, escenarios, narrativa, reglas de interacción, ciclo de vida, plantillas, portafolio e historial. |
+| Engaño | Capacidades mock y honeytoken, integraciones con DOLOS-T, BUDA, Canarytokens, OpenCanary y Cyber Deception Playground; descubrimiento de plugins de terceros. |
+| Decisión | Reglas YAML condición/acción, evaluación determinista, límites de alcance, guardas de RoE y registro de rechazos. |
+| Observación | Telemetría normalizada, TTP e indicadores, incidentes, clasificación TLP, bandeja SOC y puente de telemetría externa. |
+| Gobierno básico | Identidades locales, roles fijos, aislamiento por equipo, OIDC opcional, auditoría, planes aprobados, límites de ejecución y cifrado local de secretos. |
+| Análisis y salida | Catálogos ATT&CK y Engage, extracción CTI, cobertura de activos, ensayos en seco, informes, PDF, STIX 2.1, GraphML y exportación genérica a SIEM/SOAR. |
 
-Vista de planificación, estado y perfil de adversario. Las tres operaciones de la imagen fueron generadas por el script de demostración.
+La [guía de uso](docs/guia-de-uso.md) explica el recorrido real de la consola. También están la [arquitectura](docs/architecture.md), el [contrato de plugins y eventos](docs/plugin-event-contract.md) y la [instalación de producción](docs/instalacion-produccion.md).
 
-![Interfaz de operaciones de Apate Core con tres operaciones sintéticas](docs/assets/operations.png)
+## La consola
 
-### Detalle de una operación
+Estas son capturas de la **GUI real de Apate en inglés**, tomadas localmente con las operaciones sintéticas incluidas. No son mockups ni imágenes de Parallax. Los conteos de telemetría proceden de datos generados para pruebas, no de un despliegue de campo.
 
-El perfil de adversario, las reglas de interacción (RoE), la narrativa, los escenarios, los plugins vinculados y el estado quedan asociados a una misma operación. La interfaz permite crear operaciones y aplicar transiciones manuales válidas.
+**Operaciones y estado actual**
 
-![Detalle de una operación en la GUI de Apate Core](docs/assets/operation-detail.png)
+![Tablero de operaciones de Apate con tres operaciones sintéticas](docs/assets/operations.png)
 
-### Reglas y telemetría
+**Estado, evidencia y próxima acción de una operación**
 
-La vista de reglas muestra las condiciones y acciones cargadas y valida el YAML antes de guardarlo. La telemetría permite filtrar eventos por plugin y superficie y consultar TTP e indicadores observados. Todo lo que aparece en estas capturas es sintético.
+![Detalle de una operación sintética de Apate](docs/assets/operation-detail.png)
 
-![Editor de reglas de la GUI de Apate Core](docs/assets/rules.png)
+**Capacidades de engaño disponibles**
 
-![Telemetría de una operación en la GUI de Apate Core](docs/assets/telemetry.png)
+![Catálogo de capacidades de Apate](docs/assets/capabilities.png)
 
-## Reproducir las capturas
+**Telemetría y evidencia**
 
-Necesitás Git y Python 3.10 o superior. La instalación descarga dependencias de Python; el ejemplo y la aplicación local no requieren servicios externos. El servidor escucha en `127.0.0.1` y no tiene autenticación de usuarios: usalo sólo en tu equipo.
+![Detalle de telemetría de Apate con eventos, indicadores y TTP sintéticos](docs/assets/telemetry.png)
 
-**macOS / Linux**
+## Probarla localmente
+
+Requiere Python 3.10 o superior. El primer arranque local no necesita AD, SIEM, IdP ni Docker; cada integración externa requiere sus propios prerrequisitos.
 
 ```bash
 git clone https://github.com/fedequark/Apate-Cyberdeception.git
 cd Apate-Cyberdeception
-python3 -m venv .venv
-source .venv/bin/activate
+python -m venv .venv
+# macOS/Linux: source .venv/bin/activate
+# Windows PowerShell: .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
-python examples/seed_gui.py --lang en
 python -m apate.web
 ```
 
-**Windows PowerShell**
+Abrí [http://127.0.0.1:5000](http://127.0.0.1:5000). El servidor de desarrollo escucha en loopback. Sin usuarios locales, el primer arranque queda abierto para configuración y demostraciones; creá un administrador antes de exponerlo a otras personas. Los datos se guardan por defecto en `.apate_data/`, ignorado por Git.
 
-```powershell
-git clone https://github.com/fedequark/Apate-Cyberdeception.git
-Set-Location Apate-Cyberdeception
-py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
-.\.venv\Scripts\python.exe examples/seed_gui.py --lang en
-.\.venv\Scripts\python.exe -m apate.web
-```
+Para cargar **tres operaciones sintéticas** en una instalación local descartable, detené el servidor y ejecutá `python examples/seed_demo.py` antes de volver a iniciarlo. La variable `APATE_LOCALE=en` siembra los ejemplos en inglés. El selector de idioma traduce la interfaz, pero no el contenido de las operaciones ya guardadas.
 
-Abrí **[http://127.0.0.1:5000/operations/?lang=en](http://127.0.0.1:5000/operations/?lang=en)**. Desde el menú lateral podés entrar a **Rules** y **Telemetry**; el selector **EN / ES** cambia el idioma de la interfaz. Detené el servidor con `Ctrl+C`. Para ejecutar las pruebas, usá `python -m pytest -q` en el entorno virtual.
+La suite corre con `python -m pytest`. Las pruebas locales cubren contratos y flujos sintéticos; los gates reales de AD/SMB, Vault, IdP, SIEM, Docker y evaluación con operadores siguen pendientes de infraestructura externa.
 
-Con `--lang en`, el script crea tres operaciones ficticias en inglés: una en planificación, otra activa y una cerrada con eventos; también prepara reglas y descripciones de eventos en inglés. Guarda los datos en `.apate_data/`, excluido de Git. Para reproducir las capturas, ejecutalo en un directorio limpio: una nueva ejecución conserva el archivo de reglas anterior y agrega otras operaciones. `--lang es` genera datos de demostración en español. Si querés una interfaz vacía, iniciá `python -m apate.web` sin ejecutar el script.
+## Ediciones y licencia
 
-La suite local pasa **117 pruebas**. La [CI](https://github.com/fedequark/Apate-Cyberdeception/actions/workflows/tests.yml) ejecuta las pruebas y ambos ejemplos en Windows y Ubuntu con Python 3.10 y 3.12; allí se ve el resultado del commit más reciente.
+Apate conserva la aplicación comunitaria, incluida su GUI, integraciones, telemetría, informes y gobierno básico. Parallax está previsto para agregar políticas organizacionales, aprovisionamiento de directorio, ingesta y entrega corporativa y auditoría anclada externamente mediante módulos separados. Esos módulos siguen en desarrollo local; este corte no afirma que estén listos para producción. Una licencia comercial también podría ofrecer términos distintos de uso para Apate. El código comunitario se distribuye bajo **AGPL-3.0-or-later**; ver [LICENSE](LICENSE), [NOTICE](NOTICE) y [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Qué demuestra el ejemplo
+DOLOS-T y BUDA conservan atribución y licencia en `src/DOLOST/` y `src/BUDA/`. El stack Cyber Deception Playground conserva su licencia en `playground-stack/`.
 
-[`examples/quickstart.py`](examples/quickstart.py), invocado por el script de la GUI, crea una operación y vincula dos plugins simulados. Un escaneo sintético activa una regla que despliega el segundo mock y cambia el estado a activo. Un acceso simulado la marca comprometida y registra una observación `T1078`. Finalmente, `check_closure()` evalúa una fecha vencida, retira ambos mocks y cierra la operación. Las [reglas de ejemplo](examples/rules_example.yaml) se pueden consultar y modificar.
+## Estado
 
-El ejemplo persiste `.apate_data/operations/<operation-id>.json` y `.apate_data/telemetry/<operation-id>.json`; la GUI lee esos archivos. **La GUI edita reglas, pero no ejecuta un motor de reglas ni un planificador en segundo plano.** Un proceso que instancie `RuleEngine` carga las reglas editadas en su próxima lectura. Las transiciones manuales de la interfaz son independientes de las acciones del motor.
-
-## Arquitectura y alcance
-
-| Componente | Incluido en Apate Core |
-| --- | --- |
-| GUI local | Crear, listar y consultar operaciones; transiciones válidas; revisión y edición de YAML; lectura de telemetría. |
-| Operación | Perfil de adversario, RoE, narrativa, escenarios, plugins vinculados, criterios de cierre y persistencia JSON. |
-| Reglas | Condiciones y acciones declarativas, aplicación de RoE, alcance por operación/plugin y límite a cascadas recursivas. |
-| Plugins | Contrato `deploy()`/`rotate()`/`retire()`, bus síncrono y un `MockHoneypotPlugin` sintético. |
-| Telemetría | Registro normalizado por evento, payload original, TTP e indicadores conocidos. |
-
-Las reglas se parsean con `yaml.safe_load`; un YAML inválido no reemplaza el archivo guardado. `allowed_actions` y `forbidden_actions` limitan las acciones **del motor** mediante firmas como `deploy` o `transition:closed`; una prohibición prevalece. El motor ignora eventos de otras operaciones o plugins no vinculados y limita las cadenas recursivas. Estas guardas no autentican operadores ni protegen llamadas manuales a plugins.
-
-El diseño centrado en la operación se apoya en la investigación de Federico Pacheco y Diego Staino sobre CTI y ciberengaño. Esta edición ofrece una base ejecutable; no implementa la metodología completa de siete pasos ni incluye un catálogo MITRE Engage. Los eventos de la demo no demuestran efectividad defensiva en campo.
-
-## Apate Core y Parallax
-
-**Apate Core** es la herramienta pública y de código abierto. **Parallax** es un producto comercial separado, desarrollado en un repositorio privado. Esta edición no incluye sus capacidades empresariales, integraciones de identidad, ledger gobernado, conectores corporativos ni stacks de terceros. La GUI local no tiene login. La persistencia JSON carece de control de concurrencia, cifrado y auditoría resistente a alteraciones.
-
-## Licencia y colaboración
-
-Apate Core se distribuye bajo [AGPL-3.0-or-later](LICENSE). Copyright © 2025 BASE4 Security. Autor del software: Federico Pacheco. Este repositorio no incluye código vendorizado de terceros. Para reportar un problema o proponer una mejora acotada, abrí un [issue](https://github.com/fedequark/Apate-Cyberdeception/issues) con versión de Python, pasos de reproducción y resultado esperado, sin credenciales reales ni telemetría sensible.
+Es una candidata bajo verificación local. No se declara eficacia de campo, alta disponibilidad productiva ni pruebas completas contra infraestructura externa. Revisá los [gates de versión](docs/release-gates.md) y [SECURITY.md](SECURITY.md) antes de desplegar.

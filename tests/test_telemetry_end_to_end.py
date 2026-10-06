@@ -1,18 +1,16 @@
-from apate.core import AdversaryProfile, Narrative, Operation, OperationStatus, PluginBinding, RulesOfEngagement
+from apate.core import AdversaryProfile, Narrative, Operation, OperationStatus, RulesOfEngagement
 from apate.plugins import EventBus, EventType, MockHoneypotPlugin
 from apate.rules import Action, ActionKind, Condition, Rule, RuleEngine
 from apate.telemetry import JSONFileTelemetryRepository, TelemetryCollector
 
 
 def _make_operation() -> Operation:
-    operation = Operation(
+    return Operation(
         name="Operacion de prueba - telemetria",
         adversary_profile=AdversaryProfile(name="APT ficticio", expected_ttps=["T1046", "T1078"]),
         roe=RulesOfEngagement(),
         narrative=Narrative(name="Narrativa base"),
     )
-    operation.bind_plugin(PluginBinding(plugin_id="honeypot-mock-1", surface="network"))
-    return operation
 
 
 class _InMemoryTelemetryRepository:

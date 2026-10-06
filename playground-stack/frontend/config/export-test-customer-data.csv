@@ -1,0 +1,9 @@
+Customer ID,Name,Account Number,Balance,Email,Phone,Address
+C001,Robert Anderson,ACC-1001,$25000,robert.anderson@email.com,555-1001,123 Main St
+C002,Sarah Martinez,ACC-1002,$18000,sarah.martinez@email.com,555-1002,456 Oak Ave
+C003,Michael Chen,ACC-1003,$32000,michael.chen@email.com,555-1003,789 Pine Rd
+C004,Lisa Thompson,ACC-1004,$15000,lisa.thompson@email.com,555-1004,321 Elm St
+C005,David Rodriguez,ACC-1005,$28000,david.rodriguez@email.com,555-1005,654 Maple Dr
+C006,Jennifer Kim,ACC-1006,$22000,jennifer.kim@email.com,555-1006,987 Cedar Ln
+C007,Christopher Lee,ACC-1007,$35000,christopher.lee@email.com,555-1007,147 Birch St
+C008,Amanda Garcia,ACC-1008,$19000,amanda.garcia@email.com,555-1008,258 Spruce Ave

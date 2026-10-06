@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Runtime de red y host") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('health.index') }}">{{ _("Salud y configuración") }}</a> / {{ _("Runtime de red y host") }}</nav>{% endblock %}
+{% block content %}
+  {% include "health/_configuration_nav.html" %}
+  {% set current_mode = _("Entorno") if docker_config.from_env else ('TCP' if docker_config.tcp else (_("Socket") if docker_config.socket else ('TCP + TLS' if docker_config.tcp_ssl else _("Sin configurar")))) %}
+  <div class="content-toolbar tools-page-header">
+    <div><h1>{{ _("Runtime de red y host") }}</h1><p class="muted">{{ _("Conexión Docker global usada para administrar decoys.") }}</p></div>
+    <span class="badge {{ 'health-configured' if configured else 'health-disabled' }}">{{ current_mode }}</span>
+  </div>
+  <aside class="tools-scope-note">{{ _("Guardar valida la configuración y comprueba la conexión antes de aplicarla. Abrir esta pantalla no inicia conexiones.") }}</aside>
+
+  <div class="panel-grid configuration-diagnostics" aria-label="{{ _("Diagnóstico del runtime") }}">
+    <article class="card"><h2>{{ _("Motor") }}</h2><p><span class="badge health-configured">{{ _("preparado") }}</span></p><p class="muted">{{ _("Capacidad de decoys de red y host.") }}</p></article>
+    <article class="card"><h2>{{ _("Configuración") }}</h2><p><span class="badge {{ 'health-configured' if configured else 'health-disabled' }}">{{ _("guardada") if configured else _("pendiente") }}</span></p><p class="muted">{{ _("Modo actual:") }} {{ current_mode }}.</p></article>
+    <article class="card"><h2>{{ _("Conectividad") }}</h2><p class="muted">{{ _("Se comprueba solo por acción explícita.") }}</p><form method="post" action="{{ url_for('health.network_host_runtime_test') }}" data-slow-action><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" {% if not configured %}disabled{% endif %}>{{ _("Probar conexión guardada") }}</button></form></article>
+  </div>
+
+  <form class="panel docker-config-form" method="post" enctype="multipart/form-data" data-slow-action action="{{ url_for('health.network_host_runtime') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <fieldset>
+      <legend>{{ _("Cliente Docker") }}</legend>
+      <label for="type">{{ _("Modo") }}</label>
+      <select id="type" name="type" onchange="apateToggleDockerFields(this.value)">
+        <option value="env" {% if docker_config.from_env %}selected{% endif %}>{{ _("Variables de entorno") }}</option>
+        <option value="tcp" {% if docker_config.tcp %}selected{% endif %}>TCP</option>
+        <option value="socket" {% if docker_config.socket %}selected{% endif %}>Socket</option>
+        <option value="tcp_ssl" {% if docker_config.tcp_ssl %}selected{% endif %}>{{ _("TCP con TLS") }}</option>
+      </select>
+
+      <div id="fields-tcp" class="docker-mode-fields" hidden>
+        <label for="host-tcp">{{ _("Host") }}</label>
+        <input type="text" id="host-tcp" name="host" class="mono" value="{{ docker_config.tcp.split('://')[1].split(':')[0] if docker_config.tcp else '' }}">
+        <label for="port-tcp">{{ _("Puerto") }}</label>
+        <input type="text" id="port-tcp" name="port" class="mono" value="{{ docker_config.tcp.split(':')[-1] if docker_config.tcp else '' }}">
+      </div>
+
+      <div id="fields-socket" class="docker-mode-fields" hidden>
+        <label for="socketPath">{{ _("Ruta del socket") }}</label>
+        <input type="text" id="socketPath" name="socketPath" class="mono" value="{{ docker_config.socket or '' }}">
+      </div>
+
+      <div id="fields-tcp_ssl" class="docker-mode-fields" hidden>
+        <aside class="warning-note"><strong>{{ _("Material sensible") }}</strong><span>{{ _("Los certificados se guardan en la carpeta de configuración del motor. Sus contenidos nunca vuelven al HTML.") }}</span></aside>
+        <label for="host-ssl">{{ _("Host") }}</label>
+        <input type="text" id="host-ssl" name="host" class="mono" value="{{ docker_config.tcp_ssl.host if docker_config.tcp_ssl else '' }}">
+        <label for="port-ssl">{{ _("Puerto") }}</label>
+        <input type="text" id="port-ssl" name="port" class="mono" value="{{ docker_config.tcp_ssl.port if docker_config.tcp_ssl else '' }}">
+        <label for="sslCert">{{ _("Certificado (.pem/.crt)") }}</label>
+        <input type="file" id="sslCert" name="sslCert">
+        <label for="sslKey">{{ _("Clave privada") }}</label>
+        <input type="file" id="sslKey" name="sslKey">
+        <label for="sslCa">CA</label>
+        <input type="file" id="sslCa" name="sslCa">
+      </div>
+    </fieldset>
+      <p><button type="submit" class="primary">{{ _("Validar y guardar cliente") }}</button></p>
+  </form>
+
+  <script>
+    function apateToggleDockerFields(type) {
+      ['tcp', 'socket', 'tcp_ssl'].forEach(function (name) {
+        document.getElementById('fields-' + name).hidden = name !== type;
+      });
+    }
+    apateToggleDockerFields(document.getElementById('type').value);
+  </script>
+{% endblock %}

@@ -1,0 +1,9 @@
+Employee ID,Name,Department,Salary,Email,Phone,SSN
+1001,John Smith,IT,$75000,john.smith@andesfinance.com,555-0101,123-45-6789
+1002,Jane Doe,Finance,$68000,jane.doe@andesfinance.com,555-0102,234-56-7890
+1003,Bob Johnson,HR,$62000,bob.johnson@andesfinance.com,555-0103,345-67-8901
+1004,Alice Brown,Marketing,$65000,alice.brown@andesfinance.com,555-0104,456-78-9012
+1005,Charlie Wilson,IT,$72000,charlie.wilson@andesfinance.com,555-0105,567-89-0123
+1006,Diana Lee,Finance,$70000,diana.lee@andesfinance.com,555-0106,678-90-1234
+1007,Frank Miller,Operations,$58000,frank.miller@andesfinance.com,555-0107,789-01-2345
+1008,Grace Taylor,IT,$78000,grace.taylor@andesfinance.com,555-0108,890-12-3456

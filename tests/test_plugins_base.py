@@ -8,6 +8,7 @@ from apate.plugins import (
     PluginEvent,
     PluginLifecycleState,
     PluginStateError,
+    sanitize_payload_text,
 )
 
 
@@ -122,6 +123,7 @@ def test_plugin_event_roundtrip_to_dict_from_dict():
         plugin_id="dummy-1",
         surface="network",
         operation_id="op-1",
+        resource_id="decoy:srv-1",
         payload={"ttp_id": "T1078"},
     )
 
@@ -132,6 +134,7 @@ def test_plugin_event_roundtrip_to_dict_from_dict():
     assert restored.plugin_id == event.plugin_id
     assert restored.surface == event.surface
     assert restored.operation_id == event.operation_id
+    assert restored.resource_id == "decoy:srv-1"
     assert restored.payload == event.payload
     assert restored.timestamp == event.timestamp
 
@@ -141,3 +144,41 @@ def test_require_state_raises_plugin_state_error_on_mismatch():
     with pytest.raises(PluginStateError):
         # Todavia esta CREATED, no DEPLOYED: rotate() no es valido aca.
         plugin.rotate()
+
+
+# -- sanitize_payload_text() (seccion 3.4 del contrato de plugins) ----------
+
+
+def test_sanitize_payload_text_leaves_short_text_unchanged():
+    assert sanitize_payload_text("hola") == "hola"
+
+
+def test_sanitize_payload_text_truncates_long_text():
+    long_text = "a" * 3000
+
+    result = sanitize_payload_text(long_text)
+
+    assert len(result) < 3000
+    assert result.startswith("a" * 2000)
+    assert "truncado" in result
+    assert "3000" in result
+
+
+def test_sanitize_payload_text_respects_custom_max_length():
+    result = sanitize_payload_text("abcdefghij", max_length=5)
+
+    assert result.startswith("abcde")
+    assert "truncado" in result
+
+
+def test_sanitize_payload_text_boundary_exact_length_not_truncated():
+    exact = "a" * 2000
+    assert sanitize_payload_text(exact) == exact
+
+
+def test_sanitize_payload_text_passes_through_non_string_types():
+    assert sanitize_payload_text(42) == 42
+    assert sanitize_payload_text(True) is True
+    assert sanitize_payload_text(None) is None
+    payload = {"nested": "dict"}
+    assert sanitize_payload_text(payload) is payload

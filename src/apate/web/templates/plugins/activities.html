@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Tipos de actividad") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('capabilities.catalog') }}">{{ _("Catálogo de capacidades") }}</a> / {{ _("Actividades") }}</nav>{% endblock %}
+{% block content %}
+  {% include "plugins/_nav.html" %}
+  <div class="content-toolbar tools-page-header"><div><h1>{{ _("Tipos de actividad") }}</h1><p class="muted">{{ _("Comportamientos reutilizables para identidades simuladas.") }}</p></div><span class="badge">{{ activities | length }} {{ _("tipo(s)") }}</span></div>
+  <div class="tools-workspace">
+    <section class="panel tools-list-panel" aria-labelledby="activity-list-title">
+      <div class="panel-heading"><h2 id="activity-list-title">{{ _("Tipos existentes") }}</h2><span class="summary-count-badge">{{ activities | length }}</span></div>
+      {% if activities %}<div class="table-scroll"><table><thead><tr><th>{{ _("Tipo") }}</th><th>{{ _("Detalle") }}</th><th>{{ _("Comandos") }}</th><th>{{ _("Perfiles") }}</th><th>{{ _("Acciones") }}</th></tr></thead><tbody>
+        {% for activity in activities %}<tr><td>{{ activity.activity_type }}</td><td class="muted">{{ activity.details or "-" }}</td><td>{% set aprobados = activity.approved_commands() %}{% if aprobados %}{{ _("%(num)s aprobados", num=aprobados|length) }}{% else %}<span class="tag">{{ _("sin repertorio") }}</span>{% endif %}</td><td>{% if activity.user_profiles %}<span class="tag-list">{% for profile in activity.user_profiles %}<span class="tag">{{ profile.name }}</span>{% endfor %}</span>{% else %}-{% endif %}</td><td><a href="{{ url_for('capabilities.behavior_activity_edit', activity_id=activity.id) }}">{{ _("Editar") }}</a> &middot; <form class="inline" method="post" action="{{ url_for('capabilities.behavior_activity_delete', activity_id=activity.id) }}" data-confirm="{{ _("¿Eliminar este tipo de actividad?") }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="small danger">{{ _("Eliminar") }}</button></form></td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<div class="empty-state compact-empty-state"><p class="muted">{{ _("Sin tipos de actividad todavía. Creá el primero desde el formulario.") }}</p></div>{% endif %}
+    </section>
+    <section class="panel tools-form-panel" aria-labelledby="activity-create-title">
+      <h2 id="activity-create-title">{{ _("Crear tipo de actividad") }}</h2>
+      <form method="post" action="{{ url_for('capabilities.behavior_activities') }}" id="buda-activity-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label for="activity_type">{{ _("Tipo de actividad") }}</label><input type="text" id="activity_type" name="activity_type" required>
+        <label for="details">{{ _("Detalle") }}</label><textarea id="details" name="details" rows="3"></textarea>
+        <label for="commands">{{ _("Comandos aprobados") }}</label>
+        <p class="muted" id="commands-help">{{ _("Un comando por línea. Es lo único que la narrativa ejecuta sobre los servidores del binding. Podés dejarlo vacío ahora y cargarlo al editar la actividad, pero la narrativa no arranca sin él.") }}</p>
+        <textarea id="commands" name="commands" rows="4" aria-describedby="commands-help" spellcheck="false"></textarea>
+        <label for="user_profiles">{{ _("Perfiles asignados") }}</label><select multiple id="user_profiles" name="user_profiles">{% for profile in user_profiles %}<option value="{{ profile.id }}">{{ profile.name }} ({{ profile.role }})</option>{% endfor %}</select>
+        <aside class="assist-note"><strong>{{ _("La IA solo propone un borrador") }}</strong><span>{{ _("Primero revisá la sugerencia; solo se copia a los campos si elegís “Usar sugerencia”, y guardar sigue siendo una acción separada.") }}</span></aside>
+        <p><button type="submit" class="primary">{{ _("Crear tipo de actividad") }}</button> <button type="button" id="buda-generate-activity">{{ _("Generar sugerencia con IA") }}</button></p>
+        <p id="buda-generate-status" class="muted" role="status" aria-live="polite"></p>
+        <aside id="buda-suggestion" class="suggestion-preview" hidden aria-labelledby="buda-suggestion-title"><strong id="buda-suggestion-title">{{ _("Sugerencia generada") }}</strong><dl><dt>{{ _("Tipo") }}</dt><dd id="buda-suggestion-type"></dd><dt>{{ _("Detalle") }}</dt><dd id="buda-suggestion-details"></dd></dl><button type="button" id="buda-apply-suggestion">{{ _("Usar sugerencia") }}</button></aside>
+      </form>
+    </section>
+  </div>
+  <script>
+    // La generación asiste: conserva el resultado fuera del formulario hasta una confirmación explícita.
+    let generatedSuggestion = null;
+    document.getElementById('buda-generate-activity').addEventListener('click', async () => {
+      const typeInput = document.getElementById('activity_type'); const detailsInput = document.getElementById('details'); const status = document.getElementById('buda-generate-status'); const profileId = document.getElementById('user_profiles').value;
+      if (typeInput.value !== '' && detailsInput.value !== '') { status.textContent = {{ _("Dejá al menos un campo en blanco para generar con IA.")|tojson }}; return; }
+      if (!profileId) { status.textContent = {{ _("Elegí un perfil de usuario para generar.")|tojson }}; return; }
+      status.textContent = {{ _("Generando sugerencia...")|tojson }};
+      try {
+        const response = await fetch('{{ url_for("capabilities.behavior_activity_generate") }}', {method: 'POST', headers: Object.assign({'Content-Type': 'application/json'}, window.apateCsrfHeaders()), body: JSON.stringify({user_profile_id: profileId, activity_type: typeInput.value, details: detailsInput.value})});
+        const result = await response.json(); if (!response.ok) { status.textContent = result.error || {{ _("No se pudo generar.")|tojson }}; return; }
+        generatedSuggestion = JSON.parse(result.message); document.getElementById('buda-suggestion-type').textContent = generatedSuggestion.activity_type || '-'; document.getElementById('buda-suggestion-details').textContent = generatedSuggestion.details || '-'; document.getElementById('buda-suggestion').hidden = false; status.textContent = {{ _("Sugerencia lista para revisar.")|tojson }};
+      } catch (err) { status.textContent = {{ _("No se pudo generar:")|tojson }} + ' ' + err; }
+    });
+    document.getElementById('buda-apply-suggestion').addEventListener('click', () => { if (!generatedSuggestion) return; const typeInput = document.getElementById('activity_type'); const detailsInput = document.getElementById('details'); if (typeInput.value === '') typeInput.value = generatedSuggestion.activity_type || ''; if (detailsInput.value === '') detailsInput.value = generatedSuggestion.details || ''; document.getElementById('buda-generate-status').textContent = {{ _("Sugerencia copiada al borrador. Revisala antes de guardar.")|tojson }}; });
+  </script>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Apate{% endblock %}
+{% block body_class %}landing{% endblock %}
+{# Sin sidebar -- "primera impresion" full-width antes de entrar a la
+   app de trabajo (ver docs/roadmap.md). No es un documento HTML
+   aparte: sigue siendo el mismo <head> de base.html (favicon,
+   theme.css, loading.js) sin duplicar nada, solo se vacia el bloque
+   de la barra lateral en vez de ocultarla por CSS -- asi no queda
+   markup de navegacion sin usar en el DOM. #}
+{% block sidebar %}{% endblock %}
+{% block content %}
+  <header class="landing-header">
+    <a class="brand" href="{{ url_for('index') }}">Apate</a>
+    {% with locale_select_id="landing-locale-select" %}{% include "_locale_selector.html" %}{% endwith %}
+  </header>
+  <div class="hero">
+    <svg class="hero-mark" width="64" height="64" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      {# La marca A corresponde al favicon inline de base.html. #}
+      <rect width="32" height="32" rx="7" fill="#161b22"/>
+      <path d="M7 24 16 7 25 24 M10 19h12" fill="none" stroke="#22d3ee" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Apate</h1>
+      <p>
+        {{ _("Herramienta para dise&ntilde;ar, desplegar y medir operaciones de enga&ntilde;o.") }}
+        {{ _("Decoys de red, identidades simuladas y honeytokens, coordinados por reglas.") }}
+      </p>
+      {# Los tres como `a.button` (primitiva que ya existe en theme.css) en
+         vez de un `<button>` anidado dentro de un `<a>` -- que ademas de
+         invalido dejaba dos acciones como enlaces subrayados sueltos al lado
+         de un boton, sin ninguna jerarquia. En una fila flex propia, para
+         que las etiquetas no se corten a la mitad al envolver. #}
+      <div class="hero-actions">
+        {% if latest_operation %}
+          <a class="button primary" href="{{ url_for('operations.detail', operation_id=latest_operation.id) }}">{{ _("Retomar") }} &laquo;{{ latest_operation.name | truncate(26, true, '…') }}&raquo;</a>
+          <a class="button" href="{{ url_for('operations.list_operations') }}">{{ _("Todas las operaciones") }}</a>
+        {% else %}
+          <a class="button primary" href="{{ url_for('operations.templates_gallery') }}">{{ _("Crear la primera operaci&oacute;n") }}</a>
+          <a class="button" href="{{ url_for('operations.list_operations') }}">{{ _("Todas las operaciones") }}</a>
+        {% endif %}
+        <a class="button" href="{{ url_for('impact.dashboard') }}">{{ _("Vista de impacto") }}</a>
+      </div>
+    </div>
+    {# Los KPI viven dentro del hero, no en una seccion aparte debajo: llenan
+       el tercio derecho que quedaba vacio y ponen dato real en el primer
+       golpe de vista. Sin operaciones cargadas no se dibuja la columna --
+       una fila de ceros seria peor que no mostrarla. #}
+    {% if kpis %}
+      <dl class="hero-kpis">
+        <div><dt>{{ _("Operaciones activas") }}</dt><dd class="kpi-value">{{ kpis.active_count }}</dd></div>
+        <div><dt>{{ _("Comprometidas") }}</dt><dd class="kpi-value">{{ kpis.compromised_count }}</dd></div>
+        <div><dt>{{ _("Cobertura de TTPs") }}</dt><dd class="kpi-value">{{ kpis.ttp_coverage_count }}</dd></div>
+      </dl>
+    {% endif %}
+  </div>
+
+  {% if not kpis %}
+    <p class="muted">{{ _("Una operaci&oacute;n re&uacute;ne el perfil de adversario, las reglas de interacci&oacute;n, los escenarios, las capacidades y la narrativa de un mismo enga&ntilde;o. Desde ah&iacute; pod&eacute;s observar lo que ocurre, decidir, desplegar y reajustar el dise&ntilde;o.") }}</p>
+  {% endif %}
+
+  <h2 id="features">{{ _("Funciones disponibles") }}</h2>
+  <p class="muted">{{ _("Diseñá la operación, aprobá los despliegues y seguí las señales y la evidencia desde la misma interfaz.") }}</p>
+  <h2>{{ _("Dise&ntilde;ar y operar") }}</h2>
+  <div class="panel-grid section-cards">
+    <a href="{{ url_for('operations.list_operations') }}">
+      <div class="card">
+        <h3>{{ _("Operaciones") }}</h3>
+        <p class="muted">{{ _("Cada operaci&oacute;n de punta a punta: perfil de adversario, reglas, escenarios, capacidades y narrativa en un solo lugar.") }}</p>
+      </div>
+    </a>
+    <a href="{{ url_for('capabilities.catalog') }}">
+      <div class="card">
+        <h3>{{ _("Cat&aacute;logo de capacidades") }}</h3>
+        <p class="muted">{{ _("Decoys, honeytokens, canarytokens, identidades simuladas: qu&eacute; hay disponible y listo para usar.") }}</p>
+      </div>
+    </a>
+    <a href="{{ url_for('rules.show_rules') }}">
+      <div class="card">
+        <h3>{{ _("Reglas") }}</h3>
+        <p class="muted">{{ _("El motor de decisi&oacute;n determinista: condici&oacute;n &rarr; acci&oacute;n en YAML, sin que un LLM decida por vos.") }}</p>
+      </div>
+    </a>
+    <a href="{{ url_for('assets.index') }}">
+      <div class="card">
+        <h3>{{ _("Inventario de activos") }}</h3>
+        <p class="muted">{{ _("Importá activos por CSV, vinculalos a capacidades y revisá sugerencias de colocación y cobertura.") }}</p>
+      </div>
+    </a>
+  </div>
+
+  <h2>{{ _("Desplegar y atender") }}</h2>
+  <div class="panel-grid section-cards">
+    {% if can_administer %}
+      <a href="{{ url_for('deployments.targets') }}">
+        <div class="card">
+          <h3>{{ _("Destinos de despliegue") }}</h3>
+          <p class="muted">{{ _("Prepará planes confirmables para honeyusers AD y honeyfiles locales o en SMB montado; seguí su estado y frescura.") }}</p>
+        </div>
+      </a>
+    {% endif %}
+    <a href="{{ url_for('attention.inbox') }}">
+      <div class="card">
+        <h3>{{ _("Bandeja SOC") }}</h3>
+        <p class="muted">{{ _("Reconocé, asigná y resolvé señales y casos con evidencia y auditoría de las acciones del operador.") }}</p>
+      </div>
+    </a>
+  </div>
+
+  <h2>{{ _("Medir y reportar") }}</h2>
+  <div class="panel-grid section-cards">
+    <a href="{{ url_for('telemetry.index') }}">
+      <div class="card">
+        <h3>{{ _("Telemetr&iacute;a") }}</h3>
+        <p class="muted">{{ _("Eventos, IoCs y TTPs observadas, con incidentes, TLP, archivo de evidencia verificable y entrega manual a SIEM.") }}</p>
+      </div>
+    </a>
+    <a href="{{ url_for('operations.portfolio') }}">
+      <div class="card">
+        <h3>{{ _("Portafolio") }}</h3>
+        <p class="muted">{{ _("Cobertura de TTPs, activos y resultados medidos con eventos vinculados, reunidos entre operaciones.") }}</p>
+      </div>
+    </a>
+  </div>
+
+  <h2>{{ _("Entorno y estado") }}</h2>
+  <div class="panel-grid section-cards">
+    <a href="{{ url_for('playground.index') }}">
+      <div class="card">
+        <h3>{{ _("Playground") }}</h3>
+        <p class="muted">{{ _("Corr&eacute; un ataque real contra el stack completo y mir&aacute; c&oacute;mo responde tu operaci&oacute;n.") }}</p>
+      </div>
+    </a>
+    <a href="{{ url_for('health.index') }}">
+      <div class="card">
+        <h3>{{ _("Salud y configuraci&oacute;n") }}</h3>
+        <p class="muted">{{ _("Estado de integraciones y salud operativa: recurso, sondeo y actividad se muestran por separado.") }}</p>
+      </div>
+    </a>
+  </div>
+
+  <p class="muted">{{ _("Los conectores AD, SMB y Vault cuentan con pruebas locales; su validación en infraestructura externa sigue pendiente.") }}</p>
+
+{% endblock %}

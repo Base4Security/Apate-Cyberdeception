@@ -1,0 +1,9 @@
+# Usuarios y contraseñas para el honeypot
+# Formato: username:password:uid:gid:home:shell
+
+root:root123:0:0:/root:/bin/bash
+admin:admin123:1000:1000:/home/admin:/bin/bash
+maria:maria123:1001:1001:/home/maria:/bin/bash
+juan:juan123:1002:1002:/home/juan:/bin/bash
+pedro:pedro123:1003:1003:/home/pedro:/bin/bash
+backup:backup123:1004:1005:/home/backup:/bin/bash
