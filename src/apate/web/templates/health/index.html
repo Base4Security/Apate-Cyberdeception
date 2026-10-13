@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Salud y configuración") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {{ _("Salud y configuración") }}</nav>{% endblock %}
+{% block content %}
+  {% include "health/_configuration_nav.html" %}
+  {% set ready_count = checks | selectattr('status', 'in', ['available', 'configured']) | list | length %}
+  {% set attention_count = checks | length - ready_count %}
+  {% set status_labels = {'available': _("disponible"), 'configured': _("configurada"), 'unavailable': _("no disponible"), 'disabled': _("deshabilitada")} %}
+  <div class="content-toolbar health-header">
+    <div>
+      <h1>{{ _("Salud y configuración") }}</h1>
+      <p class="muted">{{ _("Disponibilidad local y configuración necesaria antes de operar.") }}</p>
+    </div>
+    <span class="badge health-{{ 'available' if attention_count == 0 else 'unavailable' }}">{{ ready_count }}/{{ checks | length }} {{ _("preparadas") }}</span>
+  </div>
+  <aside class="health-scope-note">
+    <strong>{{ _("Comprobación de solo lectura") }}</strong>
+    <span>{{ _("Realizada") }} <time datetime="{{ checked_at.isoformat() }}">{{ checked_at.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time>. {{ _("“Configurado” no afirma que el servicio remoto esté respondiendo.") }}</span>
+  </aside>
+  <div class="panel-grid health-summary" aria-label="{{ _("Resumen de salud") }}">
+    <div class="card kpi-card"><dl><dt>{{ _("Integraciones") }}</dt><dd class="kpi-value">{{ checks | length }}</dd></dl></div>
+    <div class="card kpi-card"><dl><dt>{{ _("Preparadas") }}</dt><dd class="kpi-value health-value-ready">{{ ready_count }}</dd></dl></div>
+    <div class="card kpi-card"><dl><dt>{{ _("Requieren atención") }}</dt><dd class="kpi-value health-value-attention">{{ attention_count }}</dd></dl></div>
+  </div>
+  <div class="health-grid">
+    {% for check in checks %}
+      <article class="card health-card health-card-{{ check.status }}">
+        <header><h2>{{ check.name }}</h2><span class="badge health-{{ check.status }}">{{ status_labels[check.status] }}</span></header>
+        <p>{{ check.detail }}</p>
+        {% if check.status in ('unavailable', 'disabled') %}<p class="health-next-step"><strong>{{ _("Siguiente paso") }}</strong><span>{{ check.action }}</span></p>{% endif %}
+        {% if check.href %}<p><a class="button-link small" href="{{ check.href }}">{{ check.link_label }}</a></p>{% endif %}
+      </article>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="{{ current_locale }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {# Testigo CSRF para el JavaScript de la interfaz: los formularios lo llevan en un
+     campo oculto, pero un `fetch()` que arma su propio cuerpo no tiene donde ponerlo.
+     Ver apate.web._csrf y window.apateCsrfHeaders() en static/ui.js. #}
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}Apate{% endblock %}</title>
+  {# Marca A de Apate, repetida como SVG en la portada. #}
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23161b22'/%3E%3Cpath d='M7 24 16 7 25 24 M10 19h12' fill='none' stroke='%2322d3ee' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+  {% if identity_authentication_active %}
+  <style>
+    {# La política del servidor es la autoridad. Estas reglas solo evitan
+       ofrecer controles que esa identidad no puede ejecutar. #}
+    .role-read form[method="post"]:not(.identity-logout),
+    .role-read a[href*="/new"],
+    .role-read a[href*="/edit"] { display: none; }
+    .role-operation form[action*="/health"],
+    .role-operation form[action*="/capabilities"],
+    .role-operation form[action*="/rules"] { display: none; }
+  </style>
+  {% endif %}
+  <script src="{{ url_for('static', filename='ui.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='loading.js') }}" defer></script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}{{ identity_role_class }}">
+  <a class="skip-link" href="#main-content">{{ _("Saltar al contenido") }}</a>
+  <div class="app-shell">
+    {% block sidebar %}
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a class="brand" href="{{ url_for('index') }}">Apate</a>
+        <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="sidebar-navigation">{{ _("Men&uacute;") }}</button>
+      </div>
+      <nav id="sidebar-navigation">
+        {% if identity_authentication_active and current_identity %}
+          <div class="operator-session identity-session">
+            <span class="operator-label">{{ _("Sesi&oacute;n autenticada") }}</span>
+            <strong>{{ current_identity.display_name }}</strong>
+            <span class="muted">{{ current_identity.role.value }}{% if current_identity.team_id %} · {{ current_identity.team_id }}{% endif %}</span>
+            <form class="identity-logout" method="post" action="{{ url_for('logout') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit" class="small">{{ _("Cerrar sesi&oacute;n") }}</button></form>
+          </div>
+        {% elif not identity_authentication_active %}
+          <form class="operator-session" method="post" action="{{ url_for('set_operator') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <label for="operator-input">{{ _("Operador para auditor&iacute;a") }}</label>
+            <input id="operator-input" type="text" name="operator" value="{{ current_operator }}" placeholder="{{ _('sin especificar') }}" autocomplete="off">
+            <button type="submit" class="small">{{ _("Cambiar") if current_operator else _("Identificarme") }}</button>
+          </form>
+          <p class="authentication-notice" role="status">{{ _('La instancia est&aacute; abierta hasta crear el primer usuario. Para protegerla, ejecut&aacute; flask --app "apate.web:create_app" create-user &lt;nombre&gt;.') }}</p>
+        {% endif %}
+        {% if emergency_access_open %}<p class="authentication-notice" role="status">{{ _("El acceso de emergencia de OIDC está habilitado: existe una contraseña local que evita el inicio de sesión corporativo. Quitá APATE_OIDC_EMERGENCY_PASSWORD_HASH cuando ya no haga falta.") }}</p>{% endif %}
+        <a href="{{ url_for('operations.list_operations') }}" {% if request.endpoint and request.endpoint not in ('operations.portfolio',) and request.blueprint == 'operations' %}class="active"{% endif %}>{{ _("Operaciones") }}</a>
+        <a href="{{ url_for('operations.portfolio') }}" {% if request.endpoint == 'operations.portfolio' %}class="active"{% endif %}>{{ _("Portafolio") }}</a>
+        <a href="{{ url_for('assets.index') }}" {% if request.blueprint == 'assets' %}class="active"{% endif %}>{{ _("Inventario de activos") }}</a>
+        <a href="{{ url_for('rules.show_rules') }}" {% if request.blueprint == 'rules' %}class="active"{% endif %}>{{ _("Reglas") }}</a>
+        <a href="{{ url_for('telemetry.index') }}" {% if request.blueprint == 'telemetry' %}class="active"{% endif %}>{{ _("Telemetr&iacute;a") }}</a>
+        <a href="{{ url_for('attention.inbox') }}" {% if request.blueprint == 'attention' %}class="active"{% endif %}>{{ _('Bandeja SOC') }}</a>
+        <a href="{{ url_for('capabilities.catalog') }}" {% if request.blueprint in ('plugins', 'capabilities') %}class="active"{% endif %}>{{ _("Cat&aacute;logo de capacidades") }}</a>
+        <a href="{{ url_for('health.index') }}" {% if request.blueprint == 'health' %}class="active"{% endif %}>{{ _("Salud y configuraci&oacute;n") }}</a>
+        {% if can_administer %}<a href="{{ url_for('deployments.targets') }}" {% if request.endpoint == 'deployments.targets' %}class="active"{% endif %}>{{ _("Destinos de despliegue") }}</a>{% endif %}
+        <a href="{{ url_for('playground.index') }}" {% if request.blueprint == 'playground' %}class="active"{% endif %}>{{ _("Playground") }}</a>
+        {# Entrada propia, no escondida dentro de "Salud y configuracion": dar de
+           alta a alguien es una tarea de primer nivel y buscarla en un submenu
+           es exactamente por lo que no se encontraba. Se muestra solo a quien
+           puede usarla -- y tambien cuando todavia no hay ningun usuario, que
+           es cuando hace falta crear el primero. La ruta ya verifica el rol por
+           su cuenta (403); esto solo evita ofrecer un enlace inutil. #}
+        {% if not identity_authentication_active or (current_identity and current_identity.role.value == 'administration') %}
+        <a href="{{ url_for('health.identity_users') }}" {% if request.endpoint == 'health.identity_users' %}class="active"{% endif %}>{{ _("Usuarios y acceso") }}</a>
+        {% endif %}
+      </nav>
+      <div class="ui-preferences" aria-label="{{ _('Herramientas de interfaz') }}">
+        <button type="button" class="small" data-command-open title="{{ _('Atajo: Ctrl+K') }}">{{ _("Ir a&hellip;") }}</button>
+        {% with locale_select_id="sidebar-locale-select" %}{% include "_locale_selector.html" %}{% endwith %}
+        <details class="ui-preferences-more">
+          <summary>{{ _("Vista y ayuda") }}</summary>
+          <button type="button" class="small" data-help-open>{{ _("Ayuda y glosario") }}</button>
+          <button type="button" class="small" data-theme-toggle data-label-light="{{ _('Tema claro') }}" data-label-dark="{{ _('Tema oscuro') }}">{{ _("Tema claro") }}</button>
+          <button type="button" class="small" data-presentation-toggle>{{ _("Presentación") }}</button>
+          <button type="button" class="small" data-density-toggle data-label-compact="{{ _('Vista compacta') }}" data-label-comfortable="{{ _('Vista cómoda') }}">{{ _("Vista compacta") }}</button>
+        </details>
+      </div>
+    </aside>
+    {% endblock %}
+    <main id="main-content" tabindex="-1">
+      <div class="page-shell">
+        <section class="page-shell-inner">
+          {% block breadcrumbs %}{% endblock %}
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">
+                  <span>{{ message }}</span>
+                  <button type="button" class="flash-dismiss" data-flash-dismiss aria-label="{{ _('Cerrar mensaje') }}">&times;</button>
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+          {% block content %}{% endblock %}
+        </section>
+      </div>
+      {# Aviso de licencia siempre visible: la AGPLv3 (art. 13) pide que la
+         oportunidad de recibir el fuente sea "prominente". Discreto pero en
+         todas las pantallas, incluida la de login, que extiende esta misma
+         plantilla. El detalle completo vive en /about.
+
+         Va como hijo de <main> y NO dentro de .page-shell: esa es un
+         contenedor flex, y un hermano de .page-shell-inner ahi adentro se
+         convierte en una segunda columna al costado del contenido (bug real,
+         visto en navegador antes de corregirlo). #}
+      <footer class="app-footer">
+        <p>
+          <span>Apate <span class="mono">{{ apate_build.version }}</span></span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{{ apate_build.license_spdx }}</span>
+          <span aria-hidden="true">&middot;</span>
+          <a href="{{ url_for('about') }}">{{ _("Licencia y c&oacute;digo fuente") }}</a>
+        </p>
+      </footer>
+    </main>
+  </div>
+  <button type="button" class="presentation-exit" data-presentation-toggle>{{ _("Salir de presentaci&oacute;n") }}</button>
+  <dialog class="app-dialog" data-confirm-dialog aria-labelledby="confirm-dialog-title">
+    <form method="dialog">
+      <h2 id="confirm-dialog-title">{{ _("Confirmar acci&oacute;n") }}</h2>
+      <p data-confirm-message></p>
+      <label data-confirm-name-wrap hidden>
+        {{ _("Escrib&iacute;") }} <strong data-confirm-name></strong> {{ _("para continuar") }}
+        <input type="text" data-confirm-name-input autocomplete="off">
+      </label>
+      <div class="dialog-actions">
+        <button value="cancel">{{ _("Cancelar") }}</button>
+        <button value="confirm" class="danger" data-confirm-accept>{{ _("Confirmar") }}</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog class="app-dialog command-dialog" data-command-dialog aria-labelledby="command-title">
+    <form method="dialog">
+      <div class="command-header">
+        <label for="command-search" id="command-title">{{ _("Buscar secciones y operaciones") }}</label>
+        <input id="command-search" type="search" data-command-search placeholder="{{ _('Secci&oacute;n, capacidad u operaci&oacute;n&hellip;') }}" autocomplete="off">
+      </div>
+      <div class="command-results" data-command-results>
+        <a href="{{ url_for('operations.list_operations') }}" data-command-item data-command-keywords="despliegue escenarios decoys narrativas honeytokens operations deployment scenarios decoys narratives honeytokens">{{ _("Operaciones") }}</a>
+        <a href="{{ url_for('operations.portfolio') }}" data-command-item data-command-keywords="m&eacute;tricas cobertura transversal portfolio coverage transversal metrics">{{ _("Portafolio") }}</a>
+        <a href="{{ url_for('assets.index') }}" data-command-item data-command-keywords="inventario infraestructura activos servidores cuentas datos asset inventory infrastructure assets servers accounts data">{{ _("Inventario de activos") }}</a>
+        <a href="{{ url_for('telemetry.index') }}" data-command-item data-command-keywords="eventos iocs ttps observadas actividad en vivo estad&iacute;sticas telemetry events iocs ttps observed live activity statistics">{{ _("Telemetr&iacute;a") }}</a>
+        <a href="{{ url_for('rules.show_rules') }}" data-command-item data-command-keywords="motor determinista roe automatizaci&oacute;n deterministic engine roe automation">{{ _("Reglas") }}</a>
+        <a href="{{ url_for('capabilities.catalog') }}" data-command-item data-command-keywords="capacidades plugins perfiles actividades proveedores capabilities plugins profiles activities providers">{{ _("Cat&aacute;logo de capacidades") }}</a>
+        <a href="{{ url_for('health.index') }}" data-command-item data-command-keywords="integraciones docker settings proveedor modelo llm integrations docker settings provider model llm">{{ _("Salud y configuraci&oacute;n") }}</a>
+        <a href="{{ url_for('playground.index') }}" data-command-item data-command-keywords="ejercicio atacante defensor docker attacker defender exercise">{{ _("Playground") }}</a>
+        <a href="{{ url_for('telemetry.live_index') }}" data-command-item data-command-keywords="telemetr&iacute;a red host identidad comportamiento observables network telemetry host identity behavior observables">{{ _("Actividad en vivo") }}</a>
+        <a href="{{ url_for('operations.portfolio', _anchor='portfolio-operational-metrics') }}" data-command-item data-command-keywords="m&eacute;tricas operacionales estad&iacute;sticas comportamiento eventos iocs operational metrics operational statistics behavior events iocs">{{ _("M&eacute;tricas operacionales") }}</a>
+        <a href="{{ url_for('health.network_host_runtime') }}" data-command-item data-command-keywords="salud configuraci&oacute;n red host docker">{{ _("Runtime de red y host") }}</a>
+        <a href="{{ url_for('health.content_generation') }}" data-command-item data-command-keywords="salud configuraci&oacute;n identidad comportamiento llm health configuration identity behavior llm">{{ _("Generaci&oacute;n de contenido") }}</a>
+        <a href="{{ url_for('health.identity_users') }}" data-command-item data-command-keywords="salud configuraci&oacute;n administraci&oacute;n de usuarios usuarios locales health configuration user administration local users">{{ _("Administraci&oacute;n de usuarios") }}</a>
+        <a href="{{ url_for('health.threat_intelligence') }}" data-command-item data-command-keywords="salud configuraci&oacute;n inteligencia amenazas vt health configuration threat intelligence vt">{{ _("Inteligencia de amenazas") }}</a>
+        <a href="{{ url_for('health.siem_soar') }}" data-command-item data-command-keywords="salud configuraci&oacute;n siem soar reporte health configuration siem soar reporting">{{ _("SIEM/SOAR") }}</a>
+        <a href="{{ url_for('capabilities.behavior_activities') }}" data-command-item data-command-keywords="cat&aacute;logo capacidades identidad comportamiento catalog capabilities identity behavior">{{ _("Tipos de actividad") }}</a>
+        <a href="{{ url_for('capabilities.identity_profiles') }}" data-command-item data-command-keywords="cat&aacute;logo capacidades identidad winrm">{{ _("Perfiles de identidad") }}</a>
+        <a href="{{ url_for('capabilities.behavior_context') }}" data-command-item data-command-keywords="cat&aacute;logo capacidades identidad comportamiento evtx fuentes catalog capabilities identity behavior evtx sources">{{ _("Contexto de comportamiento") }}</a>
+        {% for operation in navigation_operations %}
+          <a href="{{ url_for('operations.detail', operation_id=operation.id) }}" data-command-item data-command-keywords="despliegue operaci&oacute;n operation deployment">{{ _("Operaci&oacute;n") }}: {{ operation.name }}</a>
+        {% endfor %}
+      </div>
+      <div class="dialog-actions"><button value="cancel">{{ _("Cerrar") }}</button></div>
+    </form>
+  </dialog>
+  <dialog class="app-dialog help-dialog" data-help-dialog aria-labelledby="help-title">
+    <form method="dialog">
+      <h2 id="help-title">{{ _("Ayuda y glosario") }}</h2>
+      <p class="muted">
+        {% if request.blueprint == 'operations' %}{{ _("Esta pantalla organiza la operaci&oacute;n; las sugerencias nunca se aplican solas.") }}
+        {% elif request.blueprint == 'telemetry' %}{{ _("La telemetr&iacute;a registra observaciones; no demuestra por s&iacute; sola causalidad ni atribuci&oacute;n.") }}
+        {% elif request.blueprint == 'rules' %}{{ _("Las reglas son deterministas y las reglas de interacci&oacute;n (RoE) limitan solamente sus acciones autom&aacute;ticas.") }}
+        {% elif request.blueprint in ('plugins', 'capabilities') %}{{ _("El Cat&aacute;logo describe capacidades reutilizables; usarlas en una operaci&oacute;n siempre requiere selecci&oacute;n expl&iacute;cita.") }}
+        {% elif request.blueprint == 'health' %}{{ _("Salud y configuraci&oacute;n distingue disponibilidad local de conectividad efectiva y no despliega recursos al comprobarlas.") }}
+        {% elif request.blueprint == 'playground' %}{{ _("Playground ejecuta un entorno de ejercicio separado de las acciones manuales del operador.") }}
+        {% else %}{{ _("Apate asiste la planificaci&oacute;n y operaci&oacute;n de ciberenga&ntilde;o sin decidir despliegues por el operador.") }}{% endif %}
+      </p>
+      <dl class="glossary-list">
+        <dt>{{ _("RoE") }}</dt><dd>{{ _("Rules of Engagement: permisos y prohibiciones que gobiernan al motor de reglas, no las acciones manuales.") }}</dd>
+        <dt>{{ _("TTP") }}</dt><dd>{{ _("T&aacute;ctica, t&eacute;cnica o procedimiento observado o esperado del adversario.") }}</dd>
+        <dt>{{ _("MITRE Engage") }}</dt><dd>{{ _("Marco para planificar objetivos, actividades y efectos de engagement.") }}</dd>
+        <dt>{{ _("Capacidad") }}</dt><dd>{{ _("Recurso o motor reutilizable que puede seleccionarse para una operaci&oacute;n; el proveedor es metadata t&eacute;cnica.") }}</dd>
+        <dt>{{ _("Despliegue") }}</dt><dd>{{ _("Trabajo contextual dentro de una operaci&oacute;n para preparar, iniciar, rotar, detener o retirar recursos.") }}</dd>
+        <dt>{{ _("Playground") }}</dt><dd>{{ _("Entorno de ejercicio que Apate puede preparar y orquestar mediante Docker.") }}</dd>
+        <dt>{{ _("Efecto medido") }}</dt><dd>{{ _("Nota humana sobre el resultado observado frente al efecto planificado; no es una puntuaci&oacute;n autom&aacute;tica.") }}</dd>
+      </dl>
+      <div class="dialog-actions"><button value="cancel">{{ _("Cerrar") }}</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Playground") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {{ _("Playground") }}</nav>{% endblock %}
+{% block content %}
+  <div class="content-toolbar playground-header">
+    <div>
+      <h1>{{ _("Playground") }} <span class="muted">({{ operations | length }})</span></h1>
+      <p class="muted">{{ _("Ejecutá operaciones en el entorno controlado de Cyber Deception Playground.") }}</p>
+    </div>
+  </div>
+  <aside class="playground-safety-note">
+    <strong>{{ _("Entorno de simulación") }}</strong>
+    <span>{{ _("Usa Docker Compose y el checkout configurado mediante") }} <code>APATE_PLAYGROUND_PATH</code>; {{ _("ninguna operaci&oacute;n se inicia sola.") }}</span>
+  </aside>
+
+  {% if operations %}
+    <div class="playground-operation-grid">
+      {% for operation in operations %}
+        {% set playground_active = operation.id in active_operation_ids %}
+        <article class="panel playground-operation-card{% if playground_active %} playground-operation-card-active{% endif %}">
+          <header>
+            <div>
+              <h2>{{ operation.name }}</h2>
+              <span class="operation-row-id mono">{{ operation.id[:8] }}</span>
+            </div>
+            <span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span>
+          </header>
+          <div class="playground-runtime-status">
+            <span class="dot {% if playground_active %}dot-up{% else %}dot-down{% endif %}"></span>
+            <span>
+              <strong>{{ _("Stack") }} {{ _("activo") if playground_active else _("detenido") }}</strong>
+              <small>{{ _("Sesión disponible en este proceso") if playground_active else _("Sin recursos de Playground en ejecuci&oacute;n") }}</small>
+            </span>
+          </div>
+          <div class="playground-card-actions">
+            <div class="playground-lifecycle-action">
+              {% if operation.id in active_operation_ids %}
+                <form class="inline" method="post" data-slow-action action="{{ url_for('playground.stop', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="danger" data-loading-text="{{ _("Deteniendo Playground...") }}">{{ _("Detener Playground") }}</button>
+                </form>
+              {% else %}
+                <form method="post" class="playground-start-form" data-slow-action action="{{ url_for('playground.start', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <label for="playground-level-{{ operation.id }}">{{ _("Nivel de engaño") }}</label>
+                  <select id="playground-level-{{ operation.id }}" name="level">
+                    {% for level in levels %}
+                      <option value="{{ level.value }}">{{ level.value }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" class="primary" data-loading-text="{{ _("Iniciando Playground...") }}">{{ _("Iniciar") }}</button>
+                </form>
+              {% endif %}
+            </div>
+            <nav class="playground-view-links" aria-label="{{ _("Vistas de %(operation_name)s", operation_name=operation.name) }}">
+              <a class="button small" href="{{ url_for('playground.attacker_view', operation_id=operation.id) }}">{{ _("Atacante") }}</a>
+              <a class="button small" href="{{ url_for('playground.defender_view', operation_id=operation.id) }}">{{ _("Defensor") }}</a>
+            </nav>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><h2>{{ _("Todavía no hay operaciones creadas") }}</h2><p class="muted">{{ _("Creá una operación antes de preparar una sesión de Playground.") }}</p><a class="button primary" href="{{ url_for('operations.new_operation_form') }}">{{ _("Crear operación") }}</a></div>
+  {% endif %}
+{% endblock %}

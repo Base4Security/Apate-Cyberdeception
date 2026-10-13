@@ -1,0 +1,9416 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-03 15:34-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Capacidad de decoys de red y host"
+msgstr ""
+
+msgid "Capacidad de comportamiento de usuario simulado"
+msgstr ""
+
+msgid "Entorno de ejercicio (stack Docker)"
+msgstr ""
+
+msgid "Catálogo de grupos y técnicas de adversarios (datos incluidos)"
+msgstr ""
+
+msgid "Matriz de Engage y mapeo a ATT&CK (datos incluidos)"
+msgstr ""
+
+msgid "Servidor web"
+msgstr ""
+
+msgid "Notificaciones en vivo"
+msgstr ""
+
+msgid "Persistencia de identidades simuladas"
+msgstr ""
+
+msgid "Catálogos de traducción"
+msgstr ""
+
+msgid "Lectura del YAML de reglas"
+msgstr ""
+
+msgid "Exportación de informes a PDF"
+msgstr ""
+
+msgid "Lectura de informes de CTI en PDF"
+msgstr ""
+
+msgid "Control del runtime de contenedores"
+msgstr ""
+
+msgid "Llamadas HTTP salientes"
+msgstr ""
+
+msgid "Generación de contenido asistida"
+msgstr ""
+
+msgid "Carga de variables de entorno"
+msgstr ""
+
+msgid "Lectura de registros de eventos de Windows"
+msgstr ""
+
+msgid "Ejecución remota vía WinRM"
+msgstr ""
+
+msgid "Cifrado de secretos en reposo"
+msgstr ""
+
+msgid "Validación de tokens OIDC"
+msgstr ""
+
+msgid "Editor de reglas con resaltado (se carga desde CDN)"
+msgstr ""
+
+msgid "Cliente de notificaciones en vivo (se carga desde CDN)"
+msgstr ""
+
+msgid "El archivo está vacío."
+msgstr ""
+
+#, python-format
+msgid "El archivo supera el tamaño máximo soportado (%(mb)s MB)."
+msgstr ""
+
+msgid "Formato no soportado: el inventario admite solo archivos .csv."
+msgstr ""
+
+msgid "El CSV debe estar codificado en UTF-8."
+msgstr ""
+
+msgid "El CSV no tiene una fila de encabezados."
+msgstr ""
+
+msgid "El CSV tiene encabezados duplicados."
+msgstr ""
+
+#, python-format
+msgid "Faltan columnas obligatorias: %(columnas)s."
+msgstr ""
+
+msgid "Baja"
+msgstr ""
+
+msgid "Media"
+msgstr ""
+
+msgid "Alta"
+msgstr ""
+
+msgid "Crítica"
+msgstr ""
+
+msgid "El identificador del activo es obligatorio."
+msgstr ""
+
+msgid "El nombre del activo es obligatorio."
+msgstr ""
+
+msgid "El tipo del activo es obligatorio."
+msgstr ""
+
+#, python-format
+msgid "La criticidad debe ser una de: %(opciones)s."
+msgstr ""
+
+msgid "Solo una fuente pendiente puede confirmarse."
+msgstr ""
+
+msgid "La integridad de la fuente no coincide con su huella registrada."
+msgstr ""
+
+msgid "Solo una fuente activa puede archivarse."
+msgstr ""
+
+msgid "Solo los candidatos pendientes pueden eliminarse físicamente."
+msgstr ""
+
+msgid "similarity_percentage debe estar entre 0 y 100"
+msgstr ""
+
+#, python-format
+msgid ""
+"'%(plugin_id)s' no puede ser su propio breadcrumb (leads_to_plugin_id no "
+"puede coincidir con plugin_id)."
+msgstr ""
+
+msgid ""
+"ClosureCriteria.trigger_conditions solo admite condiciones orientadas a "
+"evento (event_type definido, closure_due=False) -- el cierre por "
+"vencimiento ya se modela aparte con end_date/is_past_due()."
+msgstr ""
+
+#, python-format
+msgid ""
+"Transicion no permitida: %(current)s -> %(target)s (permitidas desde "
+"'%(current)s': %(allowed)s)"
+msgstr ""
+
+msgid "ninguna"
+msgstr ""
+
+#, python-format
+msgid "Índice de Gating Criteria fuera de rango: %(index)s."
+msgstr ""
+
+msgid "El archivo esta vacio."
+msgstr ""
+
+#, python-format
+msgid "El archivo supera el tamano maximo soportado (%(mb)s MB)."
+msgstr ""
+
+#, python-format
+msgid "Formato '%(format)s' no soportado -- solo .txt y .pdf."
+msgstr ""
+
+msgid "(sin extension)"
+msgstr ""
+
+msgid "Soporte de PDF no disponible en este servidor (falta pypdf)."
+msgstr ""
+
+msgid "No se pudo leer el PDF -- archivo corrupto o protegido."
+msgstr ""
+
+msgid "No se pudo extraer texto del PDF (¿es una imagen escaneada sin OCR?)."
+msgstr ""
+
+#, python-format
+msgid ""
+"La cuenta '%(account)s' ya existe y no pertenece a esta operación de "
+"APATE."
+msgstr ""
+
+msgid "La identidad señuelo ya existe y será reconciliada sin duplicarla."
+msgstr ""
+
+msgid "Crear y habilitar una identidad señuelo dentro de la OU autorizada."
+msgstr ""
+
+msgid "Honeyuser creado y habilitado."
+msgstr ""
+
+msgid "El honeyuser ya no existe en Active Directory."
+msgstr ""
+
+msgid "El marcador de propiedad del honeyuser cambió."
+msgstr ""
+
+msgid "El honeyuser fue movido fuera de la OU autorizada."
+msgstr ""
+
+msgid "Honeyuser deshabilitado y retirado."
+msgstr ""
+
+msgid "El honeyuser está deshabilitado fuera de APATE."
+msgstr ""
+
+msgid "Honeyuser presente y habilitado."
+msgstr ""
+
+msgid "Credencial del honeyuser rotada."
+msgstr ""
+
+msgid "El honeyuser ya no existe."
+msgstr ""
+
+msgid "Honeyuser deshabilitado y conservado para auditoría."
+msgstr ""
+
+msgid "El destino no corresponde al conector de honeyusers de AD."
+msgstr ""
+
+msgid ""
+"sAMAccountName debe tener entre 1 y 20 caracteres alfanuméricos, punto, "
+"guion o guion bajo."
+msgstr ""
+
+msgid "display_name es obligatorio y no puede superar 256 caracteres."
+msgstr ""
+
+msgid "La OU solicitada no está en la allowlist exacta del destino."
+msgstr ""
+
+msgid "El sufijo UPN solicitado no está autorizado para el destino."
+msgstr ""
+
+msgid "El destino de Active Directory requiere credential_ref."
+msgstr ""
+
+msgid "La credencial administrativa requiere username y password."
+msgstr ""
+
+msgid "El plan de honeyuser está incompleto o pertenece a otro conector."
+msgstr ""
+
+msgid "El cambio declarado no coincide con el honeyuser planificado."
+msgstr ""
+
+msgid "El registro no coincide con su plan de honeyuser."
+msgstr ""
+
+msgid ""
+"Active Directory devolvió una cuenta sin el marcador de propiedad "
+"esperado."
+msgstr ""
+
+msgid "Active Directory devolvió un SID inválido para el honeyuser."
+msgstr ""
+
+msgid "Active Directory devolvió una cuenta distinta de la planificada."
+msgstr ""
+
+msgid "Active Directory creó el honeyuser fuera de la OU autorizada."
+msgstr ""
+
+msgid "plan_ttl_seconds debe ser un número entero."
+msgstr ""
+
+msgid "plan_ttl_seconds debe estar entre 60 y 86400."
+msgstr ""
+
+msgid "El transporte WinRM solicitado no está autorizado."
+msgstr ""
+
+msgid "server_cert_validation debe ser 'validate' o 'ignore'."
+msgstr ""
+
+#, python-format
+msgid "No se pudo conectar con Active Directory mediante WinRM: %(detail)s"
+msgstr ""
+
+#, python-format
+msgid "PowerShell remoto falló (código %(code)s): %(detail)s"
+msgstr ""
+
+msgid "PowerShell remoto devolvió una respuesta no válida."
+msgstr ""
+
+msgid ""
+"WinRM por HTTP está bloqueado; usá HTTPS o autorizá explícitamente "
+"allow_unencrypted."
+msgstr ""
+
+msgid "Identificador de checkpoint inválido."
+msgstr ""
+
+msgid "El EventRecordID no puede ser negativo."
+msgstr ""
+
+#, python-format
+msgid "No existe la referencia de credenciales '%(reference)s'."
+msgstr ""
+
+msgid "La referencia de credenciales almacenada no coincide."
+msgstr ""
+
+msgid "La referencia de credenciales debe comenzar con 'secret://'."
+msgstr ""
+
+msgid "La credencial no puede estar vacía."
+msgstr ""
+
+#, python-format
+msgid "El campo '%(field_name)s' del destino de despliegue es obligatorio."
+msgstr ""
+
+#, python-format
+msgid "Transición de despliegue inválida: %(current)s -> %(new)s."
+msgstr ""
+
+msgid "Identificador de despliegue inválido."
+msgstr ""
+
+#, python-format
+msgid "No existe el plan de despliegue '%(plan_id)s'."
+msgstr ""
+
+#, python-format
+msgid "No existe el registro de despliegue '%(record_id)s'."
+msgstr ""
+
+#, python-format
+msgid "No hay un conector de despliegue registrado para '%(kind)s'."
+msgstr ""
+
+msgid "El conector devolvió un plan fuera del alcance solicitado."
+msgstr ""
+
+msgid "El plan de despliegue venció; generá uno nuevo."
+msgstr ""
+
+#, python-format
+msgid "El conector devolvió un estado inválido después de desplegar: %(status)s."
+msgstr ""
+
+#, python-format
+msgid "Falló la ejecución del plan de despliegue '%(plan_id)s': %(detail)s"
+msgstr ""
+
+#, python-format
+msgid "El conector devolvió un estado inválido al consultar: %(status)s."
+msgstr ""
+
+#, python-format
+msgid ""
+"Solo se puede reintentar un despliegue fallido o degradado; estado "
+"actual: %(status)s."
+msgstr ""
+
+#, python-format
+msgid "El conector devolvió un estado inválido después del reintento: %(status)s."
+msgstr ""
+
+#, python-format
+msgid "Falló el reintento del despliegue '%(record_id)s': %(detail)s"
+msgstr ""
+
+#, python-format
+msgid "El conector devolvió un estado inválido después de rotar: %(status)s."
+msgstr ""
+
+#, python-format
+msgid "Falló la rotación del despliegue '%(record_id)s': %(detail)s"
+msgstr ""
+
+#, python-format
+msgid "El conector devolvió un estado inválido después de retirar: %(status)s."
+msgstr ""
+
+#, python-format
+msgid "Falló el retiro del despliegue '%(record_id)s': %(detail)s"
+msgstr ""
+
+msgid "Identificador de destino inválido."
+msgstr ""
+
+msgid "La revisión del destino cambió; volvé a cargarlo antes de guardar."
+msgstr ""
+
+msgid "Un destino nuevo debe comenzar en la revisión 1."
+msgstr ""
+
+#, python-format
+msgid "No existe el destino de despliegue '%(target_id)s'."
+msgstr ""
+
+msgid ""
+"La configuración del destino no puede contener secretos; usá "
+"credential_ref."
+msgstr ""
+
+msgid "La configuración OIDC está incompleta."
+msgstr ""
+
+msgid ""
+"El acceso de emergencia de OIDC requiere APATE_OIDC_EMERGENCY_EXPIRES_AT "
+"con una fecha ISO-8601: una credencial que evita el inicio de sesión "
+"corporativo no puede ser válida para siempre."
+msgstr ""
+
+msgid "Los usuarios no administrativos requieren un equipo."
+msgstr ""
+
+msgid "El sujeto ya está aprovisionado."
+msgstr ""
+
+msgid "El nombre visible no puede estar vacío."
+msgstr ""
+
+msgid "La contraseña no puede estar vacía."
+msgstr ""
+
+msgid "Ya existe una identidad con ese nombre visible."
+msgstr ""
+
+msgid "Los usuarios de lectura u operación requieren un equipo."
+msgstr ""
+
+msgid "No se puede desactivar al último administrador activo."
+msgstr ""
+
+msgid "El almacén de identidades tiene un formato inválido."
+msgstr ""
+
+#, python-format
+msgid ""
+"'%(kind)s' no es un proveedor de identidad registrado (disponibles: "
+"%(kinds)s)."
+msgstr ""
+
+#, python-format
+msgid ""
+"El proveedor de identidad '%(kind)s' declara "
+"authentication_mode='redirect' pero no implementa el contrato de inicio "
+"por redirección: faltan authorization_url() y/o complete_authorization()."
+msgstr ""
+
+#, python-format
+msgid ""
+"La ruta configurada para el Playground no es un directorio existente: "
+"'%(path)s'."
+msgstr ""
+
+#, python-format
+msgid ""
+"'%(path)s' no contiene ningun %(candidates)s: no parece ser un checkout "
+"del repositorio Cyber Deception Playground."
+msgstr ""
+
+#, python-format
+msgid "No se pudo consultar Elasticsearch en '%(url)s': %(error)s"
+msgstr ""
+
+#, python-format
+msgid "El comando '%(command)s' termino con codigo %(code)s: %(stderr)s"
+msgstr ""
+
+msgid "(sin salida de error)"
+msgstr ""
+
+#, python-format
+msgid ""
+"No se encontro el ejecutable '%(executable)s'. Verificar que Docker (con "
+"el plugin 'compose') este instalado."
+msgstr ""
+
+msgid ""
+"No se encontró el ejecutable 'docker'. Verificar que Docker esté "
+"instalado y levantado."
+msgstr ""
+
+#, python-format
+msgid "El comando '%(command)s' terminó con código %(code)s: %(stderr)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"No se puede ejecutar '%(action)s' en estado '%(state)s' (se esperaba "
+"'%(expected)s')."
+msgstr ""
+
+msgid "Comportamiento de usuario simulado"
+msgstr ""
+
+msgid ""
+"Simula comportamiento de usuarios reales sobre servidores WinRM reales --"
+" narrativas con perfiles de usuario y actividades asistidas por LLM."
+msgstr ""
+
+msgid ""
+"BudaPlugin requiere 'narrative_id' en la configuracion "
+"(PluginBinding.config): el id de la Narrative de BUDA a operar."
+msgstr ""
+
+#, python-format
+msgid ""
+"No se pudo conectar con el servidor de Canarytokens en '%(url)s': "
+"%(error)s"
+msgstr ""
+
+#, python-format
+msgid "Respuesta no válida del servidor de Canarytokens: %(error)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo crear el canarytoken: %(detail)s"
+msgstr ""
+
+msgid ""
+"La respuesta del servidor de Canarytokens no incluyó 'token'/'auth_token'"
+" -- no se puede administrar este canarytoken sin esos dos valores."
+msgstr ""
+
+#, python-format
+msgid "No se pudo eliminar el canarytoken (HTTP %(status)s)."
+msgstr ""
+
+#, python-format
+msgid "No se pudo consultar el historial del canarytoken (HTTP %(status)s)."
+msgstr ""
+
+msgid "Canarytokens (Thinkst)"
+msgstr ""
+
+msgid ""
+"Migas multi-superficie (cloud, documentos, DNS, QR, email...) contra un "
+"servidor Canarytokens self-hosted -- detección por polling, sin webhook "
+"entrante."
+msgstr ""
+
+msgid ""
+"No se puede reconciliar el estado: falta 'token'/'auth_token' en la "
+"configuración (¿este canarytoken nunca se desplegó?)."
+msgstr ""
+
+msgid ""
+"CanarytokenPlugin requiere 'base_url' en la configuración "
+"(PluginBinding.config): la URL base completa de la instancia self-hosted,"
+" incluido su path de API real -- no asumas un path fijo (ver docstring de"
+" apate.plugins.canarytoken_client)."
+msgstr ""
+
+#, python-format
+msgid ""
+"CanarytokenPlugin requiere %(fields)s en la configuración "
+"(PluginBinding.config) antes de poder crear el token. La API real de "
+"Canarytokens exige 'memo' y, además, 'email' o 'webhook_url' -- APATE "
+"siempre usa 'email' (nunca 'webhook_url', ver docstring del módulo)."
+msgstr ""
+
+msgid ""
+"Este binding no tiene un canarytoken desplegado todavía (falta "
+"'token'/'auth_token')."
+msgstr ""
+
+msgid "Decoys de red"
+msgstr ""
+
+msgid ""
+"Despliega un collector y decoys de red/host reales sobre Docker -- "
+"senuelos con IP, puertos de servicio y contenido propio configurables."
+msgstr ""
+
+msgid "Honeytokens de archivo"
+msgstr ""
+
+msgid ""
+"Coloca senuelos de archivo con credenciales ficticias y detecta acceso "
+"por polling sobre sus timestamps -- el unico plugin no simulado que no "
+"depende de ninguna herramienta externa."
+msgstr ""
+
+#, python-format
+msgid "No se pudo eliminar el honeytoken '%(path)s': %(error)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo confirmar que se elimino el honeytoken '%(path)s'."
+msgstr ""
+
+#, python-format
+msgid ""
+"No se puede restaurar el despliegue: faltan archivos configurados: "
+"%(archivos)s"
+msgstr ""
+
+msgid ""
+"HoneytokenPlugin requiere 'directory' en la configuracion "
+"(PluginBinding.config): la ruta donde colocar los archivos senuelo."
+msgstr ""
+
+#, python-format
+msgid ""
+"Este plugin no puede generar el formato que prometen estos nombres: "
+"%(nombres)s. El archivo quedaria en texto plano con una extension que no "
+"le corresponde, y un adversario que lo abra o le corra 'file' descubre el"
+" engano. Usa '.csv' para una tabla usuario/password o '.txt' para lineas "
+"'clave: valor'."
+msgstr ""
+
+#, python-format
+msgid "No se pudo escribir el honeytoken '%(path)s': %(error)s"
+msgstr ""
+
+msgid "Honeypot simulado (mock)"
+msgstr ""
+
+msgid ""
+"Plugin de referencia sin infraestructura real: emite eventos sinteticos "
+"de escaneo y acceso para poder ejercitar el resto del sistema (reglas, "
+"telemetria, Playground) sin depender de capacidades externas."
+msgstr ""
+
+msgid "El SDK 'docker' no esta disponible en este entorno."
+msgstr ""
+
+#, python-format
+msgid "No se pudo conectar con Docker: %(error)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo desplegar el contenedor OpenCanary '%(name)s': %(error)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo reiniciar el contenedor '%(name)s': %(error)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo retirar el contenedor '%(name)s': %(error)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudieron leer los logs de '%(name)s': %(error)s"
+msgstr ""
+
+msgid "OpenCanary (Thinkst)"
+msgstr ""
+
+msgid ""
+"Honeypot multi-servicio real sobre Docker (SSH, FTP, HTTP, Telnet, "
+"MySQL...) -- detecta intentos de conexion/login con el contenido literal "
+"tecleado por el atacante."
+msgstr ""
+
+#, python-format
+msgid "'%(kind)s' no es un plugin_kind registrado (kinds disponibles: %(kinds)s)."
+msgstr ""
+
+#, python-format
+msgid "%(count)s TTP(s) esperada(s) sin ningún escenario que las cubra: %(ttps)s."
+msgstr ""
+
+#, python-format
+msgid ""
+"El escenario '%(description)s' declara %(count)s TTP(s) esperada(s) pero "
+"no tiene ninguna capacidad vinculada -- por diseño, ninguna podría llegar"
+" a observarse."
+msgstr ""
+
+#, python-format
+msgid ""
+"Ningún breadcrumb declarado lleva a una capacidad del escenario "
+"'%(description)s' -- el diseño no muestra cómo llegaría el adversario ahí"
+" (puede ser intencional, si es un punto de entrada expuesto directo, sin "
+"necesitar ninguna miga)."
+msgstr ""
+
+#, python-format
+msgid ""
+"'%(plugin_id)s' no está vinculada a ningún escenario ni conectada por "
+"breadcrumb a ninguna otra capacidad -- no forma parte de ninguna historia"
+" del recorrido."
+msgstr ""
+
+#, python-format
+msgid ""
+"'%(plugin_id)s' lleva a '%(target_id)s', que no está vinculado a esta "
+"operación -- la cadena se corta ahí."
+msgstr ""
+
+#, python-format
+msgid "Ciclo de breadcrumbs sin fin: %(chain)s -> %(first)s."
+msgstr ""
+
+#, python-format
+msgid "# Informe post-operación — %(name)s"
+msgstr ""
+
+#, python-format
+msgid "- **ID de operación:** `%(id)s`"
+msgstr ""
+
+#, python-format
+msgid "- **Estado:** %(status)s"
+msgstr ""
+
+#, python-format
+msgid "- **Generado:** %(generated_at)s"
+msgstr ""
+
+#, python-format
+msgid "- **Eventos registrados:** %(count)s"
+msgstr ""
+
+msgid "## TTPs"
+msgstr ""
+
+#, python-format
+msgid "- **Esperadas** (perfil de adversario): %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Observadas** (telemetría): %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Coincidentes:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Esperadas y NO observadas:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Observadas y NO esperadas:** %(value)s"
+msgstr ""
+
+msgid "## IoCs"
+msgstr ""
+
+msgid "| Tipo | Valor |"
+msgstr ""
+
+msgid "Sin IoCs observados."
+msgstr ""
+
+msgid "## Efecto de engaño: planificado vs. medido"
+msgstr ""
+
+msgid "(ninguna)"
+msgstr ""
+
+msgid "(sin registrar)"
+msgstr ""
+
+msgid "Sin plugins vinculados a esta operación."
+msgstr ""
+
+#, python-format
+msgid "### Plugin: `%(plugin_id)s`"
+msgstr ""
+
+#, python-format
+msgid "- **Adversario debe pensar (planificado):** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Adversario debe hacer (planificado):** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Métrica de éxito (planificada):** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Resultado medido:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Medido por:** %(measured_by)s — %(measured_at)s"
+msgstr ""
+
+#, python-format
+msgid "- **Eventos de evidencia:** %(ids)s"
+msgstr ""
+
+msgid "- **Resultado medido:** sin medir todavía."
+msgstr ""
+
+#, python-format
+msgid "# Kit de taller — %(name)s"
+msgstr ""
+
+msgid "## Paso 1 · Ficha de perfil de amenaza"
+msgstr ""
+
+#, python-format
+msgid "- **Nombre / actor:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Motivación:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Nivel de habilidad:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Activos críticos objetivo:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **TTPs esperadas:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Notas:** %(value)s"
+msgstr ""
+
+msgid "(sin notas)"
+msgstr ""
+
+msgid "## Heatmap de TTPs"
+msgstr ""
+
+#, python-format
+msgid "- **Esperadas:** %(value)s"
+msgstr ""
+
+msgid ""
+"- Sin telemetría cargada todavía -- el heatmap completo "
+"(observadas/coincidentes) está disponible una vez que la operación tenga "
+"eventos registrados."
+msgstr ""
+
+msgid "## Paso 3 · Escenarios y Paso 4 · Ver-Pensar-Hacer"
+msgstr ""
+
+msgid ""
+"Sin escenarios cargados todavía -- completar durante el taller (paso 3 de"
+" la metodología)."
+msgstr ""
+
+#, python-format
+msgid "### Escenario: %(description)s"
+msgstr ""
+
+#, python-format
+msgid "- **TTPs relacionadas:** %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- **Nivel de engaño:** %(value)s"
+msgstr ""
+
+msgid "**¿Qué debe VER el adversario?** ______________________________"
+msgstr ""
+
+msgid "**¿Qué debe PENSAR (creer)?** ______________________________"
+msgstr ""
+
+msgid "**¿Qué debe HACER?** ______________________________"
+msgstr ""
+
+msgid "**¿Cómo se mide el éxito?** ______________________________"
+msgstr ""
+
+msgid "## Efecto de engaño ya vinculado: planificado vs. medido"
+msgstr ""
+
+#, python-format
+msgid "Informe post-operación — %(name)s"
+msgstr ""
+
+msgid "ID de operación"
+msgstr ""
+
+msgid "Estado"
+msgstr ""
+
+msgid "Generado"
+msgstr ""
+
+msgid "Eventos registrados"
+msgstr ""
+
+msgid "TTPs"
+msgstr ""
+
+msgid "Esperadas (perfil de adversario)"
+msgstr ""
+
+msgid "Observadas (telemetría)"
+msgstr ""
+
+msgid "Coincidentes"
+msgstr ""
+
+msgid "Esperadas y NO observadas"
+msgstr ""
+
+msgid "Observadas y NO esperadas"
+msgstr ""
+
+msgid "IoCs"
+msgstr ""
+
+msgid "Tipo"
+msgstr ""
+
+msgid "Valor"
+msgstr ""
+
+msgid "Efecto de engaño: planificado vs. medido"
+msgstr ""
+
+#, python-format
+msgid "Plugin: %(plugin_id)s"
+msgstr ""
+
+msgid "Adversario debe pensar (planificado)"
+msgstr ""
+
+msgid "Adversario debe hacer (planificado)"
+msgstr ""
+
+msgid "Métrica de éxito (planificada)"
+msgstr ""
+
+msgid "Resultado medido"
+msgstr ""
+
+msgid "Eventos de evidencia"
+msgstr ""
+
+msgid "Medido por"
+msgstr ""
+
+#, python-format
+msgid "%(measured_by)s — %(measured_at)s"
+msgstr ""
+
+msgid "sin medir todavía."
+msgstr ""
+
+#, python-format
+msgid "Kit de taller — %(name)s"
+msgstr ""
+
+msgid "Paso 1 · Ficha de perfil de amenaza"
+msgstr ""
+
+msgid "Nombre / actor"
+msgstr ""
+
+msgid "Motivación"
+msgstr ""
+
+msgid "Nivel de habilidad"
+msgstr ""
+
+msgid "Activos críticos objetivo"
+msgstr ""
+
+msgid "TTPs esperadas"
+msgstr ""
+
+msgid "Notas"
+msgstr ""
+
+msgid "Heatmap de TTPs"
+msgstr ""
+
+msgid "Esperadas"
+msgstr ""
+
+msgid ""
+"Sin telemetría cargada todavía -- el heatmap completo "
+"(observadas/coincidentes) está disponible una vez que la operación tenga "
+"eventos registrados."
+msgstr ""
+
+msgid "Paso 3 · Escenarios y Paso 4 · Ver-Pensar-Hacer"
+msgstr ""
+
+#, python-format
+msgid "Escenario: %(description)s"
+msgstr ""
+
+msgid "TTPs relacionadas"
+msgstr ""
+
+msgid "Nivel de engaño"
+msgstr ""
+
+msgid "¿Qué debe VER el adversario?"
+msgstr ""
+
+msgid "¿Qué debe PENSAR (creer)?"
+msgstr ""
+
+msgid "¿Qué debe HACER?"
+msgstr ""
+
+msgid "¿Cómo se mide el éxito?"
+msgstr ""
+
+msgid "Efecto de engaño ya vinculado: planificado vs. medido"
+msgstr ""
+
+#, python-format
+msgid "IoC observado durante la operación (%(ioc_type)s)"
+msgstr ""
+
+#, python-format
+msgid ""
+"Efecto de engaño planificado para el plugin '%(plugin_id)s' (sin "
+"equivalente STIX directo):"
+msgstr ""
+
+#, python-format
+msgid "- Adversario debe creer (Pensar): %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- Adversario debe hacer (Hacer): %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- Métrica de éxito: %(value)s"
+msgstr ""
+
+#, python-format
+msgid "- Resultado medido: %(outcome)s (por %(measured_by)s, %(measured_at)s)"
+msgstr ""
+
+msgid "- Resultado medido: sin medir todavía."
+msgstr ""
+
+msgid "Capa de orquestación y decisión para operaciones de ciberengaño."
+msgstr ""
+
+#, python-format
+msgid ""
+"Inteligencia generada por la operación de engaño '%(name)s' (id: %(id)s, "
+"estado: %(status)s)."
+msgstr ""
+
+#, python-format
+msgid "La regla referencia un plugin no registrado en el motor: '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid ""
+"La regla referencia el plugin '%(plugin_id)s': esta registrado en el "
+"motor pero no vinculado a la operacion (operation.plugins) -- fuera de "
+"alcance."
+msgstr ""
+
+msgid "Una condicion no puede combinar 'event_type' con 'closure_due'."
+msgstr ""
+
+msgid "Una condicion debe definir 'event_type' o 'closure_due: true'."
+msgstr ""
+
+msgid "Una accion 'transition' requiere el campo 'to'."
+msgstr ""
+
+#, python-format
+msgid ""
+"'to' invalido para 'transition': '%(value)s' (valores permitidos: "
+"%(allowed)s)."
+msgstr ""
+
+msgid "El campo 'to' solo es valido en acciones 'transition'."
+msgstr ""
+
+#, python-format
+msgid "Falta el campo obligatorio %(field)s en una regla."
+msgstr ""
+
+#, python-format
+msgid "Valor invalido en una regla: %(error)s"
+msgstr ""
+
+#, python-format
+msgid "YAML invalido: %(error)s"
+msgstr ""
+
+#, python-format
+msgid "El documento YAML debe ser un mapping con una clave 'rules', no %(tipo)s."
+msgstr ""
+
+msgid "APATE_SECRET_ENCRYPTION_KEY no es una clave Fernet válida."
+msgstr ""
+
+#, python-format
+msgid "%(variable)s no es una clave Fernet válida."
+msgstr ""
+
+#, python-format
+msgid "La clave local '%(filename)s' no es una clave Fernet válida."
+msgstr ""
+
+msgid "No se pudo descifrar un secreto almacenado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo consultar la fuente de telemetria '%(source)s': %(error)s"
+msgstr ""
+
+msgid "La dirección IP del IoC no es válida."
+msgstr ""
+
+msgid ""
+"El IoC pertenece a una red privada o reservada y no se enviará a "
+"VirusTotal."
+msgstr ""
+
+msgid "La URL del IoC no es válida para compartir."
+msgstr ""
+
+msgid "El IoC parece un nombre interno y no se enviará a VirusTotal."
+msgstr ""
+
+msgid "El IoC apunta a una red privada o reservada y no se enviará a VirusTotal."
+msgstr ""
+
+#, python-format
+msgid "Tipo de IoC no compatible: %(ioc_type)s"
+msgstr ""
+
+msgid "Tu sesión venció. Iniciá sesión de nuevo."
+msgstr ""
+
+msgid ""
+"Inicio de sesión con el acceso de emergencia de OIDC, que evita el "
+"proveedor de identidad corporativo."
+msgstr ""
+
+msgid "Intento de inicio de sesión rechazado: demasiados fallos recientes."
+msgstr ""
+
+#, python-format
+msgid "Demasiados intentos fallidos. Probá de nuevo en %(minutos)s minutos."
+msgstr ""
+
+msgid "Credenciales inválidas."
+msgstr ""
+
+msgid "Inicio de sesión."
+msgstr ""
+
+msgid "Inicio de sesión por el proveedor corporativo."
+msgstr ""
+
+msgid "Sesión cerrada."
+msgstr ""
+
+msgid "Idioma no disponible."
+msgstr ""
+
+msgid "La auditoría usa la identidad autenticada."
+msgstr ""
+
+#, python-format
+msgid "Operando como '%(operator)s'."
+msgstr ""
+
+msgid "Nombre de operador limpiado."
+msgstr ""
+
+#, python-format
+msgid "%(kind)s/%(plugin_id)s: atribución ambigua"
+msgstr ""
+
+#, python-format
+msgid "%(kind)s/%(plugin_id)s: sin decoys correlacionables"
+msgstr ""
+
+msgid "Seleccioná un archivo con extensión .evtx."
+msgstr ""
+
+msgid "El archivo EVTX supera el límite de 50 MiB."
+msgstr ""
+
+msgid "El extractor no devolvió un objeto de contexto válido."
+msgstr ""
+
+msgid "Actualizado hace 12 s"
+msgstr ""
+
+msgid "Eventos"
+msgstr ""
+
+#, python-format
+msgid "%(change)s más en la última hora"
+msgstr ""
+
+msgid "TTPs observadas"
+msgstr ""
+
+msgid "9 coincidentes"
+msgstr ""
+
+msgid "7 priorizados"
+msgstr ""
+
+msgid "Reglas disparadas"
+msgstr ""
+
+msgid "0 rechazadas"
+msgstr ""
+
+msgid "Capacidades"
+msgstr ""
+
+msgid "10 desplegadas"
+msgstr ""
+
+msgid "Transferencia saliente hacia infraestructura no autorizada"
+msgstr ""
+
+msgid "Acceso fuera del patrón de soporte remoto"
+msgstr ""
+
+msgid "Fuerza bruta SSH detectada en gateway señuelo"
+msgstr ""
+
+msgid "TTP T1552.001 observada al acceder a credenciales"
+msgstr ""
+
+msgid "SshFinanceGateway, FileServerBackup y 2 más en línea"
+msgstr ""
+
+msgid "Narrativas activas"
+msgstr ""
+
+msgid "Soporte RRHH y cierre contable simulados"
+msgstr ""
+
+msgid "Honeytokens desplegados"
+msgstr ""
+
+msgid "1 acceso pendiente de triage"
+msgstr ""
+
+msgid "Dependencias externas"
+msgstr ""
+
+msgid "1 atención"
+msgstr ""
+
+msgid "Canarytoken: último sondeo hace 4 min"
+msgstr ""
+
+msgid "Configurado; estado no disponible"
+msgstr ""
+
+msgid "Sin nombre"
+msgstr ""
+
+msgid "Estado no disponible"
+msgstr ""
+
+msgid "Archivo sintético; contenido no expuesto."
+msgstr ""
+
+msgid "Identidad vinculada"
+msgstr ""
+
+#, python-format
+msgid "Miga Canarytoken · %(token_type)s"
+msgstr ""
+
+msgid "tipo sin definir"
+msgstr ""
+
+msgid "Docker no disponible; estado del contenedor desconocido."
+msgstr ""
+
+#, python-format
+msgid "Contenedor %(status)s."
+msgstr ""
+
+msgid "activo"
+msgstr ""
+
+msgid "Servicios configurados; contenedor no desplegado."
+msgstr ""
+
+msgid "Adversario"
+msgstr ""
+
+msgid "Perfil definido para la operación."
+msgstr ""
+
+msgid "Técnica esperada, relacionada u observada."
+msgstr ""
+
+msgid "esperada"
+msgstr ""
+
+msgid "Escenario"
+msgstr ""
+
+#, python-format
+msgid "Nivel %(level)s."
+msgstr ""
+
+msgid "implementada por"
+msgstr ""
+
+msgid "Capacidad"
+msgstr ""
+
+msgid "Sin superficie"
+msgstr ""
+
+msgid "usa"
+msgstr ""
+
+msgid "Perfil"
+msgstr ""
+
+msgid "configura"
+msgstr ""
+
+msgid "Efecto"
+msgstr ""
+
+msgid "Efecto planificado"
+msgstr ""
+
+msgid "Sin resultado medido"
+msgstr ""
+
+msgid "busca producir"
+msgstr ""
+
+msgid "Evento"
+msgstr ""
+
+msgid "observado por"
+msgstr ""
+
+msgid "evidencia"
+msgstr ""
+
+msgid "Escenarios"
+msgstr ""
+
+msgid "Recursos"
+msgstr ""
+
+msgid "Evidencia y efectos"
+msgstr ""
+
+#, python-format
+msgid "Objetivos estratégicos definidos: %(labels)s."
+msgstr ""
+
+msgid ""
+"Roles y/o estimación de recursos cargados, pero sin ningún objetivo "
+"estratégico seleccionado."
+msgstr ""
+
+msgid "Sin objetivos estratégicos, roles ni estimación de recursos cargados."
+msgstr ""
+
+msgid "Sin ningún plugin de identidad/comportamiento vinculado a esta operación."
+msgstr ""
+
+msgid ""
+"Hay un plugin de identidad/comportamiento vinculado, pero la mecánica "
+"específica no está disponible en este servidor -- no se puede consultar "
+"si tiene personas (perfiles de usuario) configuradas desde acá."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(count)s perfil(es) de usuario configurados en la narrativa de "
+"comportamiento simulado."
+msgstr ""
+
+msgid ""
+"Hay un plugin de identidad/comportamiento vinculado, pero todavía sin "
+"ningún perfil de usuario asignado."
+msgstr ""
+
+msgid "Sin ningún escenario cargado (paso 3)."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(scenario_count)s escenario(s) cargado(s), %(ttp_count)s con TTPs "
+"relacionadas."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(count)s escenario(s) cargado(s), pero ninguno con TTPs relacionadas "
+"todavía."
+msgstr ""
+
+#, python-format
+msgid "%(count)s TTP(s) esperada(s) cargada(s) en el perfil de adversario."
+msgstr ""
+
+msgid "Motivación y/o notas cargadas, pero sin ninguna TTP esperada todavía."
+msgstr ""
+
+msgid "Perfil de adversario sin TTPs, motivación ni notas cargadas."
+msgstr ""
+
+#, python-format
+msgid "fecha de cierre planificada (%(date)s)"
+msgstr ""
+
+#, python-format
+msgid "%(count)s condición(es) de disparo por evento (M12f)"
+msgstr ""
+
+#, python-format
+msgid "Gating Criteria real: %(parts)s."
+msgstr ""
+
+msgid " y "
+msgstr ""
+
+msgid ""
+"Solo condiciones de cierre en texto libre (sin efecto real sobre el "
+"motor) -- sin fecha ni condiciones de disparo."
+msgstr ""
+
+msgid "Sin fecha de cierre, condiciones de disparo ni condiciones en texto libre."
+msgstr ""
+
+msgid ""
+"Operación cerrada -- el informe post-operación (M6) es un artefacto real,"
+" descargable desde la cabecera."
+msgstr ""
+
+msgid ""
+"Operación todavía no cerrada -- el informe post-operación recién se "
+"genera al cerrarla."
+msgstr ""
+
+msgid "Operación en planificación -- todavía no hay nada que revisar."
+msgstr ""
+
+msgid ""
+"Sin campo equivalente en el modelo todavía -- ver docstring de "
+"apate.web._engage_preparation."
+msgstr ""
+
+#, python-format
+msgid ""
+"Entorno: %(environment)s. Con restricciones de Rules of Engagement "
+"configuradas."
+msgstr ""
+
+#, python-format
+msgid "Entorno: %(environment)s."
+msgstr ""
+
+#, python-format
+msgid ""
+"Entorno: %(environment)s. Entorno por defecto (aislado), sin "
+"restricciones adicionales de RoE."
+msgstr ""
+
+msgid "Completar decisiones estratégicas"
+msgstr ""
+
+msgid "Configurar identidad y comportamiento"
+msgstr ""
+
+msgid "Completar escenarios"
+msgstr ""
+
+msgid "Revisar perfil de adversario"
+msgstr ""
+
+msgid "Revisar criterios de cierre"
+msgstr ""
+
+msgid "Revisar resultados"
+msgstr ""
+
+msgid "Revisar Rules of Engagement"
+msgstr ""
+
+msgid "Recolección"
+msgstr ""
+
+msgid "Comando y control"
+msgstr ""
+
+msgid "Acceso a credenciales"
+msgstr ""
+
+msgid "Evasión de defensas"
+msgstr ""
+
+msgid "Descubrimiento"
+msgstr ""
+
+msgid "Ejecución"
+msgstr ""
+
+msgid "Exfiltración"
+msgstr ""
+
+msgid "Impacto"
+msgstr ""
+
+msgid "Acceso inicial"
+msgstr ""
+
+msgid "Movimiento lateral"
+msgstr ""
+
+msgid "Persistencia"
+msgstr ""
+
+msgid "Escalada de privilegios"
+msgstr ""
+
+msgid "Desarrollo de recursos"
+msgstr ""
+
+msgid "Detección temprana"
+msgstr ""
+
+msgid "Recolección de inteligencia"
+msgstr ""
+
+msgid "Disuasión y desgaste"
+msgstr ""
+
+msgid "Atribución"
+msgstr ""
+
+msgid "Validación de controles"
+msgstr ""
+
+msgid "Aislado"
+msgstr ""
+
+msgid "Cercano a producción"
+msgstr ""
+
+msgid "Producción"
+msgstr ""
+
+msgid "Playground"
+msgstr ""
+
+msgid "Interacción"
+msgstr ""
+
+msgid "TTP observada"
+msgstr ""
+
+msgid "En preparación"
+msgstr ""
+
+msgid "Activa"
+msgstr ""
+
+msgid "Comprometida"
+msgstr ""
+
+msgid "Cerrada"
+msgstr ""
+
+msgid "Pendiente"
+msgstr ""
+
+msgid "Archivada"
+msgstr ""
+
+msgid "Completada"
+msgstr ""
+
+msgid "Fallida"
+msgstr ""
+
+msgid "Sin engaño"
+msgstr ""
+
+msgid "Básico"
+msgstr ""
+
+msgid "Completo"
+msgstr ""
+
+msgid "Imposible"
+msgstr ""
+
+#, python-format
+msgid "%(sign)s%(percentage)s %% última hora"
+msgstr ""
+
+msgid "En ejecución / configurados"
+msgstr ""
+
+msgid "Sin decoys configurados"
+msgstr ""
+
+#, python-format
+msgid "%(count)s configuradas"
+msgstr ""
+
+msgid "Disponibles / configurados"
+msgstr ""
+
+msgid "Sin honeytokens configurados"
+msgstr ""
+
+msgid "Disponibles"
+msgstr ""
+
+msgid "Sin determinar"
+msgstr ""
+
+msgid "Docker y BUDA consultados"
+msgstr ""
+
+msgid "No se pudo consultar una dependencia"
+msgstr ""
+
+#, python-format
+msgid "Datos consolidados a las %(time)s"
+msgstr ""
+
+#, python-format
+msgid "%(count)s coincidentes"
+msgstr ""
+
+#, python-format
+msgid "En %(count)s operaciones"
+msgstr ""
+
+msgid "Decisiones persistidas"
+msgstr ""
+
+#, python-format
+msgid "%(event_type)s observada"
+msgstr ""
+
+msgid "Servicio señuelo de OpenCanary"
+msgstr ""
+
+#, python-format
+msgid "Canarytoken · %(token_type)s"
+msgstr ""
+
+msgid ""
+"Hay una narrativa cargada con contenido real, pero ningún empleado "
+"ficticio (perfil de identidad simulada) vinculado -- la historia no tiene"
+" ningún protagonista humano que la sostenga."
+msgstr ""
+
+#, python-format
+msgid ""
+"Hay %(count)s pieza(s) de infraestructura ficticia (decoy) sin ningún "
+"empleado ficticio vinculado en la operación -- nadie 'sería dueño' de "
+"esos hosts en la ficción."
+msgstr ""
+
+#, python-format
+msgid ""
+"Hay %(count)s empleado(s) ficticio(s) sin ninguna infraestructura (decoy)"
+" vinculada en la operación -- la ficción tiene personas pero no un "
+"entorno donde actuar."
+msgstr ""
+
+#, python-format
+msgid ""
+"El activo objetivo declarado '%(asset)s' no comparte ninguna palabra "
+"clave con los escenarios ni la infraestructura desplegada -- chequeo de "
+"texto simple, puede ser una coincidencia del heurístico y no un problema "
+"real; revisar a criterio."
+msgstr ""
+
+#, python-format
+msgid ""
+"El honeytoken '%(label)s' no comparte ninguna palabra clave con los "
+"escenarios ni los activos objetivo declarados -- chequeo de texto simple,"
+" puede colgar de la nada o puede ser una coincidencia del heurístico; "
+"revisar a criterio."
+msgstr ""
+
+msgid "Sin iniciar"
+msgstr ""
+
+msgid "Con pendientes"
+msgstr ""
+
+msgid "Lista"
+msgstr ""
+
+msgid "Con actividad"
+msgstr ""
+
+msgid "Sin capacidades vinculadas."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(total)s vinculada(s): %(active)s activa(s), %(configured)s lista(s) y "
+"%(pending)s pendiente(s) de verificar."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(total)s vinculada(s): ninguna activa y %(pending)s pendiente(s) de "
+"verificar."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(total)s capacidad(es) vinculada(s) y configurada(s), todavía sin "
+"actividad demostrada."
+msgstr ""
+
+#, python-format
+msgid "%(ttp_count)s TTP(s) y %(asset_count)s activo(s) objetivo definidos."
+msgstr ""
+
+msgid "El perfil tiene evidencia parcial; faltan TTPs o activos objetivo."
+msgstr ""
+
+msgid "Sin TTPs, motivación, notas ni activos objetivo."
+msgstr ""
+
+msgid "RoE, objetivos, responsables y recursos definidos."
+msgstr ""
+
+msgid "Hay decisiones cargadas, pero el marco operativo todavía es parcial."
+msgstr ""
+
+msgid "Solo está el entorno aislado por defecto, sin decisiones estratégicas."
+msgstr ""
+
+msgid "Historia y mecanismo narrativo definidos."
+msgstr ""
+
+msgid "Narrativa cargada de forma parcial."
+msgstr ""
+
+msgid "Sin historia, elementos ni impacto psicológico definidos."
+msgstr ""
+
+#, python-format
+msgid "%(count)s efecto(s) con resultado humano registrado."
+msgstr ""
+
+#, python-format
+msgid "%(covered)s/%(total)s actividades estratégicas con evidencia."
+msgstr ""
+
+#, python-format
+msgid ""
+"%(covered)s/%(total)s actividades cubiertas; quedan evidencias por "
+"completar."
+msgstr ""
+
+msgid "Sin actividades cubiertas ni efectos vinculados."
+msgstr ""
+
+#, python-format
+msgid "%(count)s escenario(s), todos vinculados a TTPs."
+msgstr ""
+
+#, python-format
+msgid "%(count)s escenario(s), con vínculos a TTPs pendientes."
+msgstr ""
+
+msgid "Sin escenarios cargados."
+msgstr ""
+
+#, python-format
+msgid "%(count)s evento(s) persistido(s) en Telemetría."
+msgstr ""
+
+msgid "La operación puede observarse, pero aún no tiene eventos persistidos."
+msgstr ""
+
+msgid "La observación comenzará cuando la operación genere telemetría."
+msgstr ""
+
+msgid "El diseño reúne perfil, RoE, narrativa, Engage y escenarios."
+msgstr ""
+
+msgid "Diseño"
+msgstr ""
+
+msgid "Completar diseño"
+msgstr ""
+
+#, python-format
+msgid "Sin huecos detectados; %(checks)s chequeo(s) de coherencia para revisar."
+msgstr ""
+
+#, python-format
+msgid "%(count)s hallazgo(s): %(dry)s de ensayo y %(coherence)s de coherencia."
+msgstr ""
+
+msgid "Validación"
+msgstr ""
+
+msgid "Validar el diseño"
+msgstr ""
+
+#, python-format
+msgid "%(count)s regla(s) global(es) aplican a esta operación."
+msgstr ""
+
+msgid "No hay reglas globales que apliquen a esta operación."
+msgstr ""
+
+msgid "Reglas"
+msgstr ""
+
+msgid "Revisar reglas"
+msgstr ""
+
+msgid "Despliegue"
+msgstr ""
+
+msgid "Revisar capacidades"
+msgstr ""
+
+msgid "Observación"
+msgstr ""
+
+msgid "Abrir actividad"
+msgstr ""
+
+msgid "Cierre"
+msgstr ""
+
+msgid "La transición de cierre requiere confirmación humana."
+msgstr ""
+
+msgid "Operación cerrada; los informes permanecen disponibles."
+msgstr ""
+
+msgid "Revisar y cerrar"
+msgstr ""
+
+msgid "Reoperar"
+msgstr ""
+
+msgid ""
+"La operación está cerrada; su estado es irreversible y la continuidad "
+"requiere una nueva operación."
+msgstr ""
+
+msgid "Escribir la primera regla"
+msgstr ""
+
+#, python-format
+msgid "%(label)s: %(detail)s"
+msgstr ""
+
+msgid "Marcar activa"
+msgstr ""
+
+msgid "Los seis pasos de preparación no muestran pendientes explícitos."
+msgstr ""
+
+msgid "Abrir telemetría"
+msgstr ""
+
+msgid ""
+"No hay eventos persistidos todavía; conviene verificar la observación "
+"antes de cambiar el estado."
+msgstr ""
+
+msgid "Marcar comprometida"
+msgstr ""
+
+#, python-format
+msgid ""
+"Hay %(count)s evento(s) persistido(s); el cambio de estado requiere "
+"confirmación humana."
+msgstr ""
+
+msgid ""
+"La operación está comprometida; cerrar es la transición permitida "
+"restante y es irreversible."
+msgstr ""
+
+#, python-format
+msgid "Estado inicial: %(status)s"
+msgstr ""
+
+#, python-format
+msgid "Estado actual: %(status)s"
+msgstr ""
+
+#, python-format
+msgid "%(count)s pendiente(s)"
+msgstr ""
+
+msgid "Sin pendientes"
+msgstr ""
+
+msgid "Planificado"
+msgstr ""
+
+msgid "Desplegado"
+msgstr ""
+
+msgid "Activo"
+msgstr ""
+
+msgid "Observado"
+msgstr ""
+
+msgid "Estado desconocido"
+msgstr ""
+
+#, python-format
+msgid "Activo '%(name)s' guardado en el inventario global."
+msgstr ""
+
+#, python-format
+msgid "Activo '%(name)s' actualizado."
+msgstr ""
+
+msgid ""
+"Activo eliminado del inventario. Las operaciones históricas conservan su "
+"texto de referencia."
+msgstr ""
+
+msgid "Seleccioná un archivo CSV para previsualizar."
+msgstr ""
+
+#, python-format
+msgid ""
+"Importación confirmada: %(assets)s activo(s) guardado(s); %(rows)s "
+"fila(s) omitida(s)."
+msgstr ""
+
+msgid "Informativa"
+msgstr ""
+
+msgid "Abierta"
+msgstr ""
+
+msgid "Reconocida"
+msgstr ""
+
+msgid "Resuelta"
+msgstr ""
+
+msgid "Regla"
+msgstr ""
+
+msgid "Manual"
+msgstr ""
+
+msgid "Señal manual creada."
+msgstr ""
+
+msgid "Señal creada."
+msgstr ""
+
+#, python-format
+msgid "Acción de atención registrada: %(action)s."
+msgstr ""
+
+msgid "Señal actualizada."
+msgstr ""
+
+msgid "Caso creado por agrupación manual."
+msgstr ""
+
+msgid "Caso creado."
+msgstr ""
+
+msgid "Caso actualizado por el operador."
+msgstr ""
+
+msgid "Caso actualizado."
+msgstr ""
+
+msgid ""
+"La raíz debe ser un directorio absoluto montado y debe haber al menos una"
+" carpeta autorizada."
+msgstr ""
+
+msgid "Las carpetas autorizadas deben ser relativas a la raíz y no contener '..'."
+msgstr ""
+
+#, python-format
+msgid "Destino de archivos '%(name)s' configurado."
+msgstr ""
+
+msgid ""
+"Destino de archivos guardado. Solo APATE podrá administrar señuelos con "
+"recibo de propiedad."
+msgstr ""
+
+msgid "La capacidad que será dueña del honeyfile es obligatoria."
+msgstr ""
+
+msgid "Plan de honeyfile preparado; todavía no se escribió el archivo."
+msgstr ""
+
+msgid "Plan de archivo preparado. Revisá la ruta y confirmá la creación."
+msgstr ""
+
+msgid "La aprobación de dos personas exige autenticación activa."
+msgstr ""
+
+msgid ""
+"La cuenta de servicio, su contraseña, al menos una OU y un sufijo UPN son"
+" obligatorios."
+msgstr ""
+
+#, python-format
+msgid "Destino de Active Directory '%(name)s' configurado."
+msgstr ""
+
+msgid "Destino guardado. La contraseña quedó cifrada y no volverá a mostrarse."
+msgstr ""
+
+msgid "El destino exige al menos una OU y un sufijo UPN."
+msgstr ""
+
+#, python-format
+msgid "Alcance del destino '%(name)s' actualizado a revisión %(revision)s."
+msgstr ""
+
+msgid "Alcance versionado. Los planes anteriores conservaron su destino original."
+msgstr ""
+
+msgid "El usuario y la nueva contraseña de servicio son obligatorios."
+msgstr ""
+
+#, python-format
+msgid "Credencial de servicio del destino '%(name)s' actualizada."
+msgstr ""
+
+msgid "Credencial de servicio actualizada y cifrada."
+msgstr ""
+
+msgid "La capacidad que será dueña del honeyuser es obligatoria."
+msgstr ""
+
+msgid "Plan de honeyuser preparado; todavía no se modificó Active Directory."
+msgstr ""
+
+msgid "Plan preparado. Revisá el cambio y confirmalo para crear el usuario en AD."
+msgstr ""
+
+msgid "Plan aprobado por segunda identidad."
+msgstr ""
+
+msgid "Plan aprobado."
+msgstr ""
+
+msgid "Solo se monitorean honeyusers activos o degradados."
+msgstr ""
+
+#, python-format
+msgid "Se incorporaron %(count)s eventos nuevos del honeyuser."
+msgstr ""
+
+msgid ""
+"La administración de usuarios desde la pantalla requiere el proveedor "
+"local."
+msgstr ""
+
+#, python-format
+msgid "Tipo de configuración desconocido: '%(config_type)s'."
+msgstr ""
+
+msgid "Faltan uno o más archivos TLS (certificado, clave y CA)."
+msgstr ""
+
+msgid "Falta configurar proveedor o modelo."
+msgstr ""
+
+msgid "Falta configurar la API key de OpenAI."
+msgstr ""
+
+msgid "La URL de LM Studio no es válida."
+msgstr ""
+
+msgid "El proveedor configurado no es compatible."
+msgstr ""
+
+msgid "No se pudo conectar con el proveedor y modelo configurados."
+msgstr ""
+
+msgid "Conexión verificada sin generar contenido."
+msgstr ""
+
+msgid "Rol de usuario inválido."
+msgstr ""
+
+msgid "Rol de usuario inválido al crear una identidad."
+msgstr ""
+
+msgid "La contraseña y su confirmación son obligatorias."
+msgstr ""
+
+msgid "Intento de alta de usuario sin contraseña."
+msgstr ""
+
+msgid "Las contraseñas no coinciden."
+msgstr ""
+
+msgid "Las contraseñas no coincidían en la carga."
+msgstr ""
+
+#, python-format
+msgid "No se pudo crear el usuario '%(name)s'."
+msgstr ""
+
+#, python-format
+msgid "Usuario creado: %(name)s."
+msgstr ""
+
+#, python-format
+msgid "Alta de usuario '%(name)s' con rol %(role)s."
+msgstr ""
+
+#, python-format
+msgid "No se pudo cambiar la contraseña de '%(identity_id)s'."
+msgstr ""
+
+msgid "No existe una identidad con ese identificador."
+msgstr ""
+
+#, python-format
+msgid "No existe una identidad con ese identificador (%(identity_id)s)."
+msgstr ""
+
+#, python-format
+msgid "Contraseña actualizada para %(name)s."
+msgstr ""
+
+#, python-format
+msgid "Contraseña actualizada para '%(name)s'."
+msgstr ""
+
+#, python-format
+msgid "No se pudo desactivar la identidad '%(identity_id)s'."
+msgstr ""
+
+#, python-format
+msgid "Usuario desactivado: %(name)s."
+msgstr ""
+
+#, python-format
+msgid "Usuario '%(name)s' desactivado."
+msgstr ""
+
+msgid "Docker CLI"
+msgstr ""
+
+msgid "Ejecutable encontrado en PATH."
+msgstr ""
+
+msgid "No se encontró el ejecutable docker en PATH."
+msgstr ""
+
+msgid "Instalá Docker Desktop y verificá que el comando docker esté en PATH."
+msgstr ""
+
+msgid "Configurar y diagnosticar"
+msgstr ""
+
+#, python-format
+msgid "Ruta configurada: %(path)s"
+msgstr ""
+
+msgid "Corregí APATE_PLAYGROUND_PATH o restaurá playground-stack/."
+msgstr ""
+
+msgid "Red y host"
+msgstr ""
+
+msgid "Capacidad de decoys de red preparada."
+msgstr ""
+
+msgid "Capacidad de decoys de red deshabilitada por APATE_MOUNT_EXTERNAL_TOOLS."
+msgstr ""
+
+msgid "Iniciá Apate con APATE_MOUNT_EXTERNAL_TOOLS habilitado."
+msgstr ""
+
+msgid "Abrir runtime"
+msgstr ""
+
+msgid "Identidad y comportamiento"
+msgstr ""
+
+msgid "Capacidad de comportamiento simulado preparada."
+msgstr ""
+
+msgid ""
+"Capacidad de comportamiento simulado deshabilitada por "
+"APATE_MOUNT_EXTERNAL_TOOLS."
+msgstr ""
+
+msgid "Configurar generación"
+msgstr ""
+
+msgid "Inteligencia de amenazas"
+msgstr ""
+
+msgid "API key de VirusTotal configurada."
+msgstr ""
+
+msgid "VirusTotal disponible bajo demanda, sin credencial configurada."
+msgstr ""
+
+msgid "Configurá una API key para consultar IoCs desde Telemetría."
+msgstr ""
+
+msgid "Configurar VirusTotal"
+msgstr ""
+
+msgid "SIEM/SOAR"
+msgstr ""
+
+msgid "Webhook de salida configurado."
+msgstr ""
+
+msgid "Envío manual de bundles STIX, sin webhook configurado."
+msgstr ""
+
+msgid "Configurá un webhook para enviar el informe STIX al cerrar una operación."
+msgstr ""
+
+msgid "Configurar SIEM/SOAR"
+msgstr ""
+
+msgid "Elasticsearch"
+msgstr ""
+
+#, python-format
+msgid "Endpoint configurado: %(url)s"
+msgstr ""
+
+msgid "Verificá APATE_ELASTIC_URL y el stack antes de iniciar una sesión."
+msgstr ""
+
+msgid "Configuración de VirusTotal guardada."
+msgstr ""
+
+msgid "Indicá una URL HTTP(S) válida para el webhook."
+msgstr ""
+
+msgid "Configuración de SIEM/SOAR guardada."
+msgstr ""
+
+#, python-format
+msgid "No se pudo validar la configuración de Docker: %(error)s"
+msgstr ""
+
+msgid "Cliente Docker configurado y conectado correctamente."
+msgstr ""
+
+msgid "No se pudo conectar a Docker; la configuración no fue aplicada."
+msgstr ""
+
+msgid "No hay una configuración Docker guardada para probar."
+msgstr ""
+
+msgid "Conexión Docker verificada con la configuración guardada."
+msgstr ""
+
+msgid "La configuración está guardada, pero Docker no respondió."
+msgstr ""
+
+#, python-format
+msgid "No se pudo guardar la configuración: %(error)s"
+msgstr ""
+
+msgid "Configuración de generación guardada."
+msgstr ""
+
+#, python-format
+msgid "Escribí %(confirmation)s exactamente; no se modificó ningún dato."
+msgstr ""
+
+#, python-format
+msgid "No se pudo reiniciar la base: %(result)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo cargar el documento global de reglas: %(exc)s"
+msgstr ""
+
+msgid "No filtra por capacidad: puede aplicar a esta operación."
+msgstr ""
+
+#, python-format
+msgid "La condición referencia la capacidad vinculada '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid ""
+"La condición referencia '%(plugin_id)s', que no está vinculada a esta "
+"operación."
+msgstr ""
+
+msgid "La referencia ya no es un activo objetivo de esta operación."
+msgstr ""
+
+msgid "sin especificar"
+msgstr ""
+
+#, python-format
+msgid "No se pudo resolver tipo de binding para '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid "'%(plugin_id)s' no tiene despliegue manual."
+msgstr ""
+
+#, python-format
+msgid "No se detectó configuración de honeytokens de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo desplegar honeytokens de '%(plugin_id)s': no está configurado."
+msgstr ""
+
+#, python-format
+msgid "Honeytokens de '%(plugin_id)s' ya estaban desplegados."
+msgstr ""
+
+#, python-format
+msgid "El despliegue no sobrescribe archivos existentes: %(paths)s"
+msgstr ""
+
+#, python-format
+msgid "No se pudo desplegar honeytokens de '%(plugin_id)s': directorio inválido."
+msgstr ""
+
+#, python-format
+msgid "Honeytokens de '%(plugin_id)s' desplegados (%(count)s archivo(s))."
+msgstr ""
+
+#, python-format
+msgid "No se pudieron desplegar los honeytokens de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Canarytoken de '%(plugin_id)s' ya estaba creado."
+msgstr ""
+
+#, python-format
+msgid ""
+"No se pudo crear el canarytoken de '%(plugin_id)s': falta configuración "
+"previa."
+msgstr ""
+
+#, python-format
+msgid "Canarytoken de '%(plugin_id)s' creado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo crear el canarytoken de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "OpenCanary de '%(plugin_id)s' ya estaba desplegado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo desplegar OpenCanary de '%(plugin_id)s': no está configurado."
+msgstr ""
+
+#, python-format
+msgid "OpenCanary de '%(plugin_id)s' desplegado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo desplegar OpenCanary de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Decoys de red: collector y decoys de '%(plugin_id)s' desplegados."
+msgstr ""
+
+#, python-format
+msgid "No se pudo desplegar '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+msgid "Esta operación no tiene ninguna narrativa de comportamiento vinculada."
+msgstr ""
+
+msgid "La narrativa ya está corriendo."
+msgstr ""
+
+#, python-format
+msgid "Comportamiento simulado: narrativa de '%(plugin_id)s' iniciada."
+msgstr ""
+
+#, python-format
+msgid "No se pudo iniciar la narrativa de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Tipo '%(kind)s' de '%(plugin_id)s' no soportado para despliegue."
+msgstr ""
+
+msgid "desconocido"
+msgstr ""
+
+msgid "no desplegado"
+msgstr ""
+
+msgid "Operación creada"
+msgstr ""
+
+msgid "Última actualización persistida"
+msgstr ""
+
+#, python-format
+msgid "%(action)s · %(outcome)s"
+msgstr ""
+
+#, python-format
+msgid "%(operator)s: %(detail)s"
+msgstr ""
+
+#, python-format
+msgid "%(event_type)s · %(plugin_id)s"
+msgstr ""
+
+#, python-format
+msgid "TTP: %(ttp_id)s"
+msgstr ""
+
+#, python-format
+msgid "Regla disparada: %(rule_name)s"
+msgstr ""
+
+#, python-format
+msgid "La plantilla '%(template_id)s' no existe."
+msgstr ""
+
+#, python-format
+msgid "Operación '%(name)s' creada."
+msgstr ""
+
+msgid "El equipo elegido no existe entre las identidades configuradas."
+msgstr ""
+
+msgid "La operación ya tiene ese equipo asignado."
+msgstr ""
+
+msgid "sin equipo (solo administración)"
+msgstr ""
+
+#, python-format
+msgid ""
+"Equipo de la operación cambiado de '%(previous_label)s' a "
+"'%(current_label)s'."
+msgstr ""
+
+msgid "Reglas de interacción actualizadas."
+msgstr ""
+
+msgid "Seleccioná un tipo de evento válido para la Gating Criteria."
+msgstr ""
+
+msgid "Indicá la clave del payload o dejá ambos campos vacíos."
+msgstr ""
+
+msgid "Gating Criteria agregada a la operación."
+msgstr ""
+
+msgid "La Gating Criteria indicada ya no existe."
+msgstr ""
+
+msgid "Gating Criteria eliminada de la operación."
+msgstr ""
+
+msgid ""
+"Solo se pueden incorporar TTPs sugeridas en una operación activa o "
+"comprometida."
+msgstr ""
+
+msgid "No se seleccionó ninguna TTP para incorporar."
+msgstr ""
+
+#, python-format
+msgid "TTPs incorporadas al perfil de adversario: %(value)s."
+msgstr ""
+
+msgid "El escenario necesita una descripción."
+msgstr ""
+
+#, python-format
+msgid "Nivel de engaño inválido: '%(value)s'."
+msgstr ""
+
+#, python-format
+msgid "Escenario '%(description)s' agregado a la operación."
+msgstr ""
+
+#, python-format
+msgid "Capacidad '%(plugin_id)s' vinculada a la operación."
+msgstr ""
+
+#, python-format
+msgid ""
+"Capacidad '%(plugin_id)s' vinculada a la operación. Decoy '%(hostname)s' "
+"agregado."
+msgstr ""
+
+#, python-format
+msgid ""
+"Capacidad '%(plugin_id)s' vinculada a la operación. Narrativa de "
+"comportamiento #%(narrative_id)s creada a partir de esta operación."
+msgstr ""
+
+#, python-format
+msgid ""
+"Capacidad '%(plugin_id)s' vinculada a la operación. Configuración de "
+"honeytokens preparada; el despliegue requiere confirmación aparte."
+msgstr ""
+
+#, python-format
+msgid ""
+"Capacidad '%(plugin_id)s' vinculada a la operación. Configuración de "
+"Canarytokens preparada; la creación del token requiere confirmación "
+"aparte."
+msgstr ""
+
+#, python-format
+msgid ""
+"Capacidad '%(plugin_id)s' vinculada a la operación. Configuración de "
+"OpenCanary preparada (%(count)s servicio(s)); el despliegue requiere "
+"confirmación aparte."
+msgstr ""
+
+msgid "Nombre, URL de Elasticsearch e índice son obligatorios."
+msgstr ""
+
+msgid ""
+"Configurá al menos un mapeo de campo ('clave_de_payload: "
+"ruta.en.el.documento')."
+msgstr ""
+
+#, python-format
+msgid "Fuente de telemetría externa '%(name)s' agregada."
+msgstr ""
+
+#, python-format
+msgid "%(count)s evento(s) ingerido(s) desde '%(name)s'."
+msgstr ""
+
+msgid "El resultado medido no puede estar vacío."
+msgstr ""
+
+msgid "La evidencia elegida no pertenece a esta capacidad y operación."
+msgstr ""
+
+#, python-format
+msgid "Resultado medido registrado para '%(plugin_id)s'."
+msgstr ""
+
+msgid "Solo se pueden declarar activos objetivo que existan en el inventario."
+msgstr ""
+
+#, python-format
+msgid "Cobertura declarada actualizada para '%(plugin_id)s'."
+msgstr ""
+
+msgid "Elegí una ficha existente del inventario para resolver la referencia."
+msgstr ""
+
+#, python-format
+msgid "La referencia '%(reference)s' ahora apunta a '%(asset_identifier)s'."
+msgstr ""
+
+msgid ""
+"Ese identificador ya existe; elegí la ficha existente para resolver la "
+"referencia."
+msgstr ""
+
+#, python-format
+msgid "Ficha '%(identifier)s' creada y referencia '%(reference)s' resuelta."
+msgstr ""
+
+msgid "Alguna fuente ya no está activa o no conserva su integridad."
+msgstr ""
+
+#, python-format
+msgid "Selección de contexto actualizada: %(count)s fuente(s)."
+msgstr ""
+
+msgid "Revisá el resultado y marcá la confirmación antes de utilizarlo."
+msgstr ""
+
+#, python-format
+msgid "Fuente de contexto '%(name)s' confirmada y vinculada."
+msgstr ""
+
+#, python-format
+msgid "Candidato de contexto '%(name)s' descartado."
+msgstr ""
+
+msgid ""
+"Retirá o resolvé los archivos existentes antes de cambiar la "
+"configuración."
+msgstr ""
+
+msgid "Configurá el directorio donde se crearán los honeytokens."
+msgstr ""
+
+#, python-format
+msgid "Configuración de honeytokens actualizada (%(count)s archivo(s))."
+msgstr ""
+
+#, python-format
+msgid "Honeytokens de '%(plugin_id)s' rotados."
+msgstr ""
+
+#, python-format
+msgid "No se pudieron rotar los honeytokens de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "%(count)s acceso(s) nuevo(s) detectado(s) en '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid ""
+"Punto de referencia fijado para '%(plugin_id)s': el próximo chequeo ya "
+"compara contra este momento."
+msgstr ""
+
+#, python-format
+msgid ""
+"No se pudo comprobar el acceso a los honeytokens de '%(plugin_id)s': "
+"%(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Honeytokens de '%(plugin_id)s' retirados."
+msgstr ""
+
+#, python-format
+msgid "No se pudieron retirar los honeytokens de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+msgid "Retirá el canarytoken desplegado antes de cambiar la configuración."
+msgstr ""
+
+#, python-format
+msgid "Faltan campos obligatorios: %(fields)s."
+msgstr ""
+
+#, python-format
+msgid "Configuración de Canarytokens de '%(plugin_id)s' actualizada."
+msgstr ""
+
+#, python-format
+msgid ""
+"'%(plugin_id)s': Canarytokens no tiene rotación nativa -- ver el detalle "
+"en Telemetría."
+msgstr ""
+
+#, python-format
+msgid "No se pudo procesar la rotación de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Canarytoken de '%(plugin_id)s' eliminado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo eliminar el canarytoken de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "%(count)s hit(s) nuevo(s) de '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid "No se pudo consultar el historial de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+msgid "Retirá el contenedor desplegado antes de cambiar la configuración."
+msgstr ""
+
+#, python-format
+msgid ""
+"Configuración de OpenCanary de '%(plugin_id)s' actualizada (%(count)s "
+"servicio(s))."
+msgstr ""
+
+#, python-format
+msgid ""
+"OpenCanary de '%(plugin_id)s' reiniciado (node_id/claves SSH host "
+"renovadas)."
+msgstr ""
+
+#, python-format
+msgid "No se pudo reiniciar OpenCanary de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "OpenCanary de '%(plugin_id)s' retirado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo retirar OpenCanary de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "%(count)s evento(s) nuevo(s) de '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid "No se pudo consultar la actividad de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Resumen de despliegue de campaña: %(value)s desplegados, %(value2)s ya "
+"estaban desplegados, %(value3)s sin configurar/saltados, %(value4)s "
+"fallidos."
+msgstr ""
+
+#, python-format
+msgid "Decoys de red: decoys de '%(plugin_id)s' reiniciados."
+msgstr ""
+
+#, python-format
+msgid "No se pudo rotar '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Decoys de red: collector y decoys de '%(plugin_id)s' retirados."
+msgstr ""
+
+#, python-format
+msgid "No se pudo retirar '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+msgid "El decoy necesita al menos un Hostname."
+msgstr ""
+
+#, python-format
+msgid "Decoy '%(value)s' agregado a '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid "Decoy '%(hostname)s' desplegado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo desplegar el decoy '%(hostname)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Decoy '%(hostname)s' retirado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo retirar el decoy '%(hostname)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Decoy '%(hostname)s' iniciado."
+msgstr ""
+
+#, python-format
+msgid "No se pudo iniciar el decoy '%(hostname)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid "Decoy '%(hostname)s' detenido."
+msgstr ""
+
+#, python-format
+msgid "No se pudo detener el decoy '%(hostname)s': %(exc)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"'%(hostname)s' todavia tiene un contenedor Docker desplegado -- retiralo "
+"(undeploy) antes de borrar su configuracion."
+msgstr ""
+
+#, python-format
+msgid "Decoy '%(hostname)s' eliminado de la configuracion."
+msgstr ""
+
+msgid "La narrativa no está corriendo."
+msgstr ""
+
+#, python-format
+msgid "Comportamiento simulado: narrativa de '%(plugin_id)s' detenida."
+msgstr ""
+
+#, python-format
+msgid "No se pudo detener la narrativa de '%(plugin_id)s': %(exc)s"
+msgstr ""
+
+msgid "Id de narrativa de comportamiento invalido."
+msgstr ""
+
+#, python-format
+msgid "Narrativa #%(narrative_id)s vinculada a '%(plugin_id)s'."
+msgstr ""
+
+#, python-format
+msgid ""
+"Narrativa #%(id)s creada desde la operación y vinculada a "
+"'%(plugin_id)s'. Asigná perfiles de identidad antes de iniciarla."
+msgstr ""
+
+#, python-format
+msgid "Perfiles de identidad actualizados para la narrativa #%(id)s."
+msgstr ""
+
+msgid "Creá o vinculá una narrativa antes de agregar perfiles."
+msgstr ""
+
+msgid "Nombre, rol, servidor, usuario y contraseña WinRM son obligatorios."
+msgstr ""
+
+#, python-format
+msgid "Perfil de identidad '%(name)s' creado y vinculado a la narrativa #%(id)s."
+msgstr ""
+
+msgid "Creá o vinculá una narrativa antes de agregar actividades."
+msgstr ""
+
+msgid "Indicá el tipo de actividad y al menos un perfil de esta narrativa."
+msgstr ""
+
+#, python-format
+msgid "Actividad '%(activity_type)s' creada y asignada a %(count)s perfil(es)."
+msgstr ""
+
+#, python-format
+msgid "Actividades actualizadas para el perfil '%(name)s'."
+msgstr ""
+
+msgid "La narrativa está corriendo -- detenela antes de borrarla."
+msgstr ""
+
+#, python-format
+msgid "Narrativa de comportamiento #%(narrative_id)s eliminada."
+msgstr ""
+
+msgid "El informe post-operación solo está disponible para operaciones cerradas."
+msgstr ""
+
+msgid "Configurá el webhook de SIEM/SOAR antes de enviar el bundle STIX."
+msgstr ""
+
+msgid "No se pudo enviar el bundle STIX a SIEM/SOAR."
+msgstr ""
+
+msgid "Bundle STIX 2.1 enviado a SIEM/SOAR."
+msgstr ""
+
+msgid "Solo se puede reoperar a partir de una operación cerrada."
+msgstr ""
+
+#, python-format
+msgid "Transición desconocida: '%(to)s'."
+msgstr ""
+
+#, python-format
+msgid "Operación transicionada a '%(value)s'."
+msgstr ""
+
+#, python-format
+msgid "Nivel de engano invalido: '%(level)s'."
+msgstr ""
+
+#, python-format
+msgid "Playground iniciado para '%(name)s' (nivel '%(level)s')."
+msgstr ""
+
+msgid "No se puede detener el stack mientras el atacante está corriendo."
+msgstr ""
+
+msgid "Playground detenido."
+msgstr ""
+
+msgid ""
+"No hay una sesión activa para esta operación: iniciá el stack Playground "
+"antes de lanzar el atacante."
+msgstr ""
+
+#, python-format
+msgid ""
+"El atacante ya está corriendo para la operación '%(name)s'. Esperá a que "
+"termine antes de iniciar otra corrida."
+msgstr ""
+
+msgid "SocketIO no está disponible."
+msgstr ""
+
+msgid ""
+"No se pudo iniciar la tarea de atacante porque SocketIO no está "
+"disponible."
+msgstr ""
+
+msgid ""
+"Atacante iniciado en segundo plano. Las fases MITRE aparecerán en vivo en"
+" la vista Defensor."
+msgstr ""
+
+#, python-format
+msgid "No se pudo consultar Elasticsearch: %(error)s"
+msgstr ""
+
+msgid ""
+"No hay ninguna ruta configurada hacia un checkout local del repositorio "
+"Cyber Deception Playground. Definir la variable de entorno "
+"APATE_PLAYGROUND_PATH antes de iniciar el servidor (ver README.md)."
+msgstr ""
+
+msgid "Identidad / comportamiento"
+msgstr ""
+
+msgid "Multi-superficie (cloud/documentos/DNS/identidad)"
+msgstr ""
+
+msgid "Red / host"
+msgstr ""
+
+msgid "Archivos / credenciales"
+msgstr ""
+
+msgid "Red (simulada)"
+msgstr ""
+
+msgid "Red / host (multi-servicio)"
+msgstr ""
+
+msgid "Tercero"
+msgstr ""
+
+msgid "Editar"
+msgstr ""
+
+msgid "Sin detalle"
+msgstr ""
+
+msgid "Administrar"
+msgstr ""
+
+msgid "Seleccioná un archivo EVTX."
+msgstr ""
+
+msgid "No se pudo procesar el archivo EVTX."
+msgstr ""
+
+msgid "Confirmá este candidato desde la operación que inició la extracción."
+msgstr ""
+
+msgid "Marcá la revisión explícita antes de activar la fuente."
+msgstr ""
+
+#, python-format
+msgid "Fuente '%(name)s' confirmada y disponible."
+msgstr ""
+
+#, python-format
+msgid "Fuente '%(name)s' archivada."
+msgstr ""
+
+#, python-format
+msgid " Se conservan %(count)s referencia(s) operativas."
+msgstr ""
+
+msgid "Candidato pendiente descartado."
+msgstr ""
+
+#, python-format
+msgid "Tipo de actividad '%(name)s' creado."
+msgstr ""
+
+msgid "Herramientas externas no montadas."
+msgstr ""
+
+msgid "El modelo no devolvió comandos utilizables."
+msgstr ""
+
+msgid "Tipo de actividad actualizado."
+msgstr ""
+
+msgid "Tipo de actividad eliminado."
+msgstr ""
+
+#, python-format
+msgid "Perfil de usuario '%(name)s' creado."
+msgstr ""
+
+msgid "Nombre, rol y servidor WinRM son obligatorios."
+msgstr ""
+
+#, python-format
+msgid "Perfil de usuario '%(name)s' actualizado."
+msgstr ""
+
+#, python-format
+msgid "Perfil de usuario '%(name)s' eliminado."
+msgstr ""
+
+msgid "Seleccioná una operación válida."
+msgstr ""
+
+msgid "La fuente de contexto ya no está disponible."
+msgstr ""
+
+msgid "La capacidad seleccionada ya no está disponible."
+msgstr ""
+
+msgid "No se pudo exportar la telemetría."
+msgstr ""
+
+#, python-format
+msgid "Se exportaron %(count)s eventos."
+msgstr ""
+
+msgid "No disponible"
+msgstr ""
+
+msgid "sin tipo"
+msgstr ""
+
+msgid ""
+"El IoC no existe en la telemetría de esta operación o su tipo no es "
+"compatible."
+msgstr ""
+
+msgid "Configurá la API key en Salud y configuración → Inteligencia de amenazas."
+msgstr ""
+
+msgid "VirusTotal no pudo devolver un reporte para este IoC."
+msgstr ""
+
+msgid "Resultado de VirusTotal guardado como anotación del IoC."
+msgstr ""
+
+msgid "Elegí al menos un evento observado para agrupar en un incidente."
+msgstr ""
+
+msgid "El incidente elegido ya no existe."
+msgstr ""
+
+#, python-format
+msgid "Se agregaron %(count)s evento(s) a '%(name)s'."
+msgstr ""
+
+msgid "El incidente necesita un nombre."
+msgstr ""
+
+#, python-format
+msgid "Incidente '%(name)s' creado con %(count)s evento(s)."
+msgstr ""
+
+msgid "El incidente ya no existe."
+msgstr ""
+
+#, python-format
+msgid "Incidente '%(name)s' actualizado."
+msgstr ""
+
+msgid "Incidente eliminado."
+msgstr ""
+
+msgid "Clasificación TLP inválida."
+msgstr ""
+
+msgid "Clasificación TLP quitada — vuelve a \"sin clasificar\"."
+msgstr ""
+
+msgid "Nivel TLP inválido."
+msgstr ""
+
+#, python-format
+msgid "Clasificación TLP:%(level)s guardada."
+msgstr ""
+
+msgid "Sin escenario"
+msgstr ""
+
+msgid "Idioma"
+msgstr ""
+
+msgid "Cambiar"
+msgstr ""
+
+msgid "Acerca de - Apate"
+msgstr ""
+
+msgid "Acerca de esta instalaci&oacute;n"
+msgstr ""
+
+msgid ""
+"Versi&oacute;n en ejecuci&oacute;n, licencia y c&oacute;mo obtener el "
+"c&oacute;digo fuente correspondiente."
+msgstr ""
+
+msgid "Versi&oacute;n"
+msgstr ""
+
+msgid "Revisi&oacute;n"
+msgstr ""
+
+msgid "no declarada"
+msgstr ""
+
+msgid "Licencia"
+msgstr ""
+
+msgid "C&oacute;digo fuente correspondiente"
+msgstr ""
+
+msgid ""
+"Esta instalaci&oacute;n declara que su c&oacute;digo fuente "
+"correspondiente est&aacute; disponible en:"
+msgstr ""
+
+msgid ""
+"Quien opera esta instancia es responsable de que esa direcci&oacute;n "
+"sirva el fuente de la versi&oacute;n que est&aacute;s usando, incluidas "
+"sus modificaciones si las hubiera."
+msgstr ""
+
+msgid ""
+"Esta instalaci&oacute;n no declar&oacute; d&oacute;nde est&aacute; su "
+"c&oacute;digo fuente correspondiente."
+msgstr ""
+
+msgid ""
+"La AGPLv3 (art&iacute;culo 13) obliga a quien ofrece el programa a "
+"trav&eacute;s de una red a darle a sus usuarios remotos una oportunidad "
+"de recibir ese c&oacute;digo. Esa obligaci&oacute;n es de quien "
+"despliega, no del autor original."
+msgstr ""
+
+msgid ""
+"Si administr&aacute;s esta instancia: defin&iacute; la variable de "
+"entorno APATE_SOURCE_URL apuntando al fuente de la versi&oacute;n que "
+"est&aacute;s corriendo. Ver docs/instalacion-produccion.md."
+msgstr ""
+
+msgid "Componentes de terceros"
+msgstr ""
+
+msgid ""
+"Cada componente conserva su propia licencia. Los marcados como incluidos "
+"viajan como c&oacute;digo fuente dentro de esta distribuci&oacute;n."
+msgstr ""
+
+msgid "Componente"
+msgstr ""
+
+msgid "Para qu&eacute; se usa"
+msgstr ""
+
+msgid "incluido"
+msgstr ""
+
+msgid "Volver al inicio"
+msgstr ""
+
+msgid "Saltar al contenido"
+msgstr ""
+
+msgid "Men&uacute;"
+msgstr ""
+
+msgid "Sesi&oacute;n autenticada"
+msgstr ""
+
+msgid "Cerrar sesi&oacute;n"
+msgstr ""
+
+msgid "Operador para auditor&iacute;a"
+msgstr ""
+
+msgid "Identificarme"
+msgstr ""
+
+msgid ""
+"La instancia est&aacute; abierta hasta crear el primer usuario. Para "
+"protegerla, ejecut&aacute; flask --app \"apate.web:create_app\" create-"
+"user &lt;nombre&gt;."
+msgstr ""
+
+msgid ""
+"El acceso de emergencia de OIDC está habilitado: existe una contraseña "
+"local que evita el inicio de sesión corporativo. Quitá "
+"APATE_OIDC_EMERGENCY_PASSWORD_HASH cuando ya no haga falta."
+msgstr ""
+
+msgid "Operaciones"
+msgstr ""
+
+msgid "Portafolio"
+msgstr ""
+
+msgid "Inventario de activos"
+msgstr ""
+
+msgid "Telemetr&iacute;a"
+msgstr ""
+
+msgid "Bandeja SOC"
+msgstr ""
+
+msgid "Cat&aacute;logo de capacidades"
+msgstr ""
+
+msgid "Salud y configuraci&oacute;n"
+msgstr ""
+
+msgid "Destinos de despliegue"
+msgstr ""
+
+msgid "Usuarios y acceso"
+msgstr ""
+
+msgid "Herramientas de interfaz"
+msgstr ""
+
+msgid "Atajo: Ctrl+K"
+msgstr ""
+
+msgid "Ir a&hellip;"
+msgstr ""
+
+msgid "Vista y ayuda"
+msgstr ""
+
+msgid "Ayuda y glosario"
+msgstr ""
+
+msgid "Tema claro"
+msgstr ""
+
+msgid "Tema oscuro"
+msgstr ""
+
+msgid "Presentación"
+msgstr ""
+
+msgid "Vista compacta"
+msgstr ""
+
+msgid "Vista cómoda"
+msgstr ""
+
+msgid "Cerrar mensaje"
+msgstr ""
+
+msgid "Licencia y c&oacute;digo fuente"
+msgstr ""
+
+msgid "Salir de presentaci&oacute;n"
+msgstr ""
+
+msgid "Confirmar acci&oacute;n"
+msgstr ""
+
+msgid "Escrib&iacute;"
+msgstr ""
+
+msgid "para continuar"
+msgstr ""
+
+msgid "Cancelar"
+msgstr ""
+
+msgid "Confirmar"
+msgstr ""
+
+msgid "Buscar secciones y operaciones"
+msgstr ""
+
+msgid "Secci&oacute;n, capacidad u operaci&oacute;n&hellip;"
+msgstr ""
+
+msgid "Actividad en vivo"
+msgstr ""
+
+msgid "M&eacute;tricas operacionales"
+msgstr ""
+
+msgid "Runtime de red y host"
+msgstr ""
+
+msgid "Generaci&oacute;n de contenido"
+msgstr ""
+
+msgid "Administraci&oacute;n de usuarios"
+msgstr ""
+
+msgid "Tipos de actividad"
+msgstr ""
+
+msgid "Perfiles de identidad"
+msgstr ""
+
+msgid "Contexto de comportamiento"
+msgstr ""
+
+msgid "Operaci&oacute;n"
+msgstr ""
+
+msgid "Cerrar"
+msgstr ""
+
+msgid ""
+"Esta pantalla organiza la operaci&oacute;n; las sugerencias nunca se "
+"aplican solas."
+msgstr ""
+
+msgid ""
+"La telemetr&iacute;a registra observaciones; no demuestra por s&iacute; "
+"sola causalidad ni atribuci&oacute;n."
+msgstr ""
+
+msgid ""
+"Las reglas son deterministas y las reglas de interacci&oacute;n (RoE) "
+"limitan solamente sus acciones autom&aacute;ticas."
+msgstr ""
+
+msgid ""
+"El Cat&aacute;logo describe capacidades reutilizables; usarlas en una "
+"operaci&oacute;n siempre requiere selecci&oacute;n expl&iacute;cita."
+msgstr ""
+
+msgid ""
+"Salud y configuraci&oacute;n distingue disponibilidad local de "
+"conectividad efectiva y no despliega recursos al comprobarlas."
+msgstr ""
+
+msgid ""
+"Playground ejecuta un entorno de ejercicio separado de las acciones "
+"manuales del operador."
+msgstr ""
+
+msgid ""
+"Apate asiste la planificaci&oacute;n y operaci&oacute;n de "
+"ciberenga&ntilde;o sin decidir despliegues por el operador."
+msgstr ""
+
+msgid "RoE"
+msgstr ""
+
+msgid ""
+"Rules of Engagement: permisos y prohibiciones que gobiernan al motor de "
+"reglas, no las acciones manuales."
+msgstr ""
+
+msgid "TTP"
+msgstr ""
+
+msgid ""
+"T&aacute;ctica, t&eacute;cnica o procedimiento observado o esperado del "
+"adversario."
+msgstr ""
+
+msgid "MITRE Engage"
+msgstr ""
+
+msgid "Marco para planificar objetivos, actividades y efectos de engagement."
+msgstr ""
+
+msgid ""
+"Recurso o motor reutilizable que puede seleccionarse para una "
+"operaci&oacute;n; el proveedor es metadata t&eacute;cnica."
+msgstr ""
+
+msgid ""
+"Trabajo contextual dentro de una operaci&oacute;n para preparar, iniciar,"
+" rotar, detener o retirar recursos."
+msgstr ""
+
+msgid ""
+"Entorno de ejercicio que Apate puede preparar y orquestar "
+"mediante Docker."
+msgstr ""
+
+msgid "Efecto medido"
+msgstr ""
+
+msgid ""
+"Nota humana sobre el resultado observado frente al efecto planificado; no"
+" es una puntuaci&oacute;n autom&aacute;tica."
+msgstr ""
+
+msgid "Impacto de ciberengaño"
+msgstr ""
+
+msgid "vista previa"
+msgstr ""
+
+msgid "Funciones disponibles"
+msgstr ""
+
+msgid "CENTRO DE IMPACTO"
+msgstr ""
+
+msgid "Vista previa"
+msgstr ""
+
+msgid "Datos de ejemplo · no representan la operación real"
+msgstr ""
+
+msgid "Cobertura táctica"
+msgstr ""
+
+msgid "Leyenda de cobertura"
+msgstr ""
+
+msgid "Cobertura confirmada"
+msgstr ""
+
+msgid "En diseño"
+msgstr ""
+
+msgid "Señal emergente"
+msgstr ""
+
+msgid "Métricas y actividad"
+msgstr ""
+
+msgid "Indicadores clave"
+msgstr ""
+
+msgid "Flujo de actividad"
+msgstr ""
+
+msgid "Eventos recientes"
+msgstr ""
+
+msgid "SIMULADO"
+msgstr ""
+
+msgid "REGISTRADO"
+msgstr ""
+
+msgid "No hay eventos registrados todavía."
+msgstr ""
+
+msgid "Superficie operativa"
+msgstr ""
+
+msgid "Estado de infraestructura"
+msgstr ""
+
+msgid ""
+"Herramienta para dise&ntilde;ar, desplegar y medir operaciones de "
+"enga&ntilde;o."
+msgstr ""
+
+msgid ""
+"Decoys de red, identidades simuladas y honeytokens, coordinados por "
+"reglas."
+msgstr ""
+
+msgid "Retomar"
+msgstr ""
+
+msgid "Todas las operaciones"
+msgstr ""
+
+msgid "Crear la primera operaci&oacute;n"
+msgstr ""
+
+msgid "Vista de impacto"
+msgstr ""
+
+msgid "Operaciones activas"
+msgstr ""
+
+msgid "Comprometidas"
+msgstr ""
+
+msgid "Cobertura de TTPs"
+msgstr ""
+
+msgid ""
+"Una operaci&oacute;n re&uacute;ne el perfil de adversario, las reglas de "
+"interacci&oacute;n, los escenarios, las capacidades y la narrativa de un "
+"mismo enga&ntilde;o. Desde ah&iacute; pod&eacute;s observar lo que "
+"ocurre, decidir, desplegar y reajustar el dise&ntilde;o."
+msgstr ""
+
+msgid ""
+"Diseñá la operación, aprobá los despliegues y seguí las señales y la "
+"evidencia desde la misma interfaz."
+msgstr ""
+
+msgid "Dise&ntilde;ar y operar"
+msgstr ""
+
+msgid ""
+"Cada operaci&oacute;n de punta a punta: perfil de adversario, reglas, "
+"escenarios, capacidades y narrativa en un solo lugar."
+msgstr ""
+
+msgid ""
+"Decoys, honeytokens, canarytokens, identidades simuladas: qu&eacute; hay "
+"disponible y listo para usar."
+msgstr ""
+
+msgid ""
+"El motor de decisi&oacute;n determinista: condici&oacute;n &rarr; "
+"acci&oacute;n en YAML, sin que un LLM decida por vos."
+msgstr ""
+
+msgid ""
+"Importá activos por CSV, vinculalos a capacidades y revisá sugerencias de"
+" colocación y cobertura."
+msgstr ""
+
+msgid "Desplegar y atender"
+msgstr ""
+
+msgid ""
+"Prepará planes confirmables para honeyusers AD y honeyfiles locales o en "
+"SMB montado; seguí su estado y frescura."
+msgstr ""
+
+msgid ""
+"Reconocé, asigná y resolvé señales y casos con evidencia y auditoría de "
+"las acciones del operador."
+msgstr ""
+
+msgid "Medir y reportar"
+msgstr ""
+
+msgid ""
+"Eventos, IoCs y TTPs observadas, con incidentes, TLP, archivo de "
+"evidencia verificable y entrega manual a SIEM."
+msgstr ""
+
+msgid ""
+"Cobertura de TTPs, activos y resultados medidos con eventos vinculados, "
+"reunidos entre operaciones."
+msgstr ""
+
+msgid "Entorno y estado"
+msgstr ""
+
+msgid ""
+"Corr&eacute; un ataque real contra el stack completo y mir&aacute; "
+"c&oacute;mo responde tu operaci&oacute;n."
+msgstr ""
+
+msgid ""
+"Estado de integraciones y salud operativa: recurso, sondeo y actividad se"
+" muestran por separado."
+msgstr ""
+
+msgid ""
+"Los conectores AD, SMB y Vault cuentan con pruebas locales; su validación"
+" en infraestructura externa sigue pendiente."
+msgstr ""
+
+msgid "Iniciar sesión - Apate"
+msgstr ""
+
+msgid "Iniciar sesión"
+msgstr ""
+
+msgid "Esta instancia tiene usuarios configurados. Iniciá sesión para continuar."
+msgstr ""
+
+msgid "Iniciar con el proveedor corporativo"
+msgstr ""
+
+msgid "Acceso de emergencia local:"
+msgstr ""
+
+msgid "Nombre de usuario"
+msgstr ""
+
+msgid "Contraseña"
+msgstr ""
+
+msgid "Editar activo"
+msgstr ""
+
+msgid "Ruta"
+msgstr ""
+
+msgid "Inicio"
+msgstr ""
+
+msgid "Identificador estable:"
+msgstr ""
+
+msgid "Nombre"
+msgstr ""
+
+msgid "Criticidad"
+msgstr ""
+
+msgid "Identificador técnico (opcional)"
+msgstr ""
+
+msgid "Guardar cambios"
+msgstr ""
+
+msgid "Previsualizar importación"
+msgstr ""
+
+msgid "Previsualizar CSV"
+msgstr ""
+
+msgid "Previsualización de importación CSV"
+msgstr ""
+
+msgid ""
+"Aún no se escribió ningún activo. Revisá el resultado completo y confirmá"
+" solo si corresponde."
+msgstr ""
+
+#, python-format
+msgid "Se importarán %(count)s activo(s) del inventario"
+msgstr ""
+
+msgid "No hay filas válidas para importar."
+msgstr ""
+
+#, python-format
+msgid "Se omitirán %(count)s fila(s) del inventario"
+msgstr ""
+
+msgid "Fila"
+msgstr ""
+
+msgid "No hay filas omitidas."
+msgstr ""
+
+msgid "Confirmar importación"
+msgstr ""
+
+msgid ""
+"Infraestructura compartida y global: no pertenece a una operación ni a un"
+" equipo. Elegirla en una operación solo guarda su identificador como "
+"referencia."
+msgstr ""
+
+msgid "Agregar activo"
+msgstr ""
+
+msgid "Identificador"
+msgstr ""
+
+msgid "ERP de producción"
+msgstr ""
+
+msgid "Guardar activo"
+msgstr ""
+
+msgid "Importar CSV"
+msgstr ""
+
+msgid "Columnas obligatorias:"
+msgstr ""
+
+msgid "Opcional:"
+msgstr ""
+
+msgid "La carga solo se previsualiza; nada se guarda hasta confirmar."
+msgstr ""
+
+msgid "Archivo CSV UTF-8 (máx. 10 MB)"
+msgstr ""
+
+msgid "Validar y previsualizar"
+msgstr ""
+
+msgid "Activos registrados"
+msgstr ""
+
+msgid "Identificador técnico"
+msgstr ""
+
+msgid "¿Eliminar este activo del inventario global?"
+msgstr ""
+
+msgid "Eliminar"
+msgstr ""
+
+msgid "Todavía no hay activos. Podés agregarlos uno a uno o importar un CSV."
+msgstr ""
+
+msgid "Abiertos"
+msgstr ""
+
+msgid "Todos"
+msgstr ""
+
+msgid "Responsable:"
+msgstr ""
+
+msgid "Descargar expediente para el SOC"
+msgstr ""
+
+msgid "Atención"
+msgstr ""
+
+msgid "&larr; Volver a la operación"
+msgstr ""
+
+msgid ""
+"Las señales permiten revisar evidencia observada. Los casos agrupan "
+"señales por decisión humana; no prueban causalidad ni ejecutan "
+"respuestas."
+msgstr ""
+
+msgid "Crear señal manual"
+msgstr ""
+
+msgid "Título"
+msgstr ""
+
+msgid "Severidad"
+msgstr ""
+
+msgid "Descripción"
+msgstr ""
+
+msgid "Nota de evidencia adicional"
+msgstr ""
+
+msgid "Elegir eventos de esta operación"
+msgstr ""
+
+msgid "Aún no hay eventos; una nota manual puede ser la evidencia inicial."
+msgstr ""
+
+msgid "Crear señal"
+msgstr ""
+
+msgid "Señales"
+msgstr ""
+
+msgid "Inspeccionar evento"
+msgstr ""
+
+msgid "Evidencia no disponible"
+msgstr ""
+
+msgid "Resolución:"
+msgstr ""
+
+msgid "Reconocer"
+msgstr ""
+
+msgid "¿Resolver esta señal?"
+msgstr ""
+
+msgid "Nota de resolución"
+msgstr ""
+
+msgid "Resolver"
+msgstr ""
+
+msgid "Motivo de reapertura"
+msgstr ""
+
+msgid "Reabrir"
+msgstr ""
+
+msgid "Responsable"
+msgstr ""
+
+msgid "Asignar"
+msgstr ""
+
+msgid ""
+"Sin señales todavía. Las reglas configuradas crearán señales al observar "
+"eventos; también podés crear una manualmente."
+msgstr ""
+
+msgid "Casos"
+msgstr ""
+
+msgid "Crear caso con señales elegidas"
+msgstr ""
+
+msgid "Crear caso"
+msgstr ""
+
+msgid "Señal no disponible"
+msgstr ""
+
+msgid "Nota o motivo"
+msgstr ""
+
+msgid "Cerrar caso"
+msgstr ""
+
+msgid "Reabrir caso"
+msgstr ""
+
+msgid "Agregar señal"
+msgstr ""
+
+msgid "Agregar"
+msgstr ""
+
+msgid "Quitar señal"
+msgstr ""
+
+msgid "Quitar"
+msgstr ""
+
+msgid "Sin casos; agrupar señales siempre exige una decisión humana."
+msgstr ""
+
+msgid "Historial de atención"
+msgstr ""
+
+msgid "Aún no hay acciones humanas de atención."
+msgstr ""
+
+msgid "Salud de la operación"
+msgstr ""
+
+msgid ""
+"El silencio de un señuelo no significa que la fuente esté caída. APATE "
+"separa actividad observada, sondeo de eventos y comprobación del recurso."
+msgstr ""
+
+msgid "Monitor AD:"
+msgstr ""
+
+msgid "desactivado"
+msgstr ""
+
+msgid "Último ciclo:"
+msgstr ""
+
+msgid "sin ejecutar desde el arranque"
+msgstr ""
+
+msgid "Capacidad y destino"
+msgstr ""
+
+msgid "Estado del recurso"
+msgstr ""
+
+msgid "Salud"
+msgstr ""
+
+msgid "Último sondeo correcto"
+msgstr ""
+
+msgid "Última comprobación del recurso"
+msgstr ""
+
+msgid "Última actividad observada"
+msgstr ""
+
+msgid "Error reciente"
+msgstr ""
+
+msgid "Correcta"
+msgstr ""
+
+msgid "Degradada"
+msgstr ""
+
+msgid "Sondeo atrasado"
+msgstr ""
+
+msgid "Sin comprobación desde el arranque"
+msgstr ""
+
+msgid "Inactiva"
+msgstr ""
+
+msgid "Sin actividad; no implica fallo"
+msgstr ""
+
+msgid "Todavía no hay despliegues que comprobar."
+msgstr ""
+
+msgid "Ver planes y despliegues"
+msgstr ""
+
+msgid "Despliegues"
+msgstr ""
+
+msgid "Control plane"
+msgstr ""
+
+msgid ""
+"APATE primero prepara un plan verificable. El destino solo cambia cuando "
+"confirmás ese plan."
+msgstr ""
+
+msgid "Preparar honeyuser"
+msgstr ""
+
+msgid "Destino"
+msgstr ""
+
+msgid "ID de capacidad"
+msgstr ""
+
+msgid "sAMAccountName"
+msgstr ""
+
+msgid "Nombre visible"
+msgstr ""
+
+msgid "Apellido"
+msgstr ""
+
+msgid "OU exacta"
+msgstr ""
+
+msgid "Sufijo UPN"
+msgstr ""
+
+msgid "Validar y preparar plan"
+msgstr ""
+
+msgid "No hay destinos configurados."
+msgstr ""
+
+msgid "Configurar Active Directory"
+msgstr ""
+
+msgid "Preparar honeyfile"
+msgstr ""
+
+msgid ""
+"El contenido debe ser señuelo; el plan lo conserva para la revisión del "
+"operador. No ingreses credenciales reales."
+msgstr ""
+
+msgid "Destino de archivos"
+msgstr ""
+
+msgid "Ruta relativa del archivo"
+msgstr ""
+
+msgid "Contenido señuelo"
+msgstr ""
+
+msgid "Contenido para rotación opcional"
+msgstr ""
+
+msgid "Validar y preparar plan de archivo"
+msgstr ""
+
+msgid "Planes y ejecuciones"
+msgstr ""
+
+msgid "planificado"
+msgstr ""
+
+msgid "Aprobado por una segunda persona"
+msgstr ""
+
+msgid "Pendiente de aprobación de una segunda persona"
+msgstr ""
+
+msgid "Plan anterior sin solicitud de aprobación; prepará un plan nuevo"
+msgstr ""
+
+msgid "Monitoreo:"
+msgstr ""
+
+msgid "último sondeo correcto"
+msgstr ""
+
+msgid "aún sin sondeo correcto en este proceso"
+msgstr ""
+
+msgid "último error:"
+msgstr ""
+
+msgid "Estado reconciliado:"
+msgstr ""
+
+msgid "Aprobar este plan"
+msgstr ""
+
+msgid ""
+"Esto creará el archivo señuelo en el destino. ¿Ejecutar el plan "
+"confirmado?"
+msgstr ""
+
+msgid ""
+"Esto creará o reconciliará la cuenta señuelo en Active Directory. "
+"¿Ejecutar el plan confirmado?"
+msgstr ""
+
+msgid "Confirmar y crear archivo"
+msgstr ""
+
+msgid "Confirmar y crear en AD"
+msgstr ""
+
+msgid "Reintentar aplicación"
+msgstr ""
+
+msgid "Comprobar estado"
+msgstr ""
+
+msgid "Traer autenticaciones"
+msgstr ""
+
+msgid "Se reemplazará el contenido señuelo. ¿Rotar ahora?"
+msgstr ""
+
+msgid "Se cambiará la contraseña señuelo. ¿Rotar ahora?"
+msgstr ""
+
+msgid "Rotar contenido"
+msgstr ""
+
+msgid "Rotar credencial"
+msgstr ""
+
+msgid "El archivo señuelo será eliminado. ¿Retirar ahora?"
+msgstr ""
+
+msgid "La cuenta se deshabilitará, no se borrará. ¿Retirar el honeyuser?"
+msgstr ""
+
+msgid "Retirar"
+msgstr ""
+
+msgid "Todavía no hay planes de despliegue para esta operación."
+msgstr ""
+
+msgid "Destinos de despliegue - Apate"
+msgstr ""
+
+msgid ""
+"Un destino describe dónde puede actuar APATE. La contraseña de servicio "
+"se cifra y nunca se incorpora a planes ni pantallas."
+msgstr ""
+
+msgid "Agregar Active Directory"
+msgstr ""
+
+msgid "Directorio corporativo"
+msgstr ""
+
+msgid "Servidor o colector WinRM"
+msgstr ""
+
+msgid "Dominio o grupo de fuentes"
+msgstr ""
+
+msgid "Tipo de fuente"
+msgstr ""
+
+msgid "Controlador de dominio"
+msgstr ""
+
+msgid "Colector WEC"
+msgstr ""
+
+msgid "Usuario de servicio"
+msgstr ""
+
+msgid "Contraseña de servicio"
+msgstr ""
+
+msgid "Transporte"
+msgstr ""
+
+msgid "Certificado TLS"
+msgstr ""
+
+msgid "Validar"
+msgstr ""
+
+msgid "Ignorar — solo laboratorio"
+msgstr ""
+
+msgid "ID de activo opcional"
+msgstr ""
+
+msgid "OU autorizadas, una por línea"
+msgstr ""
+
+msgid "Sufijos UPN autorizados, uno por línea"
+msgstr ""
+
+msgid ""
+"Preparar un plan comprobará conectividad, permisos, la OU y la lectura "
+"del Security log sin crear todavía ninguna cuenta."
+msgstr ""
+
+msgid "Guardar destino"
+msgstr ""
+
+msgid "Agregar destino de archivos"
+msgstr ""
+
+msgid ""
+"Usá un directorio local o un share SMB montado para el proceso APATE. El "
+"servicio necesita permiso de escritura en las carpetas autorizadas."
+msgstr ""
+
+msgid "Raíz absoluta montada"
+msgstr ""
+
+msgid "Carpetas autorizadas relativas, una por línea"
+msgstr ""
+
+msgid "Guardar destino de archivos"
+msgstr ""
+
+msgid "Destinos de archivos configurados"
+msgstr ""
+
+msgid "Destinos configurados"
+msgstr ""
+
+msgid "Dirección"
+msgstr ""
+
+msgid "OU autorizadas"
+msgstr ""
+
+msgid "Sufijos UPN"
+msgstr ""
+
+msgid "Credencial"
+msgstr ""
+
+msgid "Revisión"
+msgstr ""
+
+msgid "Editar alcance versionado"
+msgstr ""
+
+msgid "Guardar nueva revisión"
+msgstr ""
+
+msgid "Revisiones anteriores:"
+msgstr ""
+
+msgid "Rotar cuenta de servicio"
+msgstr ""
+
+msgid "Nueva contraseña"
+msgstr ""
+
+msgid "Actualizar credencial"
+msgstr ""
+
+msgid ""
+"Todavía no hay destinos. Configurá el primer controlador de dominio o "
+"Windows Event Collector."
+msgstr ""
+
+msgid "Cobertura por dominio o grupo"
+msgstr ""
+
+msgid ""
+"Un destino por DC relevante o un WEC central; el total de registros "
+"monitoreados no garantiza cobertura de todo el dominio."
+msgstr ""
+
+msgid "fuentes configuradas"
+msgstr ""
+
+msgid "despliegues monitoreados"
+msgstr ""
+
+msgid "con errores recientes"
+msgstr ""
+
+msgid "Petición rechazada"
+msgstr ""
+
+msgid "Error 400"
+msgstr ""
+
+msgid "No pudimos confirmar que esta acción la iniciaste vos"
+msgstr ""
+
+msgid ""
+"La petición llegó sin el testigo de sesión que APATE exige para cualquier"
+" cambio, o con uno que ya no es válido. Casi siempre es una pestaña que "
+"quedó abierta desde antes de volver a iniciar sesión: volvé a cargar la "
+"página y repetí la acción."
+msgstr ""
+
+msgid ""
+"Si no iniciaste ninguna acción, alguien pudo haber intentado dispararla "
+"desde otro sitio con tu sesión abierta. En ese caso, avisale a quien "
+"administre esta instalación."
+msgstr ""
+
+msgid "La petición no era válida"
+msgstr ""
+
+msgid ""
+"El servidor no pudo interpretar lo que se le envió. Volvé a cargar la "
+"página e intentá de nuevo."
+msgstr ""
+
+msgid "Página no encontrada"
+msgstr ""
+
+msgid "No encontrada"
+msgstr ""
+
+msgid "Error 404"
+msgstr ""
+
+msgid "No encontramos esta página"
+msgstr ""
+
+msgid "La dirección puede ser incorrecta o el recurso ya no estar disponible."
+msgstr ""
+
+msgid "Ir a Operaciones"
+msgstr ""
+
+msgid "Salud y configuración"
+msgstr ""
+
+msgid "Resumen"
+msgstr ""
+
+msgid "Runtime de red / host"
+msgstr ""
+
+msgid "Generación de contenido"
+msgstr ""
+
+msgid "Administración de usuarios"
+msgstr ""
+
+msgid "Proveedor y modelo del motor de identidad y comportamiento."
+msgstr ""
+
+msgid "sin proveedor"
+msgstr ""
+
+msgid "Generación, no decisión"
+msgstr ""
+
+msgid ""
+"El LLM produce borradores; nunca decide cuándo desplegar, rotar o retirar"
+" un recurso y ninguna sugerencia se aplica sola."
+msgstr ""
+
+msgid "Diagnóstico de generación"
+msgstr ""
+
+msgid "Motor"
+msgstr ""
+
+msgid "preparado"
+msgstr ""
+
+msgid "Capacidad de comportamiento simulada."
+msgstr ""
+
+msgid "configurada"
+msgstr ""
+
+msgid "no configurada"
+msgstr ""
+
+msgid "La API key es de escritura solamente."
+msgstr ""
+
+msgid "Conectividad"
+msgstr ""
+
+msgid "La prueba consulta el modelo; no genera contenido."
+msgstr ""
+
+msgid "Probar proveedor y modelo"
+msgstr ""
+
+msgid "Proveedor y modelo"
+msgstr ""
+
+msgid "Proveedor"
+msgstr ""
+
+msgid "-- Elegir --"
+msgstr ""
+
+msgid "Nombre del modelo"
+msgstr ""
+
+msgid "API key de OpenAI"
+msgstr ""
+
+msgid "configurada — dejar en blanco para conservarla"
+msgstr ""
+
+msgid "sin configurar"
+msgstr ""
+
+msgid "API key:"
+msgstr ""
+
+msgid "configurada (su valor no se muestra)."
+msgstr ""
+
+msgid "no configurada."
+msgstr ""
+
+msgid "Dejar el campo en blanco conserva el valor existente."
+msgstr ""
+
+msgid "URL de LM Studio"
+msgstr ""
+
+msgid "Guardar configuración"
+msgstr ""
+
+msgid "Área avanzada · destructiva"
+msgstr ""
+
+msgid "Reiniciar datos de comportamiento"
+msgstr ""
+
+msgid ""
+"Borra y recrea narrativas, perfiles de usuario y actividades globales. No"
+" afecta las operaciones de Apate y no se puede deshacer."
+msgstr ""
+
+msgid "Escribí"
+msgstr ""
+
+msgid "para habilitar el reinicio"
+msgstr ""
+
+msgid "Reiniciar datos"
+msgstr ""
+
+msgid "disponible"
+msgstr ""
+
+msgid "no disponible"
+msgstr ""
+
+msgid "deshabilitada"
+msgstr ""
+
+msgid "Disponibilidad local y configuración necesaria antes de operar."
+msgstr ""
+
+msgid "preparadas"
+msgstr ""
+
+msgid "Comprobación de solo lectura"
+msgstr ""
+
+msgid "Realizada"
+msgstr ""
+
+msgid "“Configurado” no afirma que el servicio remoto esté respondiendo."
+msgstr ""
+
+msgid "Resumen de salud"
+msgstr ""
+
+msgid "Integraciones"
+msgstr ""
+
+msgid "Preparadas"
+msgstr ""
+
+msgid "Requieren atención"
+msgstr ""
+
+msgid "Siguiente paso"
+msgstr ""
+
+msgid "Entorno"
+msgstr ""
+
+msgid "Socket"
+msgstr ""
+
+msgid "Sin configurar"
+msgstr ""
+
+msgid "Conexión Docker global usada para administrar decoys."
+msgstr ""
+
+msgid ""
+"Guardar valida la configuración y comprueba la conexión antes de "
+"aplicarla. Abrir esta pantalla no inicia conexiones."
+msgstr ""
+
+msgid "Diagnóstico del runtime"
+msgstr ""
+
+msgid "Capacidad de decoys de red y host."
+msgstr ""
+
+msgid "Configuración"
+msgstr ""
+
+msgid "guardada"
+msgstr ""
+
+msgid "pendiente"
+msgstr ""
+
+msgid "Modo actual:"
+msgstr ""
+
+msgid "Se comprueba solo por acción explícita."
+msgstr ""
+
+msgid "Probar conexión guardada"
+msgstr ""
+
+msgid "Cliente Docker"
+msgstr ""
+
+msgid "Modo"
+msgstr ""
+
+msgid "Variables de entorno"
+msgstr ""
+
+msgid "TCP con TLS"
+msgstr ""
+
+msgid "Host"
+msgstr ""
+
+msgid "Puerto"
+msgstr ""
+
+msgid "Ruta del socket"
+msgstr ""
+
+msgid "Material sensible"
+msgstr ""
+
+msgid ""
+"Los certificados se guardan en la carpeta de configuración del motor. Sus"
+" contenidos nunca vuelven al HTML."
+msgstr ""
+
+msgid "Certificado (.pem/.crt)"
+msgstr ""
+
+msgid "Clave privada"
+msgstr ""
+
+msgid "Validar y guardar cliente"
+msgstr ""
+
+msgid ""
+"gestión de información y eventos de seguridad / orquestación, "
+"automatización y respuesta de seguridad"
+msgstr ""
+
+msgid "Entrega manual de bundles"
+msgstr ""
+
+msgid "a un webhook del operador."
+msgstr ""
+
+msgid "Envío explícito, nunca automático"
+msgstr ""
+
+msgid ""
+"Apate solo envía un bundle al pulsar el botón desde el "
+"informe de una operación cerrada. No se conecta al EventBus ni se dispara"
+" al observar"
+msgstr ""
+
+msgid "Indicadores de compromiso"
+msgstr ""
+
+msgid "o"
+msgstr ""
+
+msgid "Tácticas, técnicas y procedimientos"
+msgstr ""
+
+msgid "Webhook de salida"
+msgstr ""
+
+msgid "URL del webhook"
+msgstr ""
+
+msgid "Token bearer opcional"
+msgstr ""
+
+msgid "configurado — dejar en blanco para conservarlo"
+msgstr ""
+
+msgid "Token:"
+msgstr ""
+
+msgid "configurado (su valor no se muestra)."
+msgstr ""
+
+msgid "no configurado."
+msgstr ""
+
+msgid "Entrega del informe"
+msgstr ""
+
+msgid "Cada envío usa POST con"
+msgstr ""
+
+msgid ""
+"espera como máximo ocho segundos y reporta el resultado real. La "
+"configuración no ejecuta ninguna llamada de red."
+msgstr ""
+
+msgid "Enriquecimiento opcional y bajo demanda de"
+msgstr ""
+
+msgid "observados."
+msgstr ""
+
+msgid "Consulta explícita, nunca automática"
+msgstr ""
+
+msgid "Apate consulta VirusTotal solo al pulsar el botón de un"
+msgstr ""
+
+msgid "Indicador de compromiso"
+msgstr ""
+
+msgid ""
+"El resultado es una anotación analítica: no activa reglas, plugins ni "
+"despliegues."
+msgstr ""
+
+msgid "API key de VirusTotal"
+msgstr ""
+
+msgid "Uso y cuota"
+msgstr ""
+
+msgid ""
+"Cada pulsación realiza una consulta HTTPS y puede consumir cuota de "
+"VirusTotal. Apate recupera reportes existentes; no sube "
+"archivos ni solicita nuevos análisis."
+msgstr ""
+
+msgid "Integración deshabilitada"
+msgstr ""
+
+msgid "Configuración no disponible"
+msgstr ""
+
+msgid "La integración externa está deshabilitada"
+msgstr ""
+
+msgid "Iniciá APATE con"
+msgstr ""
+
+msgid ""
+"habilitado para preparar los motores de red/host e "
+"identidad/comportamiento."
+msgstr ""
+
+msgid "Volver al resumen de salud"
+msgstr ""
+
+msgid "Alta, cambio de contraseña y baja de usuarios locales."
+msgstr ""
+
+msgid "Sin usuarios en la instancia"
+msgstr ""
+
+msgid ""
+"Cuando no hay usuarios locales, la app se muestra en modo abierto para "
+"facilitar el primer arranque. Esta pantalla sirve para crear el primer "
+"usuario de administración."
+msgstr ""
+
+msgid "Usuarios locales"
+msgstr ""
+
+msgid "Rol"
+msgstr ""
+
+msgid "Equipo"
+msgstr ""
+
+msgid "Acciones"
+msgstr ""
+
+msgid "inactivo"
+msgstr ""
+
+msgid "Cambiar contraseña"
+msgstr ""
+
+msgid "Actualizar"
+msgstr ""
+
+msgid "Desactivar usuario: esta acción no se puede deshacer."
+msgstr ""
+
+msgid "Desactivar"
+msgstr ""
+
+msgid "No hay usuarios configurados aún."
+msgstr ""
+
+msgid "No se puede desactivar el último administrador activo."
+msgstr ""
+
+msgid "Dar de alta usuario"
+msgstr ""
+
+msgid "Identidad local"
+msgstr ""
+
+msgid "Administración"
+msgstr ""
+
+msgid "Operación"
+msgstr ""
+
+msgid "Lectura"
+msgstr ""
+
+msgid "Obligatorio para lectura u operación"
+msgstr ""
+
+msgid "El rol de administración puede trabajar sin equipo."
+msgstr ""
+
+msgid "Contraseña inicial"
+msgstr ""
+
+msgid "Confirmación de contraseña"
+msgstr ""
+
+msgid "Crear usuario"
+msgstr ""
+
+msgid "Para lectura u operación, equipo obligatorio para respetar aislamiento."
+msgstr ""
+
+msgid "Administración puede operar sin equipo."
+msgstr ""
+
+msgid "Mapa de la operaci&oacute;n"
+msgstr ""
+
+msgid "Lentes del mapa de la operaci&oacute;n"
+msgstr ""
+
+msgid "Estructura"
+msgstr ""
+
+msgid "Evidencia"
+msgstr ""
+
+msgid "Activos"
+msgstr ""
+
+msgid "&Aacute;rbol de la operaci&oacute;n"
+msgstr ""
+
+msgid ""
+"Jerarqu&iacute;a real Operaci&oacute;n &rarr; Escenario &rarr; Capacidad,"
+" con estado en vivo por nodo. Solo lectura: cada nodo lleva al tab donde "
+"se edita, nada se cambia desde ac&aacute;."
+msgstr ""
+
+msgid ""
+"GraphML -- abre en Gephi/yEd, incluye recursos concretos (decoys, "
+"perfiles, honeytokens, Canarytokens y OpenCanary) como nodos propios"
+msgstr ""
+
+msgid "Descargar GraphML (Gephi)"
+msgstr ""
+
+msgid "Buscar escenario o capacidad en el árbol"
+msgstr ""
+
+msgid "Nombre, ID o superficie"
+msgstr ""
+
+msgid "Adversario:"
+msgstr ""
+
+msgid "Nivel"
+msgstr ""
+
+msgid "T&aacute;ctica, t&eacute;cnica o procedimiento"
+msgstr ""
+
+msgid "coincidente(s)"
+msgstr ""
+
+msgid "sin observar"
+msgstr ""
+
+msgid "Sin"
+msgstr ""
+
+msgid "T&aacute;cticas, t&eacute;cnicas y procedimientos"
+msgstr ""
+
+msgid "s relacionadas"
+msgstr ""
+
+msgid "+ Vincular capacidad acá"
+msgstr ""
+
+msgid "&middot;"
+msgstr ""
+
+msgid "&#128279; lleva a"
+msgstr ""
+
+msgid "Actividades de Engage"
+msgstr ""
+
+msgid "Ninguna seleccionada"
+msgstr ""
+
+msgid "Efecto (Ver-Pensar-Hacer)"
+msgstr ""
+
+msgid "M&eacute;trica:"
+msgstr ""
+
+msgid "Sin efecto planificado todav&iacute;a"
+msgstr ""
+
+msgid "Medido:"
+msgstr ""
+
+msgid "Recurso concreto"
+msgstr ""
+
+msgid "Sin recurso configurado todav&iacute;a"
+msgstr ""
+
+msgid "No aplica para este tipo de capacidad"
+msgstr ""
+
+msgid "Breadcrumbs"
+msgstr ""
+
+msgid "&#9888; Lleva a"
+msgstr ""
+
+msgid "-- no encontrado en esta operaci&oacute;n"
+msgstr ""
+
+msgid "&#128279; Lleva a"
+msgstr ""
+
+msgid "Recibe una miga de:"
+msgstr ""
+
+msgid "Sin capacidades vinculadas a este escenario todav&iacute;a."
+msgstr ""
+
+msgid ""
+"Agreg&aacute; escenarios y capacidades para que el &aacute;rbol tenga "
+"algo que mostrar."
+msgstr ""
+
+msgid "Camino visual de enga&ntilde;o"
+msgstr ""
+
+msgid ""
+"Relaciones persistidas de esta operaci&oacute;n. Las conexiones organizan"
+" evidencia y configuraci&oacute;n; no afirman causalidad."
+msgstr ""
+
+msgid "nodos"
+msgstr ""
+
+msgid "Grafo de solo lectura"
+msgstr ""
+
+msgid "Sin nodos relacionados."
+msgstr ""
+
+msgid "Seleccion&aacute; un nodo"
+msgstr ""
+
+msgid "El inspector muestra estado, procedencia y conexiones sin editar datos."
+msgstr ""
+
+msgid "Conexiones"
+msgstr ""
+
+msgid "Abrir evidencia"
+msgstr ""
+
+msgid "Representaci&oacute;n tabular"
+msgstr ""
+
+msgid "relaciones"
+msgstr ""
+
+msgid "Origen"
+msgstr ""
+
+msgid "Relaci&oacute;n"
+msgstr ""
+
+msgid ""
+"“Retirado” solo aparecer&aacute; cuando exista una fuente persistida "
+"inequ&iacute;voca; la ausencia de actividad no se interpreta como retiro."
+msgstr ""
+
+msgid "Retirado"
+msgstr ""
+
+msgid "Sin conexiones"
+msgstr ""
+
+msgid "Agreg&aacute;"
+msgstr ""
+
+msgid "s, escenarios y capacidades para construir relaciones verificables."
+msgstr ""
+
+msgid "Completar preparaci&oacute;n"
+msgstr ""
+
+msgid "Cobertura declarada de activos"
+msgstr ""
+
+msgid ""
+"Solo relaciones declaradas por cada capacidad. No se infiere cobertura "
+"desde hostnames, rutas o nombres; una capacidad sin activo puede ser "
+"deliberada y no se presenta como error."
+msgstr ""
+
+msgid "Activos con capacidad declarada"
+msgstr ""
+
+msgid "Referencia manual, no inventariada."
+msgstr ""
+
+msgid "Protegido por:"
+msgstr ""
+
+msgid "Activos objetivo sin capacidad"
+msgstr ""
+
+msgid ""
+"Ordenados por criticidad. Esta lista es un hallazgo de planificación, no "
+"una puntuación ni un error automático."
+msgstr ""
+
+msgid "Sugerencias de colocación, para revisión manual:"
+msgstr ""
+
+msgid ""
+"Juicio interpretativo de Apate según tipo y criticidad; no "
+"crea ni despliega una capacidad."
+msgstr ""
+
+msgid ""
+"No hay sugerencia para este tipo de activo libre. El mapa no adivina una "
+"taxonomía."
+msgstr ""
+
+msgid "— referencia manual no inventariada"
+msgstr ""
+
+msgid "Capacidades sin activo declarado"
+msgstr ""
+
+msgid ""
+"Pueden ser migas deliberadas o una relación pendiente; el mapa no lo "
+"decide."
+msgstr ""
+
+msgid "Referencias de cobertura fuera de los activos objetivo"
+msgstr ""
+
+msgid ""
+"Se conservan visibles para no perder una declaración que ya no resuelve "
+"en el perfil de la operación."
+msgstr ""
+
+msgid "— declarada por"
+msgstr ""
+
+msgid ""
+"Esta operación aún no tiene activos objetivo ni capacidades vinculadas. "
+"El mapa de activos mostrará las relaciones explícitas cuando existan."
+msgstr ""
+
+msgid "Completar activos objetivo"
+msgstr ""
+
+msgid "Relaciones de la operaci&oacute;n"
+msgstr ""
+
+msgid "vista de contexto"
+msgstr ""
+
+msgid "Operaci&oacute;n, escenarios, plugins, Engage y efecto medido"
+msgstr ""
+
+msgid "&rarr;"
+msgstr ""
+
+msgid "Engage cubierto"
+msgstr ""
+
+msgid "Efectos medidos"
+msgstr ""
+
+msgid ""
+"Resume asociaciones persistidas y cobertura calculada; las flechas "
+"organizan el contexto y no afirman causalidad."
+msgstr ""
+
+msgid "Actividad de la operaci&oacute;n"
+msgstr ""
+
+msgid "hito(s)"
+msgstr ""
+
+msgid ""
+"Vista cronol&oacute;gica de fuentes independientes. No implica "
+"causalidad: la telemetr&iacute;a y las acciones manuales son "
+"persistentes; las reglas solo aparecen mientras la sesi&oacute;n de "
+"Playground siga viva."
+msgstr ""
+
+msgid "Filtrar actividad"
+msgstr ""
+
+msgid "Todo"
+msgstr ""
+
+msgid "Resultados"
+msgstr ""
+
+msgid ""
+"Alcance: solo esta operaci&oacute;n. An&aacute;lisis secundario, sin "
+"scores ni interpretaciones autom&aacute;ticas."
+msgstr ""
+
+msgid "Explorar telemetr&iacute;a"
+msgstr ""
+
+msgid "Eventos persistidos"
+msgstr ""
+
+msgid "Fuente: Telemetr&iacute;a &middot; per&iacute;odo: historial completo"
+msgstr ""
+
+msgid "s observadas"
+msgstr ""
+
+msgid "Fuente: Telemetr&iacute;a &middot; distintas en el historial"
+msgstr ""
+
+msgid "IoC"
+msgstr ""
+
+msgid "s observados"
+msgstr ""
+
+msgid "Fuente: Telemetr&iacute;a &middot; tipo+valor distintos"
+msgstr ""
+
+msgid "Cobertura esperada"
+msgstr ""
+
+msgid "Fuente: perfil esperado vs."
+msgstr ""
+
+msgid "observada &middot; no es un score"
+msgstr ""
+
+msgid "Fuente: modelo actual &middot; resultado humano registrado"
+msgstr ""
+
+msgid "Efectos con evento vinculado"
+msgstr ""
+
+msgid ""
+"Solo cuenta eventos existentes de la misma capacidad; los demás esperan "
+"evidencia"
+msgstr ""
+
+msgid "Proveedores observados"
+msgstr ""
+
+msgid "Fuente: bindings + eventos &middot;"
+msgstr ""
+
+msgid "sin eventos"
+msgstr ""
+
+msgid "Ventana observada:"
+msgstr ""
+
+msgid "sin registros persistidos todav&iacute;a."
+msgstr ""
+
+msgid "Los conteos del modelo son una fotograf&iacute;a del estado actual."
+msgstr ""
+
+msgid "Resultados y recursos"
+msgstr ""
+
+msgid "Recursos y salida"
+msgstr ""
+
+msgid "Taller"
+msgstr ""
+
+msgid "Material para facilitar conducci&oacute;n y documentaci&oacute;n."
+msgstr ""
+
+msgid "Descargar kit de taller (Markdown)"
+msgstr ""
+
+msgid "Descargar kit de taller (PDF)"
+msgstr ""
+
+msgid "Informes"
+msgstr ""
+
+msgid "Solo en estado cerrado."
+msgstr ""
+
+msgid "Descargar Markdown"
+msgstr ""
+
+msgid "Descargar JSON"
+msgstr ""
+
+msgid "Descargar PDF"
+msgstr ""
+
+msgid ""
+"STIX: formato estructurado de inteligencia de amenazas, pensado para "
+"alimentar un SIEM/SOAR/EDR u otra herramienta de CTI"
+msgstr ""
+
+msgid "Descargar"
+msgstr ""
+
+msgid "Structured Threat Information Expression"
+msgstr ""
+
+msgid "STIX"
+msgstr ""
+
+msgid "Enviar a"
+msgstr ""
+
+msgid ""
+"gesti&oacute;n de informaci&oacute;n y eventos de seguridad / "
+"orquestaci&oacute;n, automatizaci&oacute;n y respuesta de seguridad"
+msgstr ""
+
+msgid "Configurar webhook"
+msgstr ""
+
+msgid "A&uacute;n no disponible"
+msgstr ""
+
+msgid "Observabilidad"
+msgstr ""
+
+msgid "Ver telemetr&iacute;a y eventos en vivo."
+msgstr ""
+
+msgid "Matriz de"
+msgstr ""
+
+msgid "(MITRE ATT&amp;CK)"
+msgstr ""
+
+msgid "Coincidente"
+msgstr ""
+
+msgid "Esperada, no observada"
+msgstr ""
+
+msgid "Observada, no esperada"
+msgstr ""
+
+msgid "Sin relaci&oacute;n con esta operaci&oacute;n"
+msgstr ""
+
+msgid "TTPs fuera del cat&aacute;logo curado (sin celda en la grilla de arriba):"
+msgstr ""
+
+msgid "Comparar operaciones - Apate"
+msgstr ""
+
+msgid "Comparar"
+msgstr ""
+
+msgid "Comparar operaciones"
+msgstr ""
+
+msgid ""
+"Contraste descriptivo de datos reales. Apate no "
+"punt&uacute;a, recomienda ganadores ni decide cu&aacute;l "
+"operaci&oacute;n fue “mejor”."
+msgstr ""
+
+msgid "Primera operaci&oacute;n"
+msgstr ""
+
+msgid "Elegir&hellip;"
+msgstr ""
+
+msgid "Segunda operaci&oacute;n"
+msgstr ""
+
+msgid "Eleg&iacute; dos operaciones distintas y existentes."
+msgstr ""
+
+msgid "coincidentes"
+msgstr ""
+
+msgid "Ninguna"
+msgstr ""
+
+msgid "Esperadas no observadas"
+msgstr ""
+
+msgid "Observadas no esperadas"
+msgstr ""
+
+msgid "- Apate"
+msgstr ""
+
+msgid "&larr; Operaciones"
+msgstr ""
+
+msgid "Operando como"
+msgstr ""
+
+msgid "Acciones de estado"
+msgstr ""
+
+msgid ""
+"Cerrar es irreversible: esta operación no podrá reabrirse. Podrás crear "
+"otra mediante Reoperar. ¿Cerrar ahora?"
+msgstr ""
+
+msgid "Ver telemetría"
+msgstr ""
+
+msgid "Despliegues AD y archivos"
+msgstr ""
+
+msgid "Reproducir reglas"
+msgstr ""
+
+msgid "Equipo de la operación"
+msgstr ""
+
+msgid ""
+"Define qué equipo puede ver y operar esta operación. Administración "
+"conserva acceso a todas."
+msgstr ""
+
+msgid "Sin equipo — solo administración"
+msgstr ""
+
+msgid "Todavía no hay equipos en las identidades configuradas."
+msgstr ""
+
+msgid "Guardar equipo"
+msgstr ""
+
+msgid "Centro operativo"
+msgstr ""
+
+msgid "Estado, atenci&oacute;n y siguiente acci&oacute;n"
+msgstr ""
+
+msgid "Siguiente acci&oacute;n permitida"
+msgstr ""
+
+msgid "Requiere atenci&oacute;n"
+msgstr ""
+
+msgid "Ver toda la atención"
+msgstr ""
+
+msgid "Sin pendientes detectados"
+msgstr ""
+
+msgid "No hay condiciones expl&iacute;citas pendientes en el ciclo actual."
+msgstr ""
+
+msgid "activas"
+msgstr ""
+
+msgid "Revisar capacidades &rarr;"
+msgstr ""
+
+msgid "Actividad reciente"
+msgstr ""
+
+msgid "Ver l&iacute;nea de tiempo &rarr;"
+msgstr ""
+
+msgid "Ciclo de la operaci&oacute;n"
+msgstr ""
+
+msgid "Estados derivados de evidencia, no un score."
+msgstr ""
+
+msgid "Preparaci&oacute;n incompleta"
+msgstr ""
+
+msgid ""
+"actividad(es) requieren atenci&oacute;n antes de considerar completa la "
+"preparaci&oacute;n."
+msgstr ""
+
+msgid "Revisar pendientes &rarr;"
+msgstr ""
+
+msgid "Secciones de la operaci&oacute;n"
+msgstr ""
+
+msgid "Dise&ntilde;o"
+msgstr ""
+
+msgid "esc. /"
+msgstr ""
+
+msgid "cap."
+msgstr ""
+
+msgid "Preparaci&oacute;n y revisi&oacute;n"
+msgstr ""
+
+msgid "/8 prep. &middot;"
+msgstr ""
+
+msgid "rev."
+msgstr ""
+
+msgid "Mapa"
+msgstr ""
+
+msgid "Navegación dentro de Diseño"
+msgstr ""
+
+msgid "Ir a"
+msgstr ""
+
+msgid "obj."
+msgstr ""
+
+msgid "Narrativa"
+msgstr ""
+
+msgid "Perfil de adversario"
+msgstr ""
+
+msgid "Paso 1 &middot; Perfil de adversario"
+msgstr ""
+
+msgid "Motivaci&oacute;n"
+msgstr ""
+
+msgid "Activos cr&iacute;ticos objetivo"
+msgstr ""
+
+msgid "Referencia manual; no está en inventario."
+msgstr ""
+
+msgid "Resolver referencia"
+msgstr ""
+
+msgid "Ficha existente"
+msgstr ""
+
+msgid "-- Elegí una ficha --"
+msgstr ""
+
+msgid "Resolver con ficha"
+msgstr ""
+
+msgid "Todavía no hay fichas en el inventario para elegir."
+msgstr ""
+
+msgid ""
+"Crear una ficha nueva y resolver solo esta referencia. Elegí un "
+"identificador estable; la frase no se reutiliza como identificador."
+msgstr ""
+
+msgid "Identificador estable"
+msgstr ""
+
+msgid "ASSET-FIN-01"
+msgstr ""
+
+msgid "Crear y resolver"
+msgstr ""
+
+msgid ""
+"Una persona de administración puede crear una ficha global; vos podés "
+"resolver contra una ficha existente."
+msgstr ""
+
+msgid "s sugeridas desde telemetr&iacute;a"
+msgstr ""
+
+msgid "(perfil de adversario vivo)"
+msgstr ""
+
+msgid ""
+"Observadas por telemetr&iacute;a en esta operaci&oacute;n pero "
+"todav&iacute;a no cargadas en el\n"
+"      perfil de adversario. Incorporarlas es una decisi&oacute;n del "
+"operador, nunca autom&aacute;tico\n"
+"      -- mismo criterio de \"asistir, nunca decidir\" que ya usan las "
+"sugerencias de Engage (paso 4) y\n"
+"      el prefill de Reoperar. Ning&uacute;n checkbox viene premarcado."
+msgstr ""
+
+msgid "Incorporar seleccionadas"
+msgstr ""
+
+msgid "s observadas fuera del perfil todav&iacute;a."
+msgstr ""
+
+msgid "Reglas de interacción"
+msgstr ""
+
+msgid "Paso 2 &middot; Reglas de interacci&oacute;n"
+msgstr ""
+
+msgid "Acciones permitidas"
+msgstr ""
+
+msgid "Acciones prohibidas"
+msgstr ""
+
+msgid "Restricciones legales"
+msgstr ""
+
+msgid "Contacto de escalamiento"
+msgstr ""
+
+msgid "Fecha de cierre planificada"
+msgstr ""
+
+msgid "Reglas del motor de decisión"
+msgstr ""
+
+msgid ""
+"Son reglas globales compartidas por las operaciones. El alcance de abajo "
+"se calcula por el"
+msgstr ""
+
+msgid "de cada condición y las capacidades vinculadas a esta operación."
+msgstr ""
+
+msgid "Cuándo se evalúan"
+msgstr ""
+
+msgid ""
+"Las reglas se evalúan ante eventos de Playground, acciones manuales y "
+"telemetría recibida por la ingesta periódica o los puentes externos. Las "
+"acciones manuales siguen siendo decisiones del operador; el motor solo "
+"reacciona a los eventos que publican."
+msgstr ""
+
+msgid "Condición"
+msgstr ""
+
+msgid "Alcance aquí"
+msgstr ""
+
+msgid "Aplicaría en esta operación"
+msgstr ""
+
+msgid "No aplica a esta operación"
+msgstr ""
+
+msgid "No hay reglas globales cargadas todavía."
+msgstr ""
+
+msgid "Editar el documento global de reglas"
+msgstr ""
+
+msgid "Editar reglas de interacci&oacute;n"
+msgstr ""
+
+msgid "Allowlist activa"
+msgstr ""
+
+msgid "Todo lo dem&aacute;s est&aacute; bloqueado; el motor solo puede ejecutar"
+msgstr ""
+
+msgid "Sin allowlist"
+msgstr ""
+
+msgid ""
+"Hoy no hay allowlist: el motor puede ejecutar cualquier acci&oacute;n que"
+" no est&eacute; prohibida."
+msgstr ""
+
+msgid "L&iacute;mites que aplica el motor de reglas"
+msgstr ""
+
+msgid ""
+"El entorno es de solo lectura en esta vista. Las reglas de "
+"interacci&oacute;n afectan decisiones autom&aacute;ticas; no cambian "
+"acciones manuales del operador."
+msgstr ""
+
+msgid "Firmas granulares permitidas, una por l&iacute;nea"
+msgstr ""
+
+msgid "Firmas granulares prohibidas, una por l&iacute;nea"
+msgstr ""
+
+msgid "Capacidad para usar en una firma granular"
+msgstr ""
+
+msgid "Eleg&iacute; un identificador vinculado"
+msgstr ""
+
+msgid "Us&aacute; firmas como"
+msgstr ""
+
+msgid "retire:plugin_id"
+msgstr ""
+
+msgid "transition:closed"
+msgstr ""
+
+msgid ""
+"La sugerencia sirve para copiar el identificador t&eacute;cnico en una de"
+" las listas de arriba."
+msgstr ""
+
+msgid "Restricciones legales, una por l&iacute;nea"
+msgstr ""
+
+msgid "Guardar reglas de interacci&oacute;n"
+msgstr ""
+
+msgid "Condiciones de cierre por evento (Gating Criteria)"
+msgstr ""
+
+msgid ""
+"El motor cerrar&aacute; la operaci&oacute;n cuando un evento cumpla "
+"cualquiera de estas condiciones. El cierre es un l&iacute;mite "
+"innegociable y no dispara ning&uacute;n plugin."
+msgstr ""
+
+msgid "Cualquier payload"
+msgstr ""
+
+msgid "¿Eliminar esta Gating Criteria?"
+msgstr ""
+
+msgid "Sin condiciones de cierre por evento configuradas."
+msgstr ""
+
+msgid "Agregar Gating Criteria"
+msgstr ""
+
+msgid "Tipo de evento"
+msgstr ""
+
+msgid "Seleccionar..."
+msgstr ""
+
+msgid "Plugin (opcional)"
+msgstr ""
+
+msgid "Vac&iacute;o = cualquiera"
+msgstr ""
+
+msgid "Clave del payload (opcional)"
+msgstr ""
+
+msgid "Ej. ttp_id"
+msgstr ""
+
+msgid "Valor del payload (opcional)"
+msgstr ""
+
+msgid "Ej. T1078"
+msgstr ""
+
+msgid ""
+"El par del payload exige coincidencia exacta. Dejalo vac&iacute;o para "
+"cerrar ante cualquier evento del tipo/plugin elegidos."
+msgstr ""
+
+msgid "Agregar condici&oacute;n"
+msgstr ""
+
+msgid "Decisiones estrat&eacute;gicas"
+msgstr ""
+
+msgid "Objetivos"
+msgstr ""
+
+msgid "Estimaci&oacute;n de recursos"
+msgstr ""
+
+msgid "Sin roles asignados."
+msgstr ""
+
+msgid "Paso 3 &middot; Escenarios"
+msgstr ""
+
+msgid "Descripci&oacute;n"
+msgstr ""
+
+msgid "Nivel de enga&ntilde;o"
+msgstr ""
+
+msgid "Sin escenarios asociados."
+msgstr ""
+
+msgid "Agregar escenario"
+msgstr ""
+
+msgid "s relacionadas del cat&aacute;logo (opcional)"
+msgstr ""
+
+msgid "Otras TTPs relacionadas (texto libre, separadas por coma)"
+msgstr ""
+
+msgid "T1046, T1078 o una TTP fuera del catálogo"
+msgstr ""
+
+msgid "Paso 5 &middot; Narrativa"
+msgstr ""
+
+msgid "Porcentaje de similitud"
+msgstr ""
+
+msgid "Impacto psicol&oacute;gico"
+msgstr ""
+
+msgid "Capacidades vinculadas"
+msgstr ""
+
+msgid "Capacidad elegida en el Cat&aacute;logo"
+msgstr ""
+
+msgid ""
+"est&aacute; lista para que completes y confirmes su vinculaci&oacute;n. "
+"Nada fue aplicado autom&aacute;ticamente."
+msgstr ""
+
+msgid "Paso 4 &middot; Capacidades vinculadas"
+msgstr ""
+
+msgid "Identificador t&eacute;cnico"
+msgstr ""
+
+msgid "Superficie"
+msgstr ""
+
+msgid "Activos protegidos"
+msgstr ""
+
+msgid "Lleva a"
+msgstr ""
+
+msgid "Adversario cree (Pensar)"
+msgstr ""
+
+msgid "Adversario hace (Hacer)"
+msgstr ""
+
+msgid "M&eacute;trica de &eacute;xito"
+msgstr ""
+
+msgid "Tipo declarado para esta capacidad"
+msgstr ""
+
+msgid "Tipo no especificado"
+msgstr ""
+
+msgid "Breadcrumb: esta capacidad lleva a"
+msgstr ""
+
+msgid "no está vinculado a esta operación"
+msgstr ""
+
+msgid "(no encontrado)"
+msgstr ""
+
+msgid "el"
+msgstr ""
+
+msgid "Qu&eacute; pas&oacute; en realidad..."
+msgstr ""
+
+msgid "Vincular eventos que sustentan el resultado"
+msgstr ""
+
+msgid "Evidencia vinculada:"
+msgstr ""
+
+msgid ""
+"Esta operaci&oacute;n todav&iacute;a no tiene capacidades vinculadas. "
+"Vincul&aacute; una para preparar escenarios y despliegues."
+msgstr ""
+
+msgid "Explorar el Cat&aacute;logo de capacidades"
+msgstr ""
+
+msgid "Editar cobertura declarada"
+msgstr ""
+
+msgid ""
+"Elegí manualmente qué activos objetivo inventariados protege cada "
+"capacidad ya creada. Guardar una selección vacía limpia la relación; las "
+"referencias previas sin ficha se conservan hasta que las quites "
+"explícitamente. No despliega ni crea capacidades."
+msgstr ""
+
+msgid "Activos protegidos por"
+msgstr ""
+
+msgid "— referencia sin ficha (conservada)"
+msgstr ""
+
+msgid "Guardar cobertura"
+msgstr ""
+
+msgid ""
+"No hay activos objetivo inventariados en esta operación. Primero "
+"incorporá una ficha del inventario que corresponda a la referencia "
+"objetivo."
+msgstr ""
+
+msgid "Vincular capacidad"
+msgstr ""
+
+msgid "Deshacer última edición"
+msgstr ""
+
+msgid "Solo revierte campos locales; nunca acciones ya ejecutadas."
+msgstr ""
+
+msgid ""
+"Última edición local revertida. Guardar sigue siendo una decisión "
+"explícita."
+msgstr ""
+
+msgid "decoy-red-1, identidad-1, honeytoken-1..."
+msgstr ""
+
+msgid "Tipo de capacidad (opcional)"
+msgstr ""
+
+msgid "-- Sin especificar --"
+msgstr ""
+
+msgid ""
+"Eleg&iacute; el tipo para mostrar la configuraci&oacute;n "
+"correspondiente. Si se deja vac&iacute;o, Apate\n"
+"      intentar&aacute; reconocerlo a partir del identificador por "
+"compatibilidad."
+msgstr ""
+
+msgid "Decoy inicial (opcional)"
+msgstr ""
+
+msgid ""
+"Configur&aacute; ac&aacute; mismo el primer decoy, o dej&aacute; el "
+"Hostname en blanco y\n"
+"        agreg&aacute; decoys despu&eacute;s desde \"Despliegue\" -- "
+"ninguno de\n"
+"        estos campos es obligatorio en este paso."
+msgstr ""
+
+msgid "Hostname"
+msgstr ""
+
+msgid "SshService"
+msgstr ""
+
+msgid "Servicio SSH senuelo"
+msgstr ""
+
+msgid "IP"
+msgstr ""
+
+msgid "Subnet"
+msgstr ""
+
+msgid "Gateway"
+msgstr ""
+
+msgid "Deception Network"
+msgstr ""
+
+msgid "NetworkOpSSH"
+msgstr ""
+
+msgid "Service Ports"
+msgstr ""
+
+msgid "Servicio"
+msgstr ""
+
+msgid "ssh"
+msgstr ""
+
+msgid "Decoy Files"
+msgstr ""
+
+msgid "decoy_ssh"
+msgstr ""
+
+msgid "Narrativa (opcional)"
+msgstr ""
+
+msgid ""
+"Crear narrativa de comportamiento simulado para esta operaci&oacute;n "
+"ahora"
+msgstr ""
+
+msgid ""
+"Los datos (t&iacute;tulo, objetivo, perfil de atacante) se derivan "
+"autom&aacute;ticamente de\n"
+"        esta operaci&oacute;n -- no hace falta completarlos a mano. Los "
+"perfiles de usuario ("
+msgstr ""
+
+msgid "Windows Remote Management"
+msgstr ""
+
+msgid "WinRM"
+msgstr ""
+
+msgid ""
+") se\n"
+"        asignan despu&eacute;s desde \"Despliegue\"."
+msgstr ""
+
+msgid "Honeytokens de archivo (opcional)"
+msgstr ""
+
+msgid ""
+"Prepar&aacute; la ubicaci&oacute;n y los nombres ahora. Crear los "
+"archivos es una acci&oacute;n\n"
+"        separada y siempre requiere confirmaci&oacute;n desde "
+"\"Despliegue\"."
+msgstr ""
+
+msgid "Directorio"
+msgstr ""
+
+msgid "C:\\\\deception\\\\finance"
+msgstr ""
+
+msgid "Archivos (uno por l&iacute;nea o separados por coma)"
+msgstr ""
+
+msgid "credenciales.csv&#10;passwords_backup.txt"
+msgstr ""
+
+msgid "TTP asociada"
+msgstr ""
+
+msgid "Canarytoken (opcional)"
+msgstr ""
+
+msgid ""
+"Prepar&aacute; la configuraci&oacute;n ahora. Crear el token en el "
+"servidor de Canarytokens es una\n"
+"        acci&oacute;n separada desde \"Despliegue\" -- ninguno de estos "
+"campos es obligatorio en este paso."
+msgstr ""
+
+msgid "URL base de la instancia self-hosted"
+msgstr ""
+
+msgid "http://canarytokens.local/&lt;path-de-api-de-tu-instancia&gt;"
+msgstr ""
+
+msgid "Incluye lo que sea que tu instancia monte antes de"
+msgstr ""
+
+msgid "/generate"
+msgstr ""
+
+msgid ""
+"-- el repositorio\n"
+"        p&uacute;blico usa un path ofuscado que no es igual en todos los "
+"despliegues, nunca se asume fijo."
+msgstr ""
+
+msgid "Tipo de token"
+msgstr ""
+
+msgid "dns, aws_keys, ms_word, qr_code..."
+msgstr ""
+
+msgid "Memo"
+msgstr ""
+
+msgid "Miga en el escritorio del ejecutivo ficticio"
+msgstr ""
+
+msgid "Email de alerta"
+msgstr ""
+
+msgid "soc@ejemplo.com"
+msgstr ""
+
+msgid ""
+"La API real de Canarytokens exige memo y, adem&aacute;s, email o webhook "
+"-- Apate siempre usa\n"
+"        email y nunca registra un webhook (ver documentaci&oacute;n: un "
+"endpoint entrante abrir&iacute;a\n"
+"        superficie de red nueva, y el propio servidor de Canarytokens "
+"bloquea por defecto la entrega a\n"
+"        direcciones IP privadas). La detecci&oacute;n es por consulta "
+"manual (\"Consultar ahora\"), no push."
+msgstr ""
+
+msgid "TTP asociada (opcional)"
+msgstr ""
+
+msgid "sin mapeo MITRE oficial por tipo -- a criterio del operador"
+msgstr ""
+
+msgid "OpenCanary (opcional)"
+msgstr ""
+
+msgid ""
+"Prepar&aacute; la configuraci&oacute;n ahora. Desplegar el contenedor "
+"real es una acci&oacute;n\n"
+"        separada desde \"Despliegue\" -- ninguno de estos campos es "
+"obligatorio en este paso."
+msgstr ""
+
+msgid "Servicios a habilitar (uno por l&iacute;nea, formato \"servicio:puerto\")"
+msgstr ""
+
+msgid "ssh:2222&#10;ftp:2121&#10;http:8080"
+msgstr ""
+
+msgid "Modo de red"
+msgstr ""
+
+msgid "puertos mapeados expl&iacute;citamente (recomendado)"
+msgstr ""
+
+msgid "IP real del atacante, sin protecci&oacute;n ante conflicto de puertos"
+msgstr ""
+
+msgid "bridge"
+msgstr ""
+
+msgid ""
+"(default): un puerto ya ocupado en el host hace fallar el despliegue con "
+"un\n"
+"        error claro, antes de arrancar nada."
+msgstr ""
+
+msgid "host"
+msgstr ""
+
+msgid ""
+": se pierde ese aislamiento -- un conflicto\n"
+"        de puerto queda"
+msgstr ""
+
+msgid "silencioso"
+msgstr ""
+
+msgid ""
+"dentro de OpenCanary (hallazgo verificado contra el\n"
+"        c&oacute;digo real, ver documentaci&oacute;n) -- a cambio, los "
+"eventos muestran la IP real de quien\n"
+"        se conecta en vez del gateway del bridge de Docker. Eleg&iacute; "
+"\"host\" solo si priorizás el dato\n"
+"        real del atacante por sobre la detecci&oacute;n de conflictos."
+msgstr ""
+
+msgid "sin mapeo MITRE unico -- a criterio del operador, segun el servicio"
+msgstr ""
+
+msgid "Red / host, Identidad / comportamiento..."
+msgstr ""
+
+msgid ""
+"Al elegir un tipo se propone su superficie habitual. Podés editarla: cada"
+" capacidad conserva la superficie específica que declares."
+msgstr ""
+
+msgid "Escenario que implementa"
+msgstr ""
+
+msgid "-- Ninguno --"
+msgstr ""
+
+msgid "Activos objetivo que protege (opcional)"
+msgstr ""
+
+msgid ""
+"Declaralo explícitamente: no se infiere desde hostnames, rutas ni texto. "
+"Solo se ofrecen activos objetivo que ya están en el inventario."
+msgstr ""
+
+msgid ""
+"No hay activos objetivo inventariados en esta operación. El mapa mostrará"
+" las referencias manuales, pero una capacidad solo puede vincularse a una"
+" ficha del inventario."
+msgstr ""
+
+msgid "Lleva a (breadcrumb &rarr; recurso, opcional)"
+msgstr ""
+
+msgid "-- Ninguna --"
+msgstr ""
+
+msgid ""
+"Si esta capacidad es una miga (ej. un honeytoken) que lleva al adversario"
+" hacia otra ya\n"
+"      vinculada, eleg&iacute; a cu&aacute;l -- el destino tiene que "
+"existir ya (creado antes que esta\n"
+"      miga). Solo relaciona, no cambia el comportamiento de ning&uacute;n"
+" plugin."
+msgstr ""
+
+msgid "Qu&eacute; debe creer el adversario (Pensar)"
+msgstr ""
+
+msgid "Qu&eacute; queremos que haga (Hacer)"
+msgstr ""
+
+msgid "Actividades de MITRE Engage (opcional, cat&aacute;logo de referencia)"
+msgstr ""
+
+msgid "0 seleccionadas"
+msgstr ""
+
+msgid "Sugerida a partir de las TTPs esperadas del perfil de adversario"
+msgstr ""
+
+msgid "sugerida por TTP"
+msgstr ""
+
+msgid ""
+"Sugerida a partir de los objetivos estrat&eacute;gicos de la "
+"operaci&oacute;n (apate.engage.suggest_activities_for_objectives) -- "
+"juicio interpretativo de Apate, sin fuente oficial "
+"verificada (ver docs/roadmap.md)"
+msgstr ""
+
+msgid "sugerida (objetivo)"
+msgstr ""
+
+msgid ""
+"Solo actividades de tipo \"engagement\" (Expose/Affect/Elicit) -- las "
+"\"strategic\" (Prepare/\n"
+"          Understand) son de nivel operaci&oacute;n, no de un plugin "
+"puntual (ver tab \"Preparaci&oacute;n\").\n"
+"          Una misma actividad puede aparecer bajo m&aacute;s de un "
+"Approach (ej. \"Lures\" en Detect/Direct/\n"
+"          Disrupt): marcarla en cualquiera alcanza, no hace falta repetir"
+" la selecci&oacute;n. Las marcadas"
+msgstr ""
+
+msgid "sugerida (TTP)"
+msgstr ""
+
+msgid ""
+"coinciden con la t&aacute;ctica de alguna de las\n"
+"          TTPs esperadas del perfil de adversario (paso 1, "
+"cat&aacute;logo oficial verificado); las\n"
+"          marcadas"
+msgstr ""
+
+msgid ""
+"coinciden con alguno de los\n"
+"          objetivos estrat&eacute;gicos elegidos (paso 2) -- a diferencia"
+" de la anterior, esta segunda\n"
+"          sugerencia es un"
+msgstr ""
+
+msgid "juicio interpretativo de Apate"
+msgstr ""
+
+msgid ""
+", sin ning&uacute;n dataset\n"
+"          oficial que lo respalde (ver"
+msgstr ""
+
+msgid "apate.engage.suggest_activities_for_objectives"
+msgstr ""
+
+msgid ""
+"). Las\n"
+"          dos son solo una indicaci&oacute;n, no se preseleccionan ni se "
+"fuerza nada: segu&iacute;\n"
+"          eligiendo manualmente qu&eacute; marcar."
+msgstr ""
+
+msgid "Puentes de telemetría externa"
+msgstr ""
+
+msgid "(sin desplegar ni controlar la fuente)"
+msgstr ""
+
+msgid ""
+"Ingiere eventos de una fuente Elasticsearch externa (T-Pot, cualquier "
+"stack con su propio ELK) y los\n"
+"    traduce a eventos propios -- correlacionables contra las TTPs "
+"esperadas de esta operación con la\n"
+"    misma infraestructura de informes/heatmap que ya existe, sin lógica "
+"nueva para eso. Distinto de una\n"
+"    capacidad vinculada arriba: acá Apate solo"
+msgstr ""
+
+msgid "lee"
+msgstr ""
+
+msgid ", nunca despliega ni controla la fuente."
+msgstr ""
+
+msgid "Índice"
+msgstr ""
+
+msgid "Mapeo de campos"
+msgstr ""
+
+msgid "Última consulta"
+msgstr ""
+
+msgid "Acción"
+msgstr ""
+
+msgid "Nunca"
+msgstr ""
+
+msgid "Consultando..."
+msgstr ""
+
+msgid "Consultar ahora"
+msgstr ""
+
+msgid "Todavía no hay ninguna fuente de telemetría externa configurada."
+msgstr ""
+
+msgid "Agregar fuente"
+msgstr ""
+
+msgid "T-Pot demo"
+msgstr ""
+
+msgid "URL de Elasticsearch"
+msgstr ""
+
+msgid "http://localhost:9200"
+msgstr ""
+
+msgid "tpot-*"
+msgstr ""
+
+msgid "Campo de timestamp"
+msgstr ""
+
+msgid ""
+"Mapeo de campos (uno por línea: \"clave_de_payload: "
+"ruta.en.el.documento\")"
+msgstr ""
+
+msgid "ttp_id: mitre.technique_id&#10;detail: message&#10;source_ip: src_ip"
+msgstr ""
+
+msgid "Claves reconocidas por el resto de la aplicaci&oacute;n:"
+msgstr ""
+
+msgid "ttp_id"
+msgstr ""
+
+msgid "detail"
+msgstr ""
+
+msgid "source_ip"
+msgstr ""
+
+msgid "credential"
+msgstr ""
+
+msgid "hash"
+msgstr ""
+
+msgid "domain"
+msgstr ""
+
+msgid "url"
+msgstr ""
+
+msgid "kind"
+msgstr ""
+
+msgid ""
+"--\n"
+"      cualquier otra clave se guarda igual en el evento, sin promoverse a"
+" indicador estructurado. Mapeo\n"
+"      declarativo, no un motor de transformación: solo copia el valor del"
+" campo indicado."
+msgstr ""
+
+msgid "seleccionada"
+msgstr ""
+
+msgid "seleccionadas"
+msgstr ""
+
+msgid "Recurso elegido en el Cat&aacute;logo"
+msgstr ""
+
+msgid ""
+"Revis&aacute; el despliegue de esta operaci&oacute;n y confirm&aacute; "
+"manualmente a qu&eacute; narrativa o perfil se asigna."
+msgstr ""
+
+msgid "Despliegue contextual"
+msgstr ""
+
+msgid ""
+"Los recursos est&aacute;n ordenados por escenario y superficie. Desde "
+"esta operaci&oacute;n pod&eacute;s\n"
+"      configurar y operar decoys, identidades, actividades y honeytokens "
+"desde una misma operaci&oacute;n."
+msgstr ""
+
+msgid "Desplegar toda la campaña"
+msgstr ""
+
+msgid "Mapa de despliegue"
+msgstr ""
+
+msgid "Dependencias externas no disponibles"
+msgstr ""
+
+msgid ""
+"Estos recursos siguen vinculados a la operaci&oacute;n, pero necesitan "
+"configuraci&oacute;n antes de poder operarse:"
+msgstr ""
+
+msgid ") &mdash;"
+msgstr ""
+
+msgid "revisar Docker y red/host"
+msgstr ""
+
+msgid "revisar comportamiento simulado y generaci&oacute;n de contenido"
+msgstr ""
+
+msgid "Decoys &middot; Red / host"
+msgstr ""
+
+msgid "Decoys"
+msgstr ""
+
+msgid "Desplegando..."
+msgstr ""
+
+msgid "Deploy completo"
+msgstr ""
+
+msgid "Rotando..."
+msgstr ""
+
+msgid "Rotar"
+msgstr ""
+
+msgid "¿Retirar el collector y todos los decoys de este plugin?"
+msgstr ""
+
+msgid "Retirando..."
+msgstr ""
+
+msgid "Retirar todo"
+msgstr ""
+
+msgid ""
+"Docker no est&aacute; configurado o no responde en este proceso -- el "
+"estado no se puede confirmar."
+msgstr ""
+
+msgid "Abrir Salud y configuraci&oacute;n"
+msgstr ""
+
+msgid "Deploy"
+msgstr ""
+
+msgid "¿Retirar este decoy desplegado?"
+msgstr ""
+
+msgid "Undeploy"
+msgstr ""
+
+msgid "Iniciando..."
+msgstr ""
+
+msgid "Start"
+msgstr ""
+
+msgid "Deteniendo..."
+msgstr ""
+
+msgid "Stop"
+msgstr ""
+
+msgid "¿Eliminar este decoy de la configuración? No se puede deshacer."
+msgstr ""
+
+msgid "Borrar de la config"
+msgstr ""
+
+msgid "Ver stats"
+msgstr ""
+
+msgid "Sin decoys configurados todav&iacute;a."
+msgstr ""
+
+msgid "Estad&iacute;sticas en vivo"
+msgstr ""
+
+msgid ""
+"Eleg&iacute; \"Ver stats\" en un decoy de arriba para ver uso de "
+"CPU/memoria/red en vivo. Los eventos normalizados de esta superficie se "
+"consultan en"
+msgstr ""
+
+msgid "Telemetr&iacute;a en vivo de la operaci&oacute;n"
+msgstr ""
+
+msgid "Contenedor"
+msgstr ""
+
+msgid "CPU"
+msgstr ""
+
+msgid "Memoria"
+msgstr ""
+
+msgid "Red (rx / tx, bytes)"
+msgstr ""
+
+msgid "Agregar decoy"
+msgstr ""
+
+msgid "Datos &middot; Honeytokens de archivo"
+msgstr ""
+
+msgid "Archivos se&ntilde;uelo"
+msgstr ""
+
+msgid "&middot; motor nativo"
+msgstr ""
+
+msgid "desplegado"
+msgstr ""
+
+msgid "estado parcial"
+msgstr ""
+
+msgid "Archivos"
+msgstr ""
+
+msgid "presente"
+msgstr ""
+
+msgid ""
+"El contenido contiene credenciales sint&eacute;ticas y nunca se muestra "
+"en esta interfaz."
+msgstr ""
+
+msgid "Ciclo de vida de honeytokens"
+msgstr ""
+
+msgid "¿Crear estos archivos honeytoken? Se verificó que los destinos no existen."
+msgstr ""
+
+msgid "Desplegar"
+msgstr ""
+
+msgid "Comprobando…"
+msgstr ""
+
+msgid "Comprobar acceso"
+msgstr ""
+
+msgid "¿Rotar el contenido sintético de todos estos honeytokens?"
+msgstr ""
+
+msgid "¿Retirar todos estos archivos honeytoken?"
+msgstr ""
+
+msgid "Estado parcial detectado"
+msgstr ""
+
+msgid ""
+"No se modific&oacute; ning&uacute;n archivo. Revis&aacute; manualmente "
+"las rutas antes de volver a operar."
+msgstr ""
+
+msgid "Configurado en"
+msgstr ""
+
+msgid "· Archivos:"
+msgstr ""
+
+msgid "sin archivos registrados"
+msgstr ""
+
+msgid "· TTP"
+msgstr ""
+
+msgid "Editar configuraci&oacute;n"
+msgstr ""
+
+msgid "Configurar honeytokens"
+msgstr ""
+
+msgid "Archivos (uno por l&iacute;nea)"
+msgstr ""
+
+msgid "Guardar solo prepara el recurso: no crea, rota ni retira archivos."
+msgstr ""
+
+msgid "Retirá o resolvé los archivos antes de reconfigurar"
+msgstr ""
+
+msgid "Guardar configuraci&oacute;n"
+msgstr ""
+
+msgid "Migas &middot; Canarytokens (Thinkst)"
+msgstr ""
+
+msgid "Canarytoken"
+msgstr ""
+
+msgid "&middot; proveedor Canarytokens (self-hosted)"
+msgstr ""
+
+msgid "Token"
+msgstr ""
+
+msgid "URL del artefacto"
+msgstr ""
+
+msgid "Última consulta de hits"
+msgstr ""
+
+msgid "(epoch)"
+msgstr ""
+
+msgid "nunca"
+msgstr ""
+
+msgid "El secreto de administración de este token ("
+msgstr ""
+
+msgid ""
+") nunca se muestra acá --\n"
+"            queda solo en el archivo de datos de la operación, con el "
+"mismo criterio que la contraseña\n"
+"            WinRM del motor de comportamiento simulado. Detección por "
+"consulta manual (\"Consultar hits\"), sin webhook entrante --\n"
+"            ver"
+msgstr ""
+
+msgid "Telemetría"
+msgstr ""
+
+msgid "para los eventos ya publicados."
+msgstr ""
+
+msgid "Ciclo de vida de Canarytokens"
+msgstr ""
+
+msgid "¿Crear este canarytoken en la instancia self-hosted configurada?"
+msgstr ""
+
+msgid "Creando..."
+msgstr ""
+
+msgid "Crear token"
+msgstr ""
+
+msgid "Consultar hits"
+msgstr ""
+
+msgid ""
+"Canarytokens no tiene una forma de regenerar este token -- ¿registrar "
+"igual el intento?"
+msgstr ""
+
+msgid "¿Eliminar este canarytoken de la instancia self-hosted?"
+msgstr ""
+
+msgid "Eliminando..."
+msgstr ""
+
+msgid "· tipo"
+msgstr ""
+
+msgid "· email"
+msgstr ""
+
+msgid "Configurar canarytoken"
+msgstr ""
+
+msgid ""
+"Guardar solo prepara la configuración: no crea, rota ni elimina ningún "
+"token."
+msgstr ""
+
+msgid "Retirá el token desplegado antes de reconfigurar"
+msgstr ""
+
+msgid "Decoys &middot; OpenCanary (Thinkst)"
+msgstr ""
+
+msgid "OpenCanary"
+msgstr ""
+
+msgid "&middot; proveedor OpenCanary (self-hosted, Docker)"
+msgstr ""
+
+msgid "Docker no disponible (estado desconocido)"
+msgstr ""
+
+msgid ""
+"IP real del atacante, sin protección ante conflicto de puertos -- ver "
+"documentación"
+msgstr ""
+
+msgid "sin aislamiento de puertos"
+msgstr ""
+
+msgid "Servicios habilitados"
+msgstr ""
+
+msgid "ninguno configurado"
+msgstr ""
+
+msgid "Node ID"
+msgstr ""
+
+msgid "Última consulta de actividad"
+msgstr ""
+
+msgid ""
+"El contenido observado (usuario/contrase&ntilde;a/comandos tecleados por "
+"quien se conecta) se\n"
+"            trunca antes de publicarse, nunca se filtra ning&uacute;n "
+"secreto propio de la aplicaci&oacute;n -- ver"
+msgstr ""
+
+msgid ""
+"para los eventos ya publicados. Detecci&oacute;n por consulta manual "
+"(\"Consultar actividad\"),\n"
+"            sin endpoint entrante."
+msgstr ""
+
+msgid "Ciclo de vida de OpenCanary"
+msgstr ""
+
+msgid "¿Desplegar este contenedor OpenCanary?"
+msgstr ""
+
+msgid "Consultar actividad"
+msgstr ""
+
+msgid "¿Reiniciar el contenedor? Renueva node_id y claves SSH host."
+msgstr ""
+
+msgid "Reiniciando..."
+msgstr ""
+
+msgid "¿Retirar (detener y eliminar) este contenedor OpenCanary?"
+msgstr ""
+
+msgid "Configuraci&oacute;n actual: modo"
+msgstr ""
+
+msgid "y"
+msgstr ""
+
+msgid "servicio(s)"
+msgstr ""
+
+msgid "Configurar servicios"
+msgstr ""
+
+msgid ""
+"pierde la protecci&oacute;n ante un puerto ya ocupado -- ese\n"
+"                  conflicto queda silencioso dentro de OpenCanary en vez "
+"de fallar el despliegue con un\n"
+"                  error claro (ver documentaci&oacute;n)."
+msgstr ""
+
+msgid ""
+"Guardar solo prepara la configuración: no crea, reinicia ni retira ningún"
+" contenedor."
+msgstr ""
+
+msgid "Retirá el contenedor desplegado antes de reconfigurar"
+msgstr ""
+
+msgid "Narrativa de comportamiento simulado &middot; Identidad"
+msgstr ""
+
+msgid "Narrativa operativa"
+msgstr ""
+
+msgid "La narrativa #"
+msgstr ""
+
+msgid "vinculada ya no existe."
+msgstr ""
+
+msgid "Todav&iacute;a no hay ninguna narrativa vinculada a este plugin."
+msgstr ""
+
+msgid "Crear narrativa para esta operaci&oacute;n"
+msgstr ""
+
+msgid "Narrativa existente"
+msgstr ""
+
+msgid "Narrativa #"
+msgstr ""
+
+msgid "perfil(es)"
+msgstr ""
+
+msgid "Vincular existente"
+msgstr ""
+
+msgid "corriendo"
+msgstr ""
+
+msgid "detenida"
+msgstr ""
+
+msgid "¿Detener esta narrativa de comportamiento simulado?"
+msgstr ""
+
+msgid "Detener"
+msgstr ""
+
+msgid "Iniciar"
+msgstr ""
+
+msgid "Perfiles de usuario ("
+msgstr ""
+
+msgid "-- vista de revisi&oacute;n"
+msgstr ""
+
+msgid "Servidor"
+msgstr ""
+
+msgid "Credenciales"
+msgstr ""
+
+msgid "Actividades asignadas"
+msgstr ""
+
+msgid "Editar selecci&oacute;n"
+msgstr ""
+
+msgid "Configuradas"
+msgstr ""
+
+msgid "No recuperables"
+msgstr ""
+
+msgid "Sin actividades asignadas."
+msgstr ""
+
+msgid "Guardar"
+msgstr ""
+
+msgid "Credenciales de"
+msgstr ""
+
+msgid "(usuario/contrase&ntilde;a) configuradas -- no se muestran en esta vista."
+msgstr ""
+
+msgid "Sin perfiles de usuario vinculados todav&iacute;a."
+msgstr ""
+
+msgid "Asignar perfiles de usuario"
+msgstr ""
+
+msgid "Perfiles vinculados a esta narrativa"
+msgstr ""
+
+msgid ""
+"Reemplaza la asignaci&oacute;n actual por lo que quede marcado. "
+"Tambi&eacute;n pod&eacute;s"
+msgstr ""
+
+msgid ""
+"administrar la biblioteca reutilizable en el Cat&aacute;logo de "
+"capacidades"
+msgstr ""
+
+msgid "Guardar asignaci&oacute;n"
+msgstr ""
+
+msgid ""
+"Todav&iacute;a no hay ning&uacute;n perfil reutilizable. Pod&eacute;s "
+"crearlo aqu&iacute; abajo o"
+msgstr ""
+
+msgid "en el Cat&aacute;logo de capacidades"
+msgstr ""
+
+msgid "Crear y vincular perfil"
+msgstr ""
+
+msgid "Patr&oacute;n de comportamiento"
+msgstr ""
+
+msgid "Usuario"
+msgstr ""
+
+msgid "Contrase&ntilde;a"
+msgstr ""
+
+msgid ""
+"Las credenciales son de escritura: no se vuelven a mostrar ni se copian "
+"al historial."
+msgstr ""
+
+msgid "Crear y vincular"
+msgstr ""
+
+msgid "Crear y asignar actividad"
+msgstr ""
+
+msgid "Tipo de actividad"
+msgstr ""
+
+msgid "Browsing, Document Editing..."
+msgstr ""
+
+msgid "Detalles"
+msgstr ""
+
+msgid "Asignar a perfiles de esta narrativa"
+msgstr ""
+
+msgid "Cre&aacute; o vincul&aacute; al menos un perfil primero."
+msgstr ""
+
+msgid "Crear y asignar"
+msgstr ""
+
+msgid "La generaci&oacute;n asistida sigue siendo una sugerencia no aplicada."
+msgstr ""
+
+msgid "Configurar proveedor/modelo"
+msgstr ""
+
+msgid "¿Borrar esta narrativa? No se puede deshacer."
+msgstr ""
+
+msgid "Borrar narrativa"
+msgstr ""
+
+msgid "Historial de acciones manuales"
+msgstr ""
+
+msgid "acci&oacute;n(es)"
+msgstr ""
+
+msgid ""
+"Qui&eacute;n hizo qu&eacute; a mano desde los paneles de arriba "
+"(deploy/rotar/retirar/\n"
+"          iniciar/detener/borrar) -- distinto de las decisiones del motor"
+" de reglas, que se\n"
+"          conservan en la vista de defensor del Playground.\n"
+"          No es un sistema de autenticaci&oacute;n: el operador es un "
+"nombre de sesi&oacute;n de\n"
+"          texto libre, no una cuenta."
+msgstr ""
+
+msgid "Cadena de auditor&iacute;a verificada:"
+msgstr ""
+
+msgid "entrada(s), todas encadenadas."
+msgstr ""
+
+msgid "Cadena de auditor&iacute;a verificada desde la entrada"
+msgstr ""
+
+msgid "de"
+msgstr ""
+
+msgid "entrada(s)."
+msgstr ""
+
+msgid "Las"
+msgstr ""
+
+msgid "anteriores se escribieron antes de que existiera la cadena y"
+msgstr ""
+
+msgid "no est&aacute;n cubiertas"
+msgstr ""
+
+msgid ": alterarlas no rompe ning&uacute;n enlace."
+msgstr ""
+
+msgid ""
+"Historial heredado sin cadena de hashes; se conservar&aacute; y las "
+"próximas acciones iniciarán una cadena verificable."
+msgstr ""
+
+msgid "Cadena de auditor&iacute;a inconsistente"
+msgstr ""
+
+msgid "en la entrada"
+msgstr ""
+
+msgid "Cu&aacute;ndo"
+msgstr ""
+
+msgid "Operador"
+msgstr ""
+
+msgid "Acci&oacute;n"
+msgstr ""
+
+msgid "Plugin"
+msgstr ""
+
+msgid "Resultado"
+msgstr ""
+
+msgid "Detalle"
+msgstr ""
+
+msgid ""
+"Todav&iacute;a no se registr&oacute; ninguna acci&oacute;n manual sobre "
+"esta operaci&oacute;n."
+msgstr ""
+
+msgid "Preparaci&oacute;n"
+msgstr ""
+
+msgid ""
+"Las ocho actividades estrat&eacute;gicas de preparaci&oacute;n y "
+"entendimiento de MITRE Engage,\n"
+"      contrastadas con los datos reales de esta operaci&oacute;n. La "
+"tabla no guarda informaci&oacute;n\n"
+"      adicional ni calcula un score: muestra qu&eacute; actividad tiene "
+"evidencia y cu&aacute;l requiere\n"
+"      atenci&oacute;n del operador."
+msgstr ""
+
+msgid "Recurso sugerido desde el Cat&aacute;logo"
+msgstr ""
+
+msgid ""
+"Revis&aacute; la procedencia y marc&aacute; la fuente si corresponde. "
+"Llegar desde el Cat&aacute;logo no la selecciona autom&aacute;ticamente."
+msgstr ""
+
+msgid "Fuentes de an&aacute;lisis del comportamiento de usuarios y entidades ("
+msgstr ""
+
+msgid "User and Entity Behavior Analytics"
+msgstr ""
+
+msgid "UEBA"
+msgstr ""
+
+msgid ""
+") compartidas que el operador eligi&oacute; expl&iacute;citamente para "
+"esta operaci&oacute;n."
+msgstr ""
+
+msgid "Abrir biblioteca"
+msgstr ""
+
+msgid "Seleccionadas y disponibles"
+msgstr ""
+
+msgid "· activa · integridad verificada"
+msgstr ""
+
+msgid ""
+"No hay fuentes activas disponibles. Pod&eacute;s extraer un candidato a "
+"la derecha."
+msgstr ""
+
+msgid "Guardar selecci&oacute;n expl&iacute;cita"
+msgstr ""
+
+msgid "Extraer desde registro de eventos de Windows ("
+msgstr ""
+
+msgid "Windows Event Log"
+msgstr ""
+
+msgid "EVTX"
+msgstr ""
+
+msgid "Autenticaciones del escenario"
+msgstr ""
+
+msgid "Archivo de registro de eventos de Windows ("
+msgstr ""
+
+msgid ""
+"M&aacute;ximo 50 MiB. El archivo se elimina al finalizar. El resultado "
+"queda pendiente hasta una segunda confirmaci&oacute;n."
+msgstr ""
+
+msgid "Extraer candidato"
+msgstr ""
+
+msgid "Referencias preservadas que requieren atenci&oacute;n"
+msgstr ""
+
+msgid ""
+"Estas fuentes no admiten selecciones nuevas, pero Apate "
+"conserva su uso hist&oacute;rico hasta que el operador actualice la "
+"selecci&oacute;n."
+msgstr ""
+
+msgid "Fuente no encontrada"
+msgstr ""
+
+msgid "Candidatos pendientes de esta operaci&oacute;n"
+msgstr ""
+
+msgid ""
+"Revis&aacute; el resultado completo. Confirmar activa la fuente y la "
+"selecciona; descartar elimina solo este candidato no utilizado."
+msgstr ""
+
+msgid "Integridad:"
+msgstr ""
+
+msgid "Revisar resultado extra&iacute;do"
+msgstr ""
+
+msgid "Revis&eacute; el resultado y quiero utilizar esta fuente"
+msgstr ""
+
+msgid "Confirmar y seleccionar"
+msgstr ""
+
+msgid "¿Descartar este candidato pendiente?"
+msgstr ""
+
+msgid "Descartar"
+msgstr ""
+
+msgid "Actividad"
+msgstr ""
+
+msgid "Cubierta"
+msgstr ""
+
+msgid "Parcial"
+msgstr ""
+
+msgid "Sin cubrir"
+msgstr ""
+
+msgid "Sin campo equivalente"
+msgstr ""
+
+msgid "Ensayo en seco"
+msgstr ""
+
+msgid "Dos revisiones de solo lectura sobre el dise&ntilde;o ya cargado,"
+msgstr ""
+
+msgid ""
+"antes de que salga a la\n"
+"      cancha"
+msgstr ""
+
+msgid ""
+": qu&eacute; camino seguir&iacute;a un adversario por las cadenas de "
+"migas\n"
+"      (conectividad estructural) y si las piezas de la ficci&oacute;n "
+"cuentan la misma historia\n"
+"      (coherencia narrativa)."
+msgstr ""
+
+msgid ""
+"Sin desplegar nada, sin tocar Docker/WinRM y sin publicar\n"
+"      ning&uacute;n evento real"
+msgstr ""
+
+msgid ". No es lo mismo que"
+msgstr ""
+
+msgid ""
+"\"Esperado\n"
+"      vs. observado\""
+msgstr ""
+
+msgid ""
+"del Playground: eso compara contra telemetr&iacute;a real de una corrida "
+"ya\n"
+"      sucedida; esto es sobre el dise&ntilde;o, antes de que exista "
+"ninguna corrida."
+msgstr ""
+
+msgid "Agreg&aacute; escenarios y capacidades para poder ensayar un recorrido."
+msgstr ""
+
+msgid "Hallazgos"
+msgstr ""
+
+msgid "Revisar &rarr;"
+msgstr ""
+
+msgid "Sin huecos detectados"
+msgstr ""
+
+msgid ""
+"El recorrido no encontr&oacute; TTPs sin cobertura, escenarios "
+"vac&iacute;os, capacidades aisladas ni migas rotas."
+msgstr ""
+
+msgid "Cadenas de recorrido"
+msgstr ""
+
+msgid ""
+"Cada cadena arranca en una capacidad sin ninguna miga entrante y sigue "
+"\"lleva a\" hasta el final declarado. Lo mostrado en cada paso es lo "
+"DECLARADO en el dise&ntilde;o (actividades de Engage, efecto Ver-Pensar-"
+"Hacer) -- nunca estado de despliegue real."
+msgstr ""
+
+msgid ""
+"&#9888; Ciclo cerrado sin ning&uacute;n punto de entrada externo -- el "
+"arranque de esta cadena es arbitrario (orden de carga, no una ra&iacute;z"
+" real)."
+msgstr ""
+
+msgid "Pensar"
+msgstr ""
+
+msgid "Hacer"
+msgstr ""
+
+msgid "&Eacute;xito"
+msgstr ""
+
+msgid ""
+"Fin del recorrido: sin ninguna miga saliente declarada desde el "
+"&uacute;ltimo paso."
+msgstr ""
+
+msgid ""
+"Se corta ac&aacute;: la &uacute;ltima miga apunta a una capacidad que no "
+"est&aacute; vinculada a esta operaci&oacute;n."
+msgstr ""
+
+msgid "Vuelve a un paso ya visitado &mdash; el recorrido nunca termina."
+msgstr ""
+
+msgid "Coherencia de la ficci&oacute;n"
+msgstr ""
+
+msgid ""
+"Referencia declarada: CounterCraft -- \"construir la organizaci&oacute;n "
+"que una"
+msgstr ""
+
+msgid "amenaza persistente avanzada"
+msgstr ""
+
+msgid "APT"
+msgstr ""
+
+msgid ""
+"no pueda\n"
+"        resistir\". Junta narrativa, activos objetivo, empleados "
+"ficticios, infraestructura\n"
+"        ficticia y documentos ficticios (honeytokens) para que se lean "
+"juntos."
+msgstr ""
+
+msgid ""
+"Esto es an&aacute;lisis y presentaci&oacute;n, no validaci&oacute;n "
+"autom&aacute;tica"
+msgstr ""
+
+msgid ""
+":\n"
+"        no hay ning&uacute;n score de coherencia ni un modelo de lenguaje"
+" ("
+msgstr ""
+
+msgid "Large Language Model"
+msgstr ""
+
+msgid "LLM"
+msgstr ""
+
+msgid ""
+") juzgando si la ficci&oacute;n es\n"
+"        cre&iacute;ble. Buena parte de la coherencia narrativa (¿estos "
+"empleados encajan con esta\n"
+"        historia?) es subjetiva y no es computable -- eso queda para que "
+"lo eval&uacute;e el operador\n"
+"        con las piezas de abajo. Los pocos chequeos autom&aacute;ticos "
+"que hay son heur&iacute;sticos\n"
+"        d&eacute;biles (superposici&oacute;n de palabras clave, sin NLP "
+"real), marcados siempre como\n"
+"        informativos, nunca como un hueco objetivo."
+msgstr ""
+
+msgid ""
+"Cargá narrativa, activos objetivo o capacidades para poder revisar la "
+"coherencia de la ficción."
+msgstr ""
+
+msgid "Completar narrativa"
+msgstr ""
+
+msgid "(paso 5)"
+msgstr ""
+
+msgid "Sesgo explotado:"
+msgstr ""
+
+msgid "Sin contenido cargado todavía."
+msgstr ""
+
+msgid "Activos objetivo"
+msgstr ""
+
+msgid "Sin activos objetivo declarados."
+msgstr ""
+
+msgid "Empleados ficticios"
+msgstr ""
+
+msgid "Sin empleados ficticios vinculados."
+msgstr ""
+
+msgid "Infraestructura ficticia"
+msgstr ""
+
+msgid ", decoys / OpenCanary)"
+msgstr ""
+
+msgid "Sin infraestructura ficticia configurada."
+msgstr ""
+
+msgid "Documentos y migas ficticias"
+msgstr ""
+
+msgid ", honeytokens / Canarytokens)"
+msgstr ""
+
+msgid "Sin documentos ficticios configurados."
+msgstr ""
+
+msgid ", paso 3)"
+msgstr ""
+
+msgid "Chequeos heur&iacute;sticos"
+msgstr ""
+
+msgid "Informativo"
+msgstr ""
+
+msgid "Sin observaciones"
+msgstr ""
+
+msgid ""
+"Los chequeos de superposición de palabras clave y de presencia cruzada no"
+" encontraron nada para señalar -- no es una garantía de coherencia real, "
+"solo de que el heurístico débil no vio nada raro."
+msgstr ""
+
+msgid "Extrayendo..."
+msgstr ""
+
+msgid "Guardando y validando el EVTX..."
+msgstr ""
+
+msgid "registros detectados; extrayendo señales..."
+msgstr ""
+
+msgid "Candidato listo para revisar."
+msgstr ""
+
+msgid "No se pudo procesar el EVTX."
+msgstr ""
+
+msgid "Nueva operaci&oacute;n"
+msgstr ""
+
+msgid "Nueva"
+msgstr ""
+
+msgid ""
+"Complet&aacute; el perfil, las reglas de interacci&oacute;n y la "
+"narrativa. Los escenarios y\n"
+"    las capacidades se preparan despu&eacute;s desde el detalle de la "
+"operaci&oacute;n."
+msgstr ""
+
+msgid "Plantilla:"
+msgstr ""
+
+msgid "&ldquo;"
+msgstr ""
+
+msgid ""
+"&rdquo; aplicada -- revis&aacute; y\n"
+"      edit&aacute; todo antes de confirmar, no se crea nada hasta que "
+"envi&eacute;s este formulario."
+msgstr ""
+
+msgid "Quitar plantilla y empezar en blanco"
+msgstr ""
+
+msgid ""
+"Despu&eacute;s de crear la operaci&oacute;n, esta plantilla sugiere "
+"continuar con el escenario\n"
+"        &ldquo;"
+msgstr ""
+
+msgid "&rdquo; (TTPs:"
+msgstr ""
+
+msgid ") y"
+msgstr ""
+
+msgid ""
+"capacidad(es)\n"
+"        ("
+msgstr ""
+
+msgid ""
+") -- se configuran aparte desde el detalle\n"
+"        de la operaci&oacute;n, no se crean autom&aacute;ticamente "
+"ac&aacute;."
+msgstr ""
+
+msgid "Reoperar:"
+msgstr ""
+
+msgid ""
+"TTPs esperadas, activos objetivo y notas precargados a partir\n"
+"      del informe post-operaci&oacute;n de la operaci&oacute;n de origen "
+"-- revis&aacute; y edit&aacute;\n"
+"      todo antes de confirmar, no se crea nada hasta que envi&eacute;s "
+"este formulario."
+msgstr ""
+
+msgid "Paso 1 de 3"
+msgstr ""
+
+msgid "Paso 1 &middot; Perfil de adversario y"
+msgstr ""
+
+msgid "Activos críticos objetivo del inventario (opcional)"
+msgstr ""
+
+msgid "No hay activos inventariados todavía. Podés"
+msgstr ""
+
+msgid "cargarlos desde Inventario de activos"
+msgstr ""
+
+msgid ""
+"(se abre en otra pestaña para conservar este formulario) o escribir una "
+"referencia manual."
+msgstr ""
+
+msgid "Otros activos críticos objetivo (texto libre, separados por coma)"
+msgstr ""
+
+msgid "ERP no inventariado, Active Directory"
+msgstr ""
+
+msgid "Cargar informe de inteligencia de amenazas ("
+msgstr ""
+
+msgid "Cyber Threat Intelligence"
+msgstr ""
+
+msgid "CTI"
+msgstr ""
+
+msgid ") (.txt/.pdf, opcional)"
+msgstr ""
+
+msgid "Extraer TTPs y grupo sugeridos"
+msgstr ""
+
+msgid ""
+"An&aacute;lisis determinista, sin IA, del texto del informe contra el "
+"cat&aacute;logo curado de\n"
+"        MITRE ATT&amp;CK: marca las\n"
+"        t&eacute;cnicas encontradas como"
+msgstr ""
+
+msgid "sugerencia"
+msgstr ""
+
+msgid ""
+"junto a la lista de abajo y, si\n"
+"        reconoce un grupo conocido, ofrece aplicarlo -- nunca tilda ni "
+"completa nada por su cuenta,\n"
+"        el archivo no se envia al crear la operaci&oacute;n."
+msgstr ""
+
+msgid "Cargar"
+msgstr ""
+
+msgid "s desde grupo"
+msgstr ""
+
+msgid "(cat&aacute;logo MITRE ATT&amp;CK, opcional)"
+msgstr ""
+
+#, python-format
+msgid "Catálogo curado v%(version)s · huella SHA-256 %(digest)s"
+msgstr ""
+
+msgid ""
+"Precarga las t&eacute;cnicas de ese grupo en la lista de abajo (reemplaza"
+" la selecci&oacute;n\n"
+"        actual) y sugiere motivaci&oacute;n/notas si esos campos "
+"est&aacute;n vac&iacute;os -- se puede\n"
+"        seguir editando todo despu&eacute;s, no queda bloqueado."
+msgstr ""
+
+msgid "s esperadas"
+msgstr ""
+
+msgid "Buscar t&eacute;cnica"
+msgstr ""
+
+msgid "ID, nombre o t&aacute;ctica&hellip;"
+msgstr ""
+
+msgid "Ver solo seleccionadas"
+msgstr ""
+
+msgid "TTPs esperadas por táctica"
+msgstr ""
+
+msgid "Paso 2 &middot; Reglas de interacci&oacute;n y entorno"
+msgstr ""
+
+msgid "Entorno de despliegue"
+msgstr ""
+
+msgid "Fecha de cierre planificada (Gating Criteria, opcional)"
+msgstr ""
+
+msgid ""
+"El cierre tambi&eacute;n puede responder a condiciones definidas en la "
+"configuraci&oacute;n t&eacute;cnica.\n"
+"        Esas condiciones a&uacute;n no se pueden editar desde esta "
+"interfaz."
+msgstr ""
+
+msgid "Paso 2 &middot; Objetivos, roles y recursos"
+msgstr ""
+
+msgid "Objetivos estrat&eacute;gicos"
+msgstr ""
+
+msgid "Roles y responsables (uno por l&iacute;nea, formato \"rol: responsable\")"
+msgstr ""
+
+msgid "CTI: Equipo de inteligencia&#10;SOC/IR: Equipo de respuesta"
+msgstr ""
+
+msgid "Revisi&oacute;n antes de crear"
+msgstr ""
+
+msgid ""
+"Nada se aplica autom&aacute;ticamente. Revis&aacute; el resumen y "
+"volv&eacute; al paso correspondiente si necesit&aacute;s corregir algo."
+msgstr ""
+
+msgid "Editar perfil"
+msgstr ""
+
+msgid "Editar reglas y recursos"
+msgstr ""
+
+msgid "Paso 5 &middot; Narrativa de enga&ntilde;o"
+msgstr ""
+
+msgid "Impacto psicol&oacute;gico buscado (sesgo cognitivo a explotar)"
+msgstr ""
+
+msgid "sesgo de confirmaci&oacute;n, urgencia..."
+msgstr ""
+
+msgid "&larr; Atr&aacute;s"
+msgstr ""
+
+msgid "Siguiente"
+msgstr ""
+
+msgid "Crear operaci&oacute;n"
+msgstr ""
+
+msgid "Sin adversario"
+msgstr ""
+
+msgid "Sin especificar"
+msgstr ""
+
+msgid "Cierre planificado"
+msgstr ""
+
+msgid "Sin fecha"
+msgstr ""
+
+msgid "/ Operaciones"
+msgstr ""
+
+msgid "Elegir desde plantilla"
+msgstr ""
+
+msgid ""
+"Vista consolidada del estado de cada operaci&oacute;n: estado, cobertura "
+"y actividad reciente."
+msgstr ""
+
+msgid "Activas"
+msgstr ""
+
+msgid "Cobertura de"
+msgstr ""
+
+msgid "Requieren atenci&oacute;n"
+msgstr ""
+
+msgid "Pendientes metodol&oacute;gicos expl&iacute;citos; no es un score."
+msgstr ""
+
+msgid "Estado en vivo"
+msgstr ""
+
+msgid ""
+"Decoys, narrativas y honeytokens realmente desplegados ahora mismo -- "
+"solo operaciones\n"
+"            activas o comprometidas. Se consulta despu&eacute;s de cargar"
+" esta p&aacute;gina y nunca\n"
+"            bloquea el listado; si Docker o el motor de comportamiento no"
+" responden, cada dato queda expl&iacute;cito como\n"
+"            desconocido en vez de asumir que est&aacute; abajo."
+msgstr ""
+
+msgid "Cargando estado en vivo&hellip;"
+msgstr ""
+
+msgid "Ver despliegue"
+msgstr ""
+
+msgid "Ninguna operaci&oacute;n activa o comprometida en este momento."
+msgstr ""
+
+msgid "Pr&oacute;ximos cierres"
+msgstr ""
+
+msgid "Ninguna operaci&oacute;n abierta tiene fecha de cierre planificada."
+msgstr ""
+
+msgid "Actividad reciente del motor"
+msgstr ""
+
+msgid ""
+"Muestra las últimas reglas disparadas y persistidas por el motor, también"
+" después de reiniciar el servidor."
+msgstr ""
+
+msgid "Todav&iacute;a no hay decisiones persistidas."
+msgstr ""
+
+msgid "Abrir Playground"
+msgstr ""
+
+msgid "para iniciar un ejercicio."
+msgstr ""
+
+msgid "Cat&aacute;logo de operaciones"
+msgstr ""
+
+msgid "Busc&aacute;, filtr&aacute; y orden&aacute; sin salir de esta vista."
+msgstr ""
+
+msgid "Buscar"
+msgstr ""
+
+msgid "Nombre o adversario..."
+msgstr ""
+
+msgid "Limpiar filtros"
+msgstr ""
+
+msgid "Filtros r&aacute;pidos por estado"
+msgstr ""
+
+msgid "Todas"
+msgstr ""
+
+msgid "Creada"
+msgstr ""
+
+msgid "Sin equipo asignado: solo administración puede verla hasta clasificarla."
+msgstr ""
+
+msgid "solo administración"
+msgstr ""
+
+msgid "Abrir"
+msgstr ""
+
+msgid "Sin coincidencias"
+msgstr ""
+
+msgid "Prob&aacute; con otro nombre, adversario o estado."
+msgstr ""
+
+msgid "Decoys: estado desconocido (Docker no disponible)"
+msgstr ""
+
+#, python-brace-format
+msgid "Decoys: {up} arriba, {down} abajo"
+msgstr ""
+
+#, python-brace-format
+msgid ", {unknown} desconocido(s)"
+msgstr ""
+
+msgid "Narrativa: estado desconocido (motor de comportamiento no disponible)"
+msgstr ""
+
+#, python-brace-format
+msgid "Narrativa: {running}/{configured} activa(s)"
+msgstr ""
+
+#, python-brace-format
+msgid "Honeytokens: {deployed}/{configured} desplegado(s)"
+msgstr ""
+
+msgid "Prepar&aacute; tu primera operaci&oacute;n"
+msgstr ""
+
+msgid ""
+"Plantilla: inici&aacute; el wizard con una operaci&oacute;n de ejemplo ya"
+" poblada."
+msgstr ""
+
+msgid "En blanco: inici&aacute; el wizard sin valores precargados."
+msgstr ""
+
+msgid "/ Portafolio"
+msgstr ""
+
+msgid "M&eacute;tricas transversales, cobertura de"
+msgstr ""
+
+msgid "s, Engage y efectos medidos."
+msgstr ""
+
+msgid "Alcance y forma de c&aacute;lculo"
+msgstr ""
+
+msgid "Cobertura agregada entre"
+msgstr ""
+
+msgid "todas"
+msgstr ""
+
+msgid "las operaciones:"
+msgstr ""
+
+msgid ""
+"s, actividades de Engage\n"
+"    y capacidades vinculadas. Se calcula al vuelo desde la "
+"informaci&oacute;n actual y una consulta agrupada\n"
+"    de Telemetr&iacute;a; no consulta estad&iacute;sticas internas de los"
+" motores ni fabrica un score de efectividad."
+msgstr ""
+
+msgid "El Portafolio necesita operaciones"
+msgstr ""
+
+msgid ""
+"Todav&iacute;a no hay operaciones creadas. Cuando existan, esta vista "
+"agregar&aacute; cobertura real de TTPs, Engage y capacidades."
+msgstr ""
+
+msgid "Resumen ejecutivo"
+msgstr ""
+
+msgid "Fuente: modelo de operaciones &middot; estado actual"
+msgstr ""
+
+msgid "Con telemetr&iacute;a"
+msgstr ""
+
+msgid "Fuente: Telemetr&iacute;a &middot; historial completo"
+msgstr ""
+
+msgid "Fuente: Telemetr&iacute;a &middot; todas las operaciones"
+msgstr ""
+
+msgid "Fuente: Telemetr&iacute;a &middot; IDs distintos globales"
+msgstr ""
+
+msgid "operaci&oacute;n(es) en total."
+msgstr ""
+
+msgid ""
+"sin TTPs esperadas cargadas -- excluida(s) del heatmap de abajo\n"
+"        para no contaminar el agregado con operaciones en blanco (no "
+"aportan a ning&uacute;n conjunto,\n"
+"        pero inflar&iacute;an el denominador de \"cu&aacute;ntas "
+"operaciones\")."
+msgstr ""
+
+msgid "Secciones del portafolio"
+msgstr ""
+
+msgid "M&eacute;tricas"
+msgstr ""
+
+msgid "Engage"
+msgstr ""
+
+msgid "Efectos"
+msgstr ""
+
+msgid "Abrir todo"
+msgstr ""
+
+msgid "Cerrar todo"
+msgstr ""
+
+msgid "Métricas operacionales"
+msgstr ""
+
+msgid "historial persistido"
+msgstr ""
+
+msgid "Alcance: las"
+msgstr ""
+
+msgid "operaciones actuales. Per&iacute;odo:"
+msgstr ""
+
+msgid "sin registros persistidos"
+msgstr ""
+
+msgid ""
+".\n"
+"      Fuente: Telemetr&iacute;a y estado actual de las operaciones."
+msgstr ""
+
+msgid "s distintos"
+msgstr ""
+
+msgid "Tipo+valor distintos en todo el alcance"
+msgstr ""
+
+msgid "Resultados humanos en el modelo actual"
+msgstr ""
+
+msgid "evento(s)"
+msgstr ""
+
+msgid "Sin eventos"
+msgstr ""
+
+msgid "TTP observadas"
+msgstr ""
+
+msgid "Esperadas coincidentes"
+msgstr ""
+
+msgid "&Uacute;ltimo evento"
+msgstr ""
+
+msgid "&mdash;"
+msgstr ""
+
+msgid "Heatmap de TTPs agregado"
+msgstr ""
+
+msgid "Estilo MITRE ATT&amp;CK Navigator"
+msgstr ""
+
+msgid "&iquest;C&oacute;mo se interpreta?"
+msgstr ""
+
+msgid ""
+"Ninguna operaci&oacute;n tiene TTPs esperadas cargadas todav&iacute;a -- "
+"sin nada que agregar\n"
+"        en el heatmap."
+msgstr ""
+
+msgid "Sobre"
+msgstr ""
+
+msgid ""
+"operaci&oacute;n(es) con TTPs esperadas. El n&uacute;mero\n"
+"        en cada celda es la cantidad de operaciones en el status "
+"dominante de esa t&eacute;cnica\n"
+"        (coincidente &gt; esperada-no-observada &gt; no-esperada); "
+"pas&aacute; el mouse para ver el\n"
+"        desglose completo de los tres conteos."
+msgstr ""
+
+msgid "Coincidente en alguna operaci&oacute;n"
+msgstr ""
+
+msgid "Sin relaci&oacute;n con el portafolio"
+msgstr ""
+
+msgid "Coincidente:"
+msgstr ""
+
+msgid "Esperada no observada:"
+msgstr ""
+
+msgid "No esperada:"
+msgstr ""
+
+msgid "Actividades de Engage planificadas"
+msgstr ""
+
+msgid "Agregado entre operaciones"
+msgstr ""
+
+msgid ""
+"Cu&aacute;ntas operaciones distintas planificaron cada actividad "
+"\"engagement\" (Expose/Affect/\n"
+"      Elicit) en al menos una capacidad vinculada. Las actividades "
+"Prepare/Understand pertenecen\n"
+"      a la operaci&oacute;n completa. “Medida: N” indica cu&aacute;ntas "
+"operaciones tienen un resultado\n"
+"      humano registrado: es cobertura de"
+msgstr ""
+
+msgid "medici&oacute;n"
+msgstr ""
+
+msgid ", no una puntuaci&oacute;n de &eacute;xito."
+msgstr ""
+
+msgid "No planificada en ninguna operaci&oacute;n todav&iacute;a"
+msgstr ""
+
+msgid "medida:"
+msgstr ""
+
+msgid "Efectividad medida"
+msgstr ""
+
+msgid "Textos reales, no una m&eacute;trica sint&eacute;tica"
+msgstr ""
+
+msgid ""
+"Cada resultado medido de una capacidad vinculada a una actividad de "
+"Engage, tal cual lo\n"
+"      carg&oacute; el operador, sin resumir ni puntuar. Le&eacute;los y "
+"sac&aacute; tus propias conclusiones; el\n"
+"      sistema no decide por vos qu&eacute; \"funciona\". M&aacute;s "
+"reciente primero."
+msgstr ""
+
+msgid "Actividad(es)"
+msgstr ""
+
+msgid ""
+"Todav&iacute;a ning&uacute;n plugin vinculado a una actividad de Engage "
+"tiene un\n"
+"      resultado medido cargado."
+msgstr ""
+
+msgid "Capacidades vinculadas por tipo"
+msgstr ""
+
+msgid "Modelo actual, no estado de despliegue"
+msgstr ""
+
+msgid ""
+"plugin(s) vinculado(s) sin kind\n"
+"        clasificable (ni"
+msgstr ""
+
+msgid "plugin_kind"
+msgstr ""
+
+msgid "expl&iacute;cito ni prefijo reconocido de"
+msgstr ""
+
+msgid "plugin_id"
+msgstr ""
+
+msgid "Cobertura de activos del inventario"
+msgstr ""
+
+msgid "Cobertura de activos"
+msgstr ""
+
+msgid "Relaciones expl&iacute;citas de capacidades, sin porcentaje ni score"
+msgstr ""
+
+msgid ""
+"Cada conteo es de operaciones distintas: repetir una capacidad dentro de "
+"la misma operaci&oacute;n no aumenta la cobertura. La cobertura y la "
+"planificaci&oacute;n se leen por separado."
+msgstr ""
+
+msgid "Con cobertura"
+msgstr ""
+
+msgid "Al menos una capacidad declarada"
+msgstr ""
+
+msgid "Objetivo sin cobertura"
+msgstr ""
+
+msgid "En el plan, sin capacidad vinculada"
+msgstr ""
+
+msgid "Sin objetivo"
+msgstr ""
+
+msgid "No entr&oacute; en el plan de ninguna operaci&oacute;n"
+msgstr ""
+
+msgid "Activos cubiertos por alguna operaci&oacute;n"
+msgstr ""
+
+msgid "Operaciones con cobertura"
+msgstr ""
+
+msgid ""
+"Ning&uacute;n activo inventariado tiene todav&iacute;a una capacidad que "
+"declare protegerlo."
+msgstr ""
+
+msgid "Objetivos sin cobertura"
+msgstr ""
+
+msgid ""
+"Estos activos est&aacute;n declarados como objetivo de al menos una "
+"operaci&oacute;n, pero ninguna capacidad los cubre. Se ordenan por "
+"criticidad."
+msgstr ""
+
+msgid "Operaciones que lo planifican"
+msgstr ""
+
+msgid ""
+"No hay activos del inventario que est&eacute;n planificados sin una "
+"cobertura declarada."
+msgstr ""
+
+msgid "Activos que no son objetivo de ninguna operaci&oacute;n"
+msgstr ""
+
+msgid ""
+"No entraron al plan de ninguna operaci&oacute;n; no se confunden con los "
+"objetivos sin cobertura. Si una relaci&oacute;n legada los cubre, "
+"tambi&eacute;n aparece arriba como cobertura expl&iacute;cita."
+msgstr ""
+
+msgid "Cobertura declarada"
+msgstr ""
+
+msgid "sin capacidad vinculada"
+msgstr ""
+
+msgid ""
+"Todos los activos del inventario entraron al plan de alguna "
+"operaci&oacute;n."
+msgstr ""
+
+msgid ""
+"No hay fichas en el inventario. La cobertura de activos requiere una "
+"ficha para poder ordenar por criticidad."
+msgstr ""
+
+msgid "Referencias sin ficha de inventario"
+msgstr ""
+
+msgid ""
+"No se omiten: no cuentan como activo inventariado ni reciben criticidad, "
+"pero se muestran para que puedan resolverse."
+msgstr ""
+
+msgid "Referencia"
+msgstr ""
+
+msgid "En el plan de"
+msgstr ""
+
+msgid "Con cobertura declarada en"
+msgstr ""
+
+msgid "Plantillas de operaci&oacute;n - Apate"
+msgstr ""
+
+msgid "Plantillas"
+msgstr ""
+
+msgid "Plantillas de operaci&oacute;n"
+msgstr ""
+
+msgid "Empezar en blanco"
+msgstr ""
+
+msgid ""
+"Una plantilla precarga el perfil, las TTPs esperadas, las reglas de "
+"interacci&oacute;n y la narrativa; los escenarios y las capacidades los "
+"agreg&aacute;s despu&eacute;s."
+msgstr ""
+
+msgid "esperadas"
+msgstr ""
+
+msgid "Entorno sugerido"
+msgstr ""
+
+#, python-format
+msgid ""
+"Sugiere continuar (pasos 3/4, no se crean junto con la operaci&oacute;n) "
+"con el escenario &ldquo;%(scenario)s&rdquo; y %(count)s capacidad(es)"
+msgstr ""
+
+msgid "Usar esta plantilla"
+msgstr ""
+
+msgid "No hay plantillas cargadas."
+msgstr ""
+
+msgid "Vista atacante"
+msgstr ""
+
+msgid "Atacante"
+msgstr ""
+
+msgid "← Playground"
+msgstr ""
+
+msgid "Perspectiva de Playground"
+msgstr ""
+
+msgid "Defensor"
+msgstr ""
+
+msgid ""
+"Acciones ejecutadas por el contenedor atacante contra los señuelos de "
+"esta operación."
+msgstr ""
+
+msgid "Lanzar atacante"
+msgstr ""
+
+msgid "En ejecución desde"
+msgstr ""
+
+msgid "La corrida es global porque solo hay un contenedor atacante."
+msgstr ""
+
+msgid "Fases vistas:"
+msgstr ""
+
+msgid "todavía ninguna"
+msgstr ""
+
+msgid "La vista Defensor recibe cada fase MITRE en vivo."
+msgstr ""
+
+msgid "El contenedor atacante está ocupado por la operación"
+msgstr ""
+
+msgid "su última corrida terminó"
+msgstr ""
+
+msgid "su última corrida falló"
+msgstr ""
+
+msgid "La última corrida falló:"
+msgstr ""
+
+msgid "Última corrida terminada"
+msgstr ""
+
+msgid "a las"
+msgstr ""
+
+msgid ""
+"La corrida puede tardar alrededor de 18 minutos. Si la app se reinicia, "
+"no puede recuperar ni cancelar el"
+msgstr ""
+
+msgid "que quede ejecutándose."
+msgstr ""
+
+msgid ""
+"Falta una sesión activa y el stack Playground levantado para esta "
+"operación. Iniciá el Playground antes de lanzar el atacante."
+msgstr ""
+
+msgid "Acciones del atacante"
+msgstr ""
+
+msgid "Fecha y hora"
+msgstr ""
+
+msgid "Objetivo"
+msgstr ""
+
+msgid "Táctica, técnica o procedimiento"
+msgstr ""
+
+msgid ""
+"Todavía no hay acciones del contenedor atacante registradas para esta "
+"operación."
+msgstr ""
+
+msgid "Vista defensor"
+msgstr ""
+
+msgid ""
+"Telemetría normalizada y decisiones auditables del motor para esta "
+"operación."
+msgstr ""
+
+msgid "Resumen de observaci&oacute;n"
+msgstr ""
+
+msgid "Secciones de la vista defensor"
+msgstr ""
+
+msgid "En vivo"
+msgstr ""
+
+msgid "Esperado/observado"
+msgstr ""
+
+msgid "Plan"
+msgstr ""
+
+msgid "Cobertura"
+msgstr ""
+
+msgid "Decisiones"
+msgstr ""
+
+msgid "Datos"
+msgstr ""
+
+msgid "Conectando..."
+msgstr ""
+
+msgid "Esperado vs. observado"
+msgstr ""
+
+msgid ""
+"Comparación en vivo contra lo que la operación planificó -- generada al "
+"vuelo con la misma fuente del informe post-operación, sin esperar a que "
+"la operación se cierre."
+msgstr ""
+
+msgid "Sin relación con esta operación"
+msgstr ""
+
+msgid "TTPs fuera del catálogo curado (sin celda en la grilla de arriba):"
+msgstr ""
+
+msgid "Plan por capacidad vinculada"
+msgstr ""
+
+msgid "Métrica de éxito"
+msgstr ""
+
+msgid ""
+"Esta operación no tiene capacidades vinculadas, por lo que aún no existe "
+"un plan para comparar con lo observado."
+msgstr ""
+
+msgid "Vincular una capacidad"
+msgstr ""
+
+msgid "Cobertura del escenario fijo del Playground"
+msgstr ""
+
+msgid "El escenario simulado del Playground"
+msgstr ""
+
+msgid ""
+"es fijo -- no varía según la operación vinculada, salvo el nivel de "
+"engaño. Esto compara, por cada escenario de esta operación, sus TTPs "
+"esperadas"
+msgstr ""
+
+msgid ""
+"contra las 9 técnicas que ese escenario fijo puede llegar a producir de "
+"verdad (investigación puntual contra el repo real, no una fuente pública "
+"versionada) --"
+msgstr ""
+
+msgid "distinto de"
+msgstr ""
+
+msgid ""
+"de arriba, que es sobre lo ya observado en esta corrida, no sobre lo que "
+"el escenario fijo puede producir en principio."
+msgstr ""
+
+msgid "Este escenario no tiene TTPs esperadas cargadas."
+msgstr ""
+
+msgid "El escenario fijo sí puede producir:"
+msgstr ""
+
+msgid "El escenario fijo no tiene ninguna chance de producir:"
+msgstr ""
+
+msgid ""
+"Esta operación no tiene ningún escenario asociado -- sin TTPs esperadas "
+"que cruzar contra el escenario fijo del Playground."
+msgstr ""
+
+msgid "Decisiones del motor de reglas"
+msgstr ""
+
+msgid "Todavía no hay decisiones persistidas del motor para esta operación."
+msgstr ""
+
+msgid "Sin TTPs observadas todavía."
+msgstr ""
+
+msgid "Sin IoCs observados todavía."
+msgstr ""
+
+msgid "Carga útil"
+msgstr ""
+
+msgid "Sin eventos registrados todavía para esta operación."
+msgstr ""
+
+msgid "Conectado -- esperando actividad en vivo de esta operación."
+msgstr ""
+
+msgid "Desconectado."
+msgstr ""
+
+msgid "regla(s) disparada(s):"
+msgstr ""
+
+msgid ""
+"Ejecutá operaciones en el entorno controlado de Cyber Deception "
+"Playground."
+msgstr ""
+
+msgid "Entorno de simulación"
+msgstr ""
+
+msgid "Usa Docker Compose y el checkout configurado mediante"
+msgstr ""
+
+msgid "ninguna operaci&oacute;n se inicia sola."
+msgstr ""
+
+msgid "Stack"
+msgstr ""
+
+msgid "detenido"
+msgstr ""
+
+msgid "Sesión disponible en este proceso"
+msgstr ""
+
+msgid "Sin recursos de Playground en ejecuci&oacute;n"
+msgstr ""
+
+msgid "Deteniendo Playground..."
+msgstr ""
+
+msgid "Detener Playground"
+msgstr ""
+
+msgid "Iniciando Playground..."
+msgstr ""
+
+#, python-format
+msgid "Vistas de %(operation_name)s"
+msgstr ""
+
+msgid "Todavía no hay operaciones creadas"
+msgstr ""
+
+msgid "Creá una operación antes de preparar una sesión de Playground."
+msgstr ""
+
+msgid "Crear operación"
+msgstr ""
+
+msgid "Secciones del catálogo"
+msgstr ""
+
+msgid "Elegir operación"
+msgstr ""
+
+msgid "Usar en una operación"
+msgstr ""
+
+msgid "Creá una operación para usarla."
+msgstr ""
+
+msgid "Catálogo de capacidades"
+msgstr ""
+
+msgid "Actividades"
+msgstr ""
+
+msgid "Comportamientos reutilizables para identidades simuladas."
+msgstr ""
+
+msgid "tipo(s)"
+msgstr ""
+
+msgid "Tipos existentes"
+msgstr ""
+
+msgid "Comandos"
+msgstr ""
+
+msgid "Perfiles"
+msgstr ""
+
+#, python-format
+msgid "%(num)s aprobados"
+msgstr ""
+
+msgid "sin repertorio"
+msgstr ""
+
+msgid "¿Eliminar este tipo de actividad?"
+msgstr ""
+
+msgid "Sin tipos de actividad todavía. Creá el primero desde el formulario."
+msgstr ""
+
+msgid "Crear tipo de actividad"
+msgstr ""
+
+msgid "Comandos aprobados"
+msgstr ""
+
+msgid ""
+"Un comando por línea. Es lo único que la narrativa ejecuta sobre los "
+"servidores del binding. Podés dejarlo vacío ahora y cargarlo al editar la"
+" actividad, pero la narrativa no arranca sin él."
+msgstr ""
+
+msgid "Perfiles asignados"
+msgstr ""
+
+msgid "La IA solo propone un borrador"
+msgstr ""
+
+msgid ""
+"Primero revisá la sugerencia; solo se copia a los campos si elegís “Usar "
+"sugerencia”, y guardar sigue siendo una acción separada."
+msgstr ""
+
+msgid "Generar sugerencia con IA"
+msgstr ""
+
+msgid "Sugerencia generada"
+msgstr ""
+
+msgid "Usar sugerencia"
+msgstr ""
+
+msgid "Dejá al menos un campo en blanco para generar con IA."
+msgstr ""
+
+msgid "Elegí un perfil de usuario para generar."
+msgstr ""
+
+msgid "Generando sugerencia..."
+msgstr ""
+
+msgid "No se pudo generar."
+msgstr ""
+
+msgid "Sugerencia lista para revisar."
+msgstr ""
+
+msgid "No se pudo generar:"
+msgstr ""
+
+msgid "Sugerencia copiada al borrador. Revisala antes de guardar."
+msgstr ""
+
+msgid "Editar actividad"
+msgstr ""
+
+msgid "Editar tipo de actividad"
+msgstr ""
+
+msgid ""
+"Un comando por línea. Es lo único que la narrativa ejecuta sobre los "
+"servidores del binding: si está vacío, la narrativa se niega a arrancar y"
+" dice cuál falta. Nada que no esté acá llega a correr."
+msgstr ""
+
+msgid "Proponer comandos con IA"
+msgstr ""
+
+msgid "Propuesta generada"
+msgstr ""
+
+msgid ""
+"Revisala antes de usarla: al guardar, esto es lo que va a ejecutarse "
+"sobre servidores reales."
+msgstr ""
+
+msgid "Agregar al repertorio"
+msgstr ""
+
+msgid "Generando…"
+msgstr ""
+
+msgid "Propuesta lista para revisar. No se guardó nada todavía."
+msgstr ""
+
+msgid "Agregada al borrador. Revisala y guardá para aprobarla."
+msgstr ""
+
+msgid ""
+"Biblioteca versionada de señales de análisis del comportamiento de "
+"usuarios y entidades"
+msgstr ""
+
+msgid "reutilizables para preparar operaciones."
+msgstr ""
+
+msgid "fuente(s)"
+msgstr ""
+
+msgid "Extraer no es utilizar"
+msgstr ""
+
+msgid "Cada registro de eventos de Windows"
+msgstr ""
+
+msgid ""
+"crea un candidato pendiente. Revisá el resultado y confirmalo en una "
+"segunda acción; ninguna operación lo selecciona automáticamente."
+msgstr ""
+
+msgid "Nueva fuente"
+msgstr ""
+
+msgid "Autenticaciones de Finanzas · agosto"
+msgstr ""
+
+msgid "Archivo de registro de eventos de Windows"
+msgstr ""
+
+msgid ""
+"Máximo 50 MiB. El EVTX se elimina al terminar; se conserva solo el "
+"resultado extraído y su huella SHA-256."
+msgstr ""
+
+msgid "Fuentes compartidas"
+msgstr ""
+
+msgid "Procedencia"
+msgstr ""
+
+msgid "Integridad"
+msgstr ""
+
+msgid "verificada"
+msgstr ""
+
+msgid "alterada"
+msgstr ""
+
+msgid "Uso"
+msgstr ""
+
+msgid "operación(es)"
+msgstr ""
+
+msgid "Revisar resultado extraído"
+msgstr ""
+
+msgid "Revisé el resultado y quiero activar esta fuente"
+msgstr ""
+
+msgid "Confirmar fuente"
+msgstr ""
+
+msgid "Pendiente de confirmación en la operación"
+msgstr ""
+
+msgid ""
+"¿Archivar esta fuente? Las operaciones que ya la usan conservarán su "
+"referencia."
+msgstr ""
+
+msgid "Archivar"
+msgstr ""
+
+msgid ""
+"Archivada: no admite selecciones nuevas; las referencias existentes se "
+"preservan."
+msgstr ""
+
+msgid "Todavía no hay fuentes de contexto."
+msgstr ""
+
+msgid "Extraé un EVTX para crear el primer candidato."
+msgstr ""
+
+msgid " registros detectados; extrayendo señales..."
+msgstr ""
+
+msgid "Cat&aacute;logo de capacidades - Apate"
+msgstr ""
+
+msgid ""
+"Motores y recursos reutilizables, organizados por funci&oacute;n y "
+"superficie."
+msgstr ""
+
+msgid "resultado(s)"
+msgstr ""
+
+msgid "Filtros del cat&aacute;logo"
+msgstr ""
+
+msgid "Contexto"
+msgstr ""
+
+msgid "Disponibilidad"
+msgstr ""
+
+msgid "Disponible"
+msgstr ""
+
+msgid "Filtrar"
+msgstr ""
+
+msgid "Limpiar"
+msgstr ""
+
+msgid "No hay capacidades que coincidan con los filtros."
+msgstr ""
+
+msgid "Administr&aacute; los recursos reutilizables desde"
+msgstr ""
+
+msgid ""
+"Los recursos externos aparecen como no disponibles hasta preparar sus "
+"integraciones en Salud y configuraci&oacute;n."
+msgstr ""
+
+msgid "La"
+msgstr ""
+
+msgid "biblioteca de contexto"
+msgstr ""
+
+msgid "permanece disponible."
+msgstr ""
+
+msgid "Editar perfil de identidad"
+msgstr ""
+
+msgid "Patrón de comportamiento"
+msgstr ""
+
+msgid "Reemplazar credenciales (opcional)"
+msgstr ""
+
+msgid ""
+"Las credenciales actuales están configuradas y no se muestran. Cada campo"
+" vacío conserva su valor existente."
+msgstr ""
+
+msgid "Nuevo usuario"
+msgstr ""
+
+msgid "Identidades simuladas reutilizables. Las credenciales de"
+msgstr ""
+
+msgid "son de escritura solamente."
+msgstr ""
+
+msgid "La asignación a una narrativa concreta se confirma desde la operación."
+msgstr ""
+
+msgid "Perfiles existentes"
+msgstr ""
+
+msgid ""
+"¿Eliminar este perfil? También se desvincula de las narrativas que lo "
+"usan."
+msgstr ""
+
+msgid "Sin perfiles de usuario todavía. Creá el primero desde el formulario."
+msgstr ""
+
+msgid "Crear perfil"
+msgstr ""
+
+msgid "Apate no volverá a mostrar ninguno de estos dos valores."
+msgstr ""
+
+msgid "Capacidad no disponible"
+msgstr ""
+
+msgid "Integración no inicializada"
+msgstr ""
+
+msgid ""
+"Esta sección necesita los recursos de librería reales inicializados en "
+"este proceso."
+msgstr ""
+
+msgid "Revisar Salud y configuración"
+msgstr ""
+
+msgid "Acciones rechazadas"
+msgstr ""
+
+msgid ""
+"Registro persistido de las acciones que el motor no ejecutó y de la "
+"protección que las frenó."
+msgstr ""
+
+msgid "Capacidad objetivo"
+msgstr ""
+
+msgid "Evento disparador"
+msgstr ""
+
+msgid "Protección"
+msgstr ""
+
+msgid "Motivo"
+msgstr ""
+
+msgid "Todas las capacidades vinculadas"
+msgstr ""
+
+msgid "Sin evento disparador disponible"
+msgstr ""
+
+msgid "Tope de cascada"
+msgstr ""
+
+msgid "Error de ejecución"
+msgstr ""
+
+msgid "Todavía no hay acciones rechazadas por el motor para esta operación."
+msgstr ""
+
+msgid "Reglas del motor de decisi&oacute;n"
+msgstr ""
+
+msgid "Condiciones y acciones auditables en un documento YAML versionable."
+msgstr ""
+
+msgid "Motor determinista"
+msgstr ""
+
+msgid "Alcance de las reglas"
+msgstr ""
+
+msgid "Alcance operativo"
+msgstr ""
+
+msgid ""
+"Las reglas de interacci&oacute;n (RoE) gobiernan las acciones "
+"autom&aacute;ticas del motor. Las acciones manuales del operador se "
+"auditan por separado."
+msgstr ""
+
+msgid "Documento YAML inv&aacute;lido:"
+msgstr ""
+
+msgid "Reglas cargadas"
+msgstr ""
+
+msgid "Vista de lectura del documento activo."
+msgstr ""
+
+msgid "Condici&oacute;n"
+msgstr ""
+
+msgid "todos los plugins"
+msgstr ""
+
+msgid ""
+"No hay reglas cargadas todav&iacute;a. El editor conserva el documento "
+"vac&iacute;o como un estado v&aacute;lido."
+msgstr ""
+
+msgid "Constructor visual"
+msgstr ""
+
+msgid "arma una regla nueva sin escribir YAML"
+msgstr ""
+
+msgid ""
+"Complet&aacute; los campos con valores reales (tipo de evento, plugin "
+"vinculado, transici&oacute;n de estado) y se arma el YAML por vos."
+msgstr ""
+
+msgid "Solo agrega reglas nuevas"
+msgstr ""
+
+msgid ""
+"al documento de abajo -- nunca lo reemplaza ni modifica una regla "
+"existente. Para editar o borrar una regla ya cargada, hacelo directamente"
+" en el editor de texto de m&aacute;s abajo. Nada se guarda hasta que "
+"hag&aacute;s click en"
+msgstr ""
+
+msgid "Guardar y recargar"
+msgstr ""
+
+msgid "Nombre de la regla"
+msgstr ""
+
+msgid "Ej. Escaneo detectado: activar la operaci&oacute;n"
+msgstr ""
+
+msgid "Cu&aacute;ndo (condici&oacute;n)"
+msgstr ""
+
+msgid "Evento del bus"
+msgstr ""
+
+msgid "Cierre por vencimiento"
+msgstr ""
+
+msgid "Plugin (opcional -- vac&iacute;o = cualquiera)"
+msgstr ""
+
+msgid "Condiciones sobre el payload (opcional)"
+msgstr ""
+
+msgid ""
+"Solo se dispara si el evento tiene exactamente esa clave/valor en su "
+"payload -- por ejemplo"
+msgstr ""
+
+msgid "Agregar par clave/valor"
+msgstr ""
+
+msgid "Entonces (acciones)"
+msgstr ""
+
+msgid "Agregar acci&oacute;n"
+msgstr ""
+
+msgid "Vista previa del YAML generado"
+msgstr ""
+
+msgid "Agregar regla al documento"
+msgstr ""
+
+msgid "Limpiar formulario"
+msgstr ""
+
+msgid "Clave del payload"
+msgstr ""
+
+msgid "Valor del payload"
+msgstr ""
+
+msgid "Quitar este par clave/valor"
+msgstr ""
+
+msgid "Tipo de acci&oacute;n"
+msgstr ""
+
+msgid "(vac&iacute;o = todos)"
+msgstr ""
+
+msgid "Plugin de la acci&oacute;n"
+msgstr ""
+
+msgid "Transicionar a"
+msgstr ""
+
+msgid "Quitar esta acci&oacute;n"
+msgstr ""
+
+msgid "Editar documento"
+msgstr ""
+
+msgid "La validaci&oacute;n usa el mismo parser del guardado real."
+msgstr ""
+
+msgid "Documento YAML"
+msgstr ""
+
+msgid "La validaci&oacute;n en vivo aparece ac&aacute; mientras escrib&iacute;s."
+msgstr ""
+
+msgid "Antes de escribir el archivo ver&aacute;s el diff completo."
+msgstr ""
+
+msgid "Revisar cambios antes de guardar"
+msgstr ""
+
+msgid "Versi&oacute;n actual"
+msgstr ""
+
+msgid "Nueva versi&oacute;n"
+msgstr ""
+
+msgid "Seguir editando"
+msgstr ""
+
+msgid "Confirmar y guardar"
+msgstr ""
+
+msgid ""
+"Se vuelven a evaluar eventos guardados sobre una copia de la operación. "
+"Las acciones de capacidades quedan como intentos simulados; ningún "
+"destino cambia."
+msgstr ""
+
+msgid "Versión de reglas"
+msgstr ""
+
+msgid "Configuración actual"
+msgstr ""
+
+msgid "Evaluar"
+msgstr ""
+
+msgid "eventos evaluados"
+msgstr ""
+
+msgid "Huella de reglas:"
+msgstr ""
+
+msgid ""
+"Resultado limitado a los primeros 1000 eventos; exportá la telemetría "
+"para un análisis completo."
+msgstr ""
+
+msgid "Coincidencias de reglas"
+msgstr ""
+
+msgid "Ninguna regla coincidió con los eventos elegidos."
+msgstr ""
+
+msgid "Ninguna acción fue rechazada."
+msgstr ""
+
+msgid "Resultado simulado"
+msgstr ""
+
+msgid "Estado de la copia:"
+msgstr ""
+
+msgid "intentos sobre capacidades"
+msgstr ""
+
+msgid ""
+"La reproducción no inventa eventos secundarios que un despliegue real "
+"podría producir. Compara reglas sobre la telemetría ya observada."
+msgstr ""
+
+msgid "Telemetr&iacute;a de la operaci&oacute;n"
+msgstr ""
+
+msgid "Clasificaci&oacute;n TLP"
+msgstr ""
+
+msgid "Sin clasificar"
+msgstr ""
+
+msgid "Quitar filtro"
+msgstr ""
+
+msgid "Seguimiento de"
+msgstr ""
+
+msgid "s,"
+msgstr ""
+
+msgid "s y su clasificaci&oacute;n"
+msgstr ""
+
+msgid "Traffic Light Protocol"
+msgstr ""
+
+msgid "TLP"
+msgstr ""
+
+msgid "Ver operaci&oacute;n"
+msgstr ""
+
+msgid "Descargar evidencia verificable ZIP"
+msgstr ""
+
+msgid "Enviar eventos a Splunk HEC"
+msgstr ""
+
+msgid "Enviar logs OTLP"
+msgstr ""
+
+msgid "Vistas de telemetr&iacute;a"
+msgstr ""
+
+msgid "Incidentes"
+msgstr ""
+
+msgid "s"
+msgstr ""
+
+msgid "Filtros de an&aacute;lisis"
+msgstr ""
+
+msgid "activo(s)"
+msgstr ""
+
+msgid "Sin filtros"
+msgstr ""
+
+msgid "Buscar en eventos e IoCs"
+msgstr ""
+
+msgid "(todos)"
+msgstr ""
+
+msgid "(todas)"
+msgstr ""
+
+msgid "ID de evento"
+msgstr ""
+
+msgid "Per&iacute;odo"
+msgstr ""
+
+msgid "&Uacute;ltima hora"
+msgstr ""
+
+msgid "&Uacute;ltimas 24 h"
+msgstr ""
+
+msgid "&Uacute;ltimos 7 d&iacute;as"
+msgstr ""
+
+msgid "&Uacute;ltimos 30 d&iacute;as"
+msgstr ""
+
+msgid "TTP exacta"
+msgstr ""
+
+msgid "Desde"
+msgstr ""
+
+msgid "Hasta"
+msgstr ""
+
+msgid "Filtros activos"
+msgstr ""
+
+msgid "Texto: "
+msgstr ""
+
+msgid "Capacidad: "
+msgstr ""
+
+msgid "Superficie: "
+msgstr ""
+
+msgid "Proveedor: "
+msgstr ""
+
+msgid "Escenario: "
+msgstr ""
+
+msgid "Tipo: "
+msgstr ""
+
+msgid "Evento: "
+msgstr ""
+
+msgid "ID de evento: "
+msgstr ""
+
+msgid "Per&iacute;odo: "
+msgstr ""
+
+msgid "Desde: "
+msgstr ""
+
+msgid "Hasta: "
+msgstr ""
+
+msgid "Aplicar filtros"
+msgstr ""
+
+msgid "Exportar CSV"
+msgstr ""
+
+msgid "Exportar JSON"
+msgstr ""
+
+msgid "evento(s) coinciden."
+msgstr ""
+
+msgid "Vistas guardadas"
+msgstr ""
+
+msgid "Vista local"
+msgstr ""
+
+msgid "Guardar filtros actuales"
+msgstr ""
+
+msgid "Olvidar vista"
+msgstr ""
+
+msgid "Se guardan solo en este navegador y para esta operaci&oacute;n."
+msgstr ""
+
+msgid "Distribuci&oacute;n operativa"
+msgstr ""
+
+msgid "El alcance de cada cifra es esta operaci&oacute;n y los filtros activos."
+msgstr ""
+
+msgid "Proveedores"
+msgstr ""
+
+msgid "Superficies"
+msgstr ""
+
+msgid "Sin datos."
+msgstr ""
+
+msgid ""
+"Buffer reciente de este proceso. El estado &ldquo;Persistido&rdquo; "
+"confirma que el evento ya est&aacute; en SQLite."
+msgstr ""
+
+msgid "Sondeo cada"
+msgstr ""
+
+msgid "Captura externa deshabilitada"
+msgstr ""
+
+msgid "Captura parcial:"
+msgstr ""
+
+msgid "Revis&aacute; Salud y configuraci&oacute;n."
+msgstr ""
+
+msgid "Momento"
+msgstr ""
+
+msgid "Registro"
+msgstr ""
+
+msgid "Persistido"
+msgstr ""
+
+msgid "Solo en vivo"
+msgstr ""
+
+msgid "Esperando actividad de esta operaci&oacute;n&hellip;"
+msgstr ""
+
+msgid ""
+"La captura no ejecuta acciones ni modifica el despliegue. Todas las "
+"capacidades alimentan el mismo flujo de Telemetr&iacute;a."
+msgstr ""
+
+msgid "Esperando actividad de esta operación…"
+msgstr ""
+
+msgid "Sondeo activo"
+msgstr ""
+
+msgid "Sin conexión"
+msgstr ""
+
+msgid "Filtrar por TTP"
+msgstr ""
+
+msgid "Sin TTPs observadas todav&iacute;a."
+msgstr ""
+
+msgid "VirusTotal"
+msgstr ""
+
+msgid "maliciosas"
+msgstr ""
+
+msgid "sospechosas"
+msgstr ""
+
+msgid "motores"
+msgstr ""
+
+msgid "Ver resultado en VirusTotal"
+msgstr ""
+
+msgid "Configurá la API key en Salud y configuración"
+msgstr ""
+
+msgid "Consultar en VirusTotal"
+msgstr ""
+
+msgid ""
+"El indicador se compartirá con VirusTotal. Las redes y nombres internos "
+"se bloquean."
+msgstr ""
+
+msgid "Configurar API key"
+msgstr ""
+
+msgid "Tipo no compatible"
+msgstr ""
+
+msgid "Sin IoCs observados todav&iacute;a."
+msgstr ""
+
+msgid "Copiar seleccionados"
+msgstr ""
+
+msgid "Exportar seleccionados"
+msgstr ""
+
+msgid "Agrupar en incidente"
+msgstr ""
+
+msgid "seleccionados"
+msgstr ""
+
+msgid "Hay eventos nuevos &middot; actualizar"
+msgstr ""
+
+msgid "Seleccionar todos los eventos"
+msgstr ""
+
+msgid "Subtipo"
+msgstr ""
+
+msgid "Recurso"
+msgstr ""
+
+msgid "Detalle t&eacute;cnico"
+msgstr ""
+
+msgid "Seleccionar evento"
+msgstr ""
+
+msgid "Inspeccionar"
+msgstr ""
+
+msgid "Inspector de evento"
+msgstr ""
+
+msgid "Seleccion&aacute; un evento para ver su contexto sin salir del listado."
+msgstr ""
+
+msgid "Fecha"
+msgstr ""
+
+msgid "Recurso observado"
+msgstr ""
+
+msgid "Payload bruto"
+msgstr ""
+
+msgid "No hay eventos persistidos para esta operaci&oacute;n"
+msgstr ""
+
+msgid " con los filtros elegidos"
+msgstr ""
+
+msgid "Revisar capacidades y despliegues"
+msgstr ""
+
+msgid ""
+"Agrupaci&oacute;n manual de eventos ya observados, para correlacionarlos "
+"y estudiarlos en conjunto &mdash; el motor de reglas no los usa para "
+"nada. Se arman desde la pesta&ntilde;a &quot;Eventos&quot;, seleccionando"
+" filas y eligiendo &quot;Agrupar en incidente&quot;."
+msgstr ""
+
+msgid "Creado"
+msgstr ""
+
+msgid "Ninguno de los eventos agrupados sigue disponible."
+msgstr ""
+
+msgid "¿Eliminar el incidente"
+msgstr ""
+
+msgid "Los eventos no se borran, solo la agrupación."
+msgstr ""
+
+msgid "Eliminar incidente"
+msgstr ""
+
+msgid "Sin incidentes todav&iacute;a."
+msgstr ""
+
+msgid "evento(s) seleccionados."
+msgstr ""
+
+msgid "Incidente nuevo"
+msgstr ""
+
+msgid "Incidente existente"
+msgstr ""
+
+msgid "Incidente"
+msgstr ""
+
+msgid "Elegir…"
+msgstr ""
+
+msgid "Nombre de la vista:"
+msgstr ""
+
+msgid "seleccionado"
+msgstr ""
+
+msgid "Sin IoCs detectados."
+msgstr ""
+
+msgid "evento(s) nuevo(s) · actualizar"
+msgstr ""
+
+msgid "Eleg&iacute; una operaci&oacute;n para"
+msgstr ""
+
+msgid "seguir actividad reciente sin perder su contexto"
+msgstr ""
+
+msgid "analizar eventos,"
+msgstr ""
+
+msgid "s y"
+msgstr ""
+
+msgid "Operaciones disponibles"
+msgstr ""
+
+msgid "La telemetr&iacute;a permanece aislada por operaci&oacute;n."
+msgstr ""
+
+msgid "Buscar operaci&oacute;n"
+msgstr ""
+
+msgid "Nombre o estado&hellip;"
+msgstr ""
+
+msgid "Ver en vivo"
+msgstr ""
+
+msgid "Analizar"
+msgstr ""
+
+msgid "Prob&aacute; con otro nombre o estado."
+msgstr ""
+
+msgid "Mostrando"
+msgstr ""
+
+msgid "Todav&iacute;a no hay operaciones"
+msgstr ""
+
+msgid ""
+"La telemetr&iacute;a se organiza por operaci&oacute;n. Cre&aacute; la "
+"primera para empezar a registrar eventos."
+msgstr ""
+
+msgid "Historia de operación y planes congelados; administración local."
+msgstr ""
+
+msgid "Registro de operación: %(reason)s."
+msgstr ""
+
+msgid "Entorno Playground"
+msgstr ""
+
+msgid "Entorno de laboratorio con imágenes y configuración aprobadas por operación."
+msgstr ""
+
+msgid "La acción aprobada terminó; consultá el registro para verificar su resultado."
+msgstr ""
+
+msgid "La operación adoptada requiere ejecución autorizada sobre un plan aprobado."
+msgstr ""
+
+msgid "Se solicitó la ejecución del atacante. Su estado se registra en la operación."
+msgstr ""
+
+msgid "Control de ejecución"
+msgstr ""
+
+msgid "El diseño visible es un borrador. Las acciones usan exclusivamente el plan aprobado; editarlo requiere proponer, revisar y activar otra versión."
+msgstr ""
+
+msgid "Plan activo"
+msgstr ""
+
+msgid "Iniciar cierre"
+msgstr ""
+#, python-format
+msgid "%(count)s eventos anteriores · %(ttp)s"
+msgstr ""
+
+msgid "sin TTP"
+msgstr ""
+
+#, python-format
+msgid "Agrupación visual del %(first)s al %(last)s. Abrí Telemetría para ver los eventos exactos."
+msgstr ""
+
+msgid "Eventos agrupados"
+msgstr ""
+
+msgid "agrupa"
+msgstr ""
+
+msgid "Decisiones estratégicas"
+msgstr ""
+
+msgid "Capacidades y efectos planificados"
+msgstr ""
+
+msgid "Fuentes de telemetría"
+msgstr ""
+
+msgid "Criterios de cierre"
+msgstr ""
+
+msgid "Fuentes de contexto"
+msgstr ""
+
+msgid "Reglas del motor"
+msgstr ""
+
+msgid "Catálogos"
+msgstr ""
+
+msgid "Preparación"
+msgstr ""
+
+msgid "Pausada"
+msgstr ""
+
+msgid "En cierre"
+msgstr ""
+
+msgid "&larr; Bandeja SOC"
+msgstr ""
+
+msgid "Abierto"
+msgstr ""
+
+msgid "Resuelto"
+msgstr ""
+
+msgid "Sin responsable"
+msgstr ""
+
+msgid "Actualizado"
+msgstr ""
+
+msgid "Señales vinculadas"
+msgstr ""
+
+msgid "Este caso organiza evidencia para una decisión humana; sus enlaces no prueban causalidad."
+msgstr ""
+
+msgid "Gestionar caso"
+msgstr ""
+
+msgid "¿Cerrar este caso?"
+msgstr ""
+
+msgid "Editar señales vinculadas"
+msgstr ""
+
+msgid "Señales y evidencia"
+msgstr ""
+
+#, python-format
+msgid "%(count)s referencia(s) de señal no están disponibles."
+msgstr ""
+
+msgid "Gestionar señal"
+msgstr ""
+
+msgid "Aún no hay acciones humanas sobre este caso."
+msgstr ""
+
+msgid "Casos de las operaciones visibles para tu equipo. La severidad se deriva de las señales vinculadas, no del caso."
+msgstr ""
+
+msgid "Filtrar casos"
+msgstr ""
+
+msgid "Cualquier responsable"
+msgstr ""
+
+msgid "Mayor severidad vinculada"
+msgstr ""
+
+msgid "Todas las severidades"
+msgstr ""
+
+msgid "Ordenar por"
+msgstr ""
+
+msgid "Severidad y actualización"
+msgstr ""
+
+msgid "Actualización reciente"
+msgstr ""
+
+#, python-format
+msgid "%(count)s caso(s) coinciden con los filtros."
+msgstr ""
+
+msgid "Mayor severidad vinculada:"
+msgstr ""
+
+msgid "señales disponibles"
+msgstr ""
+
+msgid "referencias no disponibles"
+msgstr ""
+
+msgid "Actualizado:"
+msgstr ""
+
+msgid "Revisar caso y evidencia"
+msgstr ""
+
+msgid "No hay casos que coincidan con estos filtros."
+msgstr ""
+
+msgid "Páginas de casos"
+msgstr ""
+
+msgid "Anterior"
+msgstr ""
+
+#, python-format
+msgid "Página %(page)s de %(total)s"
+msgstr ""
+
+#, python-format
+msgid "%(shown)s eventos recientes se muestran individualmente; %(grouped)s anteriores se agrupan por capacidad y TTP. La telemetría conserva el detalle completo."
+msgstr ""
+
+msgid "Plan y borrador"
+msgstr ""
+
+msgid "Esta vista es de lectura. La ejecución usa la versión activada; los cambios del borrador no la modifican."
+msgstr ""
+
+msgid "Autoridad de ejecución"
+msgstr ""
+
+msgid "Comandos pendientes de conciliación"
+msgstr ""
+
+msgid "Todavía no hay un plan activado."
+msgstr ""
+
+msgid "Huella SHA-256 del plan"
+msgstr ""
+
+msgid "La operación está adoptada, pero no tiene una versión aprobada activa. No se presenta el borrador como autorizado."
+msgstr ""
+
+msgid "Borrador frente al plan activo"
+msgstr ""
+
+#, python-format
+msgid "%(count)s sección(es) difieren del plan activo."
+msgstr ""
+
+msgid "Se comparan intención, reglas, activos, contexto y catálogos. Los resultados medidos, el estado operativo y los descriptores externos congelados quedan fuera de esta comparación."
+msgstr ""
+
+msgid "Sección"
+msgstr ""
+
+msgid "Estado del borrador"
+msgstr ""
+
+msgid "Cambió"
+msgstr ""
+
+msgid "Sin cambios"
+msgstr ""
+
+msgid "Para usar estos cambios en ejecución hay que proponer, revisar y activar otra versión con el flujo autorizado."
+msgstr ""
+
+msgid "No se pudo comparar el borrador con el plan activo. La versión activada sigue siendo la única autoridad de ejecución."
+msgstr ""
+
+msgid "Comparar plan y borrador"
+msgstr ""
+
+msgid "Acciones adicionales"
+msgstr ""
+
+msgid "La revisión del plan requiere una identidad autenticada."
+msgstr ""

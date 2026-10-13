@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andesfinance Employee Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #e9ecef;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .hidden-links {
+            display: none;
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Andesfinance Employee Portal</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Andesfinance Internal Use Only</strong><br>
+            This portal is for authorized Andesfinance personnel only. All activities are logged and monitored for compliance.
+        </div>
+
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('login')">Login</div>
+            <div class="tab" onclick="showTab('users')">Users</div>
+            <div class="tab" onclick="showTab('system')">System Info</div>
+            <div class="tab" onclick="showTab('network')">Network Tools</div>
+            <div class="tab" onclick="showTab('diagnostics')">System Diagnostics</div>
+            <div class="tab" onclick="showTab('admin')">Admin Tools</div>
+        </div>
+
+        <!-- Login Tab -->
+        <div id="login" class="tab-content active">
+            <h2>User Login</h2>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            <button onclick="login()">Login</button>
+            <button onclick="register()">Register</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="users" class="tab-content">
+            <h2>User Management</h2>
+            <button onclick="getUsers()">Load Users</button>
+            <div id="usersResult"></div>
+        </div>
+
+        <!-- System Info Tab -->
+        <div id="system" class="tab-content">
+            <h2>System Information</h2>
+            <button onclick="getSystemInfo()">Get System Info</button>
+            <div id="systemResult"></div>
+        </div>
+
+        <!-- Network Tools Tab -->
+        <div id="network" class="tab-content">
+            <h2>Network Tools</h2>
+            <div class="form-group">
+                <label for="target">Target IP/Hostname:</label>
+                <input type="text" id="target" placeholder="e.g., 192.168.1.1 or google.com">
+            </div>
+            <button onclick="pingTarget()">Ping</button>
+            <button onclick="scanPorts()">Port Scan</button>
+            <div id="networkResult"></div>
+        </div>
+
+        <!-- System Diagnostics Tab -->
+        <div id="diagnostics" class="tab-content">
+            <h2>🔧 System Diagnostics</h2>
+            <p><em>Advanced diagnostic tools for system troubleshooting and network analysis</em></p>
+            
+            <div class="form-group">
+                <label for="diagnosticTarget">Target Host/IP:</label>
+                <input type="text" id="diagnosticTarget" placeholder="e.g., google.com, 8.8.8.8">
+            </div>
+            
+            <div class="form-group">
+                <label for="diagnosticType">Diagnostic Type:</label>
+                <select id="diagnosticType">
+                    <option value="ping">Ping Test</option>
+                    <option value="traceroute">Traceroute</option>
+                    <option value="nslookup">DNS Lookup</option>
+                    <option value="whois">WHOIS Lookup</option>
+                </select>
+            </div>
+            
+            <button onclick="runDiagnostic()">Run Diagnostic</button>
+            <button onclick="clearDiagnosticResult()">Clear</button>
+            <div id="diagnosticResult"></div>
+        </div>
+
+        <!-- Admin Tools Tab -->
+        <div id="admin" class="tab-content">
+            <h2>Administrative Tools</h2>
+            <div class="form-group">
+                <label for="command">Command:</label>
+                <input type="text" id="command" placeholder="Enter system command">
+            </div>
+            <button onclick="executeCommand()">Execute</button>
+            
+            <div class="form-group">
+                <label for="sql">SQL Query:</label>
+                <textarea id="sql" rows="4" placeholder="Enter SQL query"></textarea>
+            </div>
+            <button onclick="executeSQL()">Execute SQL</button>
+            
+            <div id="adminResult"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `result ${type}`;
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    showResult('loginResult', `Welcome ${result.user.username}! Role: ${result.user.role}`, 'success');
+                } else {
+                    showResult('loginResult', 'Login failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showResult('loginResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = username + '@andesfinance.com';
+            
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const result = await response.json();
+                showResult('loginResult', result.message, result.success ? 'success' : 'error');
+            } catch (error) {
+                showResult('loginResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function getUsers() {
+            try {
+                const response = await fetch('/users');
+                const users = await response.json();
+                showResult('usersResult', JSON.stringify(users, null, 2), 'info');
+            } catch (error) {
+                showResult('usersResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function getSystemInfo() {
+            try {
+                const response = await fetch('/system');
+                const info = await response.json();
+                showResult('systemResult', JSON.stringify(info, null, 2), 'info');
+            } catch (error) {
+                showResult('systemResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function pingTarget() {
+            const target = document.getElementById('target').value;
+            if (!target) {
+                showResult('networkResult', 'Please enter a target', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/network?target=${target}`);
+                const result = await response.json();
+                showResult('networkResult', `Target: ${result.target}\nOutput:\n${result.output}`, result.success ? 'success' : 'error');
+            } catch (error) {
+                showResult('networkResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        function scanPorts() {
+            const target = document.getElementById('target').value;
+            if (!target) {
+                showResult('networkResult', 'Please enter a target', 'error');
+                return;
+            }
+            
+            // Simulate port scan
+            const commonPorts = [22, 23, 80, 443, 3306, 22, 2223];
+            let result = `Port scan results for ${target}:\n\n`;
+            
+            commonPorts.forEach(port => {
+                result += `Port ${port}: ${Math.random() > 0.5 ? 'OPEN' : 'CLOSED'}\n`;
+            });
+            
+            showResult('networkResult', result, 'info');
+        }
+
+        async function executeCommand() {
+            const command = document.getElementById('command').value;
+            if (!command) {
+                showResult('adminResult', 'Please enter a command', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+                
+                const result = await response.json();
+                showResult('adminResult', `Command: ${command}\nOutput:\n${result.output || result.error}`, result.success ? 'success' : 'error');
+            } catch (error) {
+                showResult('adminResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function executeSQL() {
+            const sql = document.getElementById('sql').value;
+            if (!sql) {
+                showResult('adminResult', 'Please enter a SQL query', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql })
+                });
+                
+                const result = await response.json();
+                showResult('adminResult', `SQL: ${sql}\nResults:\n${JSON.stringify(result.results, null, 2)}`, result.success ? 'success' : 'error');
+            } catch (error) {
+                showResult('adminResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        // System Diagnostics Functions
+        async function runDiagnostic() {
+            const target = document.getElementById('diagnosticTarget').value;
+            const type = document.getElementById('diagnosticType').value;
+            
+            if (!target) {
+                showResult('diagnosticResult', 'Please enter a target host/IP', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/diagnostics', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        system_check: type, 
+                        target_host: target 
+                    })
+                });
+                
+                const result = await response.json();
+                let output = `Diagnostic: ${type} ${target}\n`;
+                output += `Command: ${result.command}\n`;
+                output += `Status: ${result.success ? 'SUCCESS' : 'FAILED'}\n\n`;
+                output += `Output:\n${result.output || result.error}`;
+                
+                showResult('diagnosticResult', output, result.success ? 'success' : 'error');
+            } catch (error) {
+                showResult('diagnosticResult', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        function clearDiagnosticResult() {
+            document.getElementById('diagnosticResult').innerHTML = '';
+            document.getElementById('diagnosticResult').className = '';
+        }
+
+        // Auto-fill demo credentials
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'admin123';
+        });
+
+    </script>
+</body>
+</html>

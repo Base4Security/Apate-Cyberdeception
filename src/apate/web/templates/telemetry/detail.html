@@ -1,0 +1,606 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Telemetr&iacute;a de la operaci&oacute;n") }} {{ _("- Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('telemetry.index') }}">{{ _("Telemetr&iacute;a") }}</a> / {{ _("Operaci&oacute;n") }}</nav>{% endblock %}
+{% block content %}
+  {% macro _tlp_cell(subject_key, subject_type, classification, view) %}
+    {% if classification %}<span class="tag tlp-badge tlp-{{ classification.level.value }}">TLP:{{ classification.level.value | upper }}</span>{% endif %}
+    <form method="post" action="{{ url_for('telemetry.set_tlp_classification', operation_id=operation_id) }}" class="tlp-select-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="subject_type" value="{{ subject_type }}">
+      <input type="hidden" name="subject_key" value="{{ subject_key }}">
+      <input type="hidden" name="view" value="{{ view }}">
+      <select name="level" onchange="this.form.submit()" aria-label="{{ _('Clasificaci&oacute;n TLP') }}">
+        <option value="" {% if not classification %}selected{% endif %}>{{ _("Sin clasificar") }}</option>
+        {% for level in tlp_levels %}
+          <option value="{{ level.value }}" {% if classification and classification.level == level %}selected{% endif %}>TLP:{{ level.value | upper }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  {% endmacro %}
+  {% macro _filter_tag(label, parameter, mono=false) %}
+    <a class="tag removable-filter{% if mono %} mono{% endif %}" href="{{ remove_filter_url(parameter) }}" aria-label="{{ _('Quitar filtro') }} {{ label }}"><span>{{ label }}</span><span aria-hidden="true">&times;</span></a>
+  {% endmacro %}
+  {% set active_filter_count = [search_query, selected_plugin_id, selected_surface, selected_provider, selected_scenario_id, selected_event_type, selected_event_kind, selected_event_id, selected_ttp_id, selected_period, selected_date_from, selected_date_to] | select | list | length %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('telemetry.index') }}">&larr; {{ _("Telemetr&iacute;a") }}</a></p>
+  <div class="content-toolbar telemetry-detail-header">
+    <div>
+      <h1>{{ operation.name if operation else _("Telemetr&iacute;a de la operaci&oacute;n") }}</h1>
+      <p class="muted telemetry-operation-id"><span class="mono">{{ operation_id }}</span></p>
+      <p class="muted">{{ _("Seguimiento de") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s,") }} <abbr title="{{ _('Indicadores de compromiso') }}">{{ _("IoC") }}</abbr>{{ _("s y su clasificaci&oacute;n") }} <abbr title="{{ _('Traffic Light Protocol') }}">{{ _("TLP") }}</abbr>.</p>
+    </div>
+    <a class="button" href="{{ url_for('operations.detail', operation_id=operation_id) }}">{{ _("Ver operaci&oacute;n") }} <span aria-hidden="true">&rarr;</span></a>
+  </div>
+
+  <p><a class="button small" href="{{ url_for('telemetry.download_evidence', operation_id=operation_id) }}">{{ _('Descargar evidencia verificable ZIP') }}</a></p>
+
+  {% if can_operate and (splunk_export_configured or otlp_export_configured) %}
+    <div class="deployment-actions">
+      {% if splunk_export_configured %}<form method="post" action="{{ url_for('telemetry.export_external', operation_id=operation_id, destination='splunk') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _('Enviar eventos a Splunk HEC') }}</button></form>{% endif %}
+      {% if otlp_export_configured %}<form method="post" action="{{ url_for('telemetry.export_external', operation_id=operation_id, destination='otlp') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _('Enviar logs OTLP') }}</button></form>{% endif %}
+    </div>
+  {% endif %}
+
+  <nav class="telemetry-view-nav" aria-label="{{ _('Vistas de telemetr&iacute;a') }}">
+    {% for value, label in [('summary', _("Resumen")), ('live', _("En vivo")), ('events', _("Eventos")), ('iocs', _("IoCs")), ('ttps', _("TTP observadas")), ('incidents', _("Incidentes"))] %}
+      <a href="{{ url_for('telemetry.detail', operation_id=operation_id, view=value) }}" {% if selected_view == value %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  <div class="panel-grid">
+    <div class="card kpi-card">
+      <dl><dt>{{ _("Eventos") }}</dt><dd class="kpi-value">{{ events | length }}</dd></dl>
+    </div>
+    <div class="card kpi-card">
+      <dl><dt><abbr title="{{ _('Indicadores de compromiso') }}">{{ _("IoC") }}</abbr>{{ _("s") }}</dt><dd class="kpi-value">{{ iocs | length }}</dd></dl>
+    </div>
+    <div class="card kpi-card">
+      <dl><dt><abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s observadas") }}</dt><dd class="kpi-value">{{ ttps | length }}</dd></dl>
+    </div>
+    <div class="card kpi-card">
+      <dl><dt>{{ _("Incidentes") }}</dt><dd class="kpi-value">{{ incidents | length }}</dd></dl>
+    </div>
+  </div>
+
+  <form method="get" class="filter-panel telemetry-filter-panel">
+    <input type="hidden" name="view" value="{{ selected_view }}">
+    <details class="telemetry-filter-disclosure" {% if filters_active %}open{% endif %}>
+    <summary>
+      <span>{{ _("Filtros de an&aacute;lisis") }}</span>
+      <span class="summary-count">{% if active_filter_count %}{{ active_filter_count }} {{ _("activo(s)") }}{% else %}{{ _("Sin filtros") }}{% endif %}</span>
+    </summary>
+    <div class="telemetry-filter-body">
+    <div class="table-toolbar">
+    <div class="table-toolbar-field"><label for="telemetry-search">{{ _("Buscar en eventos e IoCs") }}</label>
+    <input id="telemetry-search" name="q" type="search" value="{{ search_query }}" placeholder="TTP, IP, payload&hellip;"></div>
+    <div class="table-toolbar-field"><label for="plugin_id">{{ _("Capacidad") }}</label>
+    <select id="plugin_id" name="plugin_id" onchange="this.form.submit()">
+      <option value="">{{ _("(todos)") }}</option>
+      {% for pid in plugin_ids %}
+        <option value="{{ pid }}" {% if pid == selected_plugin_id %}selected{% endif %}>{{ pid }}</option>
+      {% endfor %}
+    </select></div>
+    <div class="table-toolbar-field"><label for="surface">{{ _("Superficie") }}</label>
+    <select id="surface" name="surface" onchange="this.form.submit()">
+      <option value="">{{ _("(todas)") }}</option>
+      {% for s in surfaces %}
+        <option value="{{ s }}" {% if s == selected_surface %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select></div>
+    <div class="table-toolbar-field"><label for="provider">{{ _("Proveedor") }}</label>
+    <select id="provider" name="provider">
+      <option value="">{{ _("(todos)") }}</option>
+      {% for provider in providers %}<option value="{{ provider }}" {% if provider == selected_provider %}selected{% endif %}>{{ provider_label(provider) }}</option>{% endfor %}
+    </select></div>
+    <div class="table-toolbar-field"><label for="scenario_id">{{ _("Escenario") }}</label>
+    <select id="scenario_id" name="scenario_id">
+      <option value="">{{ _("(todos)") }}</option>
+      {% for scenario in scenarios %}<option value="{{ scenario.id }}" {% if scenario.id == selected_scenario_id %}selected{% endif %}>{{ scenario.name or scenario.id }}</option>{% endfor %}
+    </select></div>
+    <div class="table-toolbar-field"><label for="event_type">{{ _("Tipo de evento") }}</label>
+    <select id="event_type" name="event_type">
+      <option value="">{{ _("(todos)") }}</option>
+      {% for value in event_types %}<option value="{{ value | replace('_', '-') }}" {% if value == selected_event_type %}selected{% endif %}>{{ event_type_label(value) }}</option>{% endfor %}
+    </select></div>
+    <div class="table-toolbar-field"><label for="event_kind">{{ _("Evento") }}</label>
+    <select id="event_kind" name="event_kind"><option value="">{{ _("(todos)") }}</option>{% for kind in event_kinds %}<option value="{{ kind }}" {% if kind == selected_event_kind %}selected{% endif %}>{{ kind }}</option>{% endfor %}</select></div>
+    <div class="table-toolbar-field"><label for="event_id">{{ _("ID de evento") }}</label><input id="event_id" name="event_id" value="{{ selected_event_id or '' }}" class="mono" placeholder="UUID exacto"></div>
+    <div class="table-toolbar-field"><label for="period">{{ _("Per&iacute;odo") }}</label>
+    <select id="period" name="period"><option value="">{{ _("Todo") }}</option><option value="1h" {% if selected_period == '1h' %}selected{% endif %}>{{ _("&Uacute;ltima hora") }}</option><option value="24h" {% if selected_period == '24h' %}selected{% endif %}>{{ _("&Uacute;ltimas 24 h") }}</option><option value="7d" {% if selected_period == '7d' %}selected{% endif %}>{{ _("&Uacute;ltimos 7 d&iacute;as") }}</option><option value="30d" {% if selected_period == '30d' %}selected{% endif %}>{{ _("&Uacute;ltimos 30 d&iacute;as") }}</option></select></div>
+    <div class="table-toolbar-field"><label for="ttp_id">{{ _("TTP exacta") }}</label><input id="ttp_id" name="ttp_id" value="{{ selected_ttp_id or '' }}" placeholder="T1078"></div>
+    <div class="table-toolbar-field"><label for="date_from">{{ _("Desde") }}</label><input id="date_from" name="date_from" type="date" value="{{ selected_date_from }}"></div>
+    <div class="table-toolbar-field"><label for="date_to">{{ _("Hasta") }}</label><input id="date_to" name="date_to" type="date" value="{{ selected_date_to }}"></div>
+    </div>
+    {% if filters_active %}
+      <div class="active-filter-list" aria-label="{{ _('Filtros activos') }}">
+        {% if search_query %}{{ _filter_tag(_('Texto: ') ~ search_query, 'q') }}{% endif %}
+        {% if selected_plugin_id %}{{ _filter_tag(_('Capacidad: ') ~ selected_plugin_id, 'plugin_id', true) }}{% endif %}
+        {% if selected_surface %}{{ _filter_tag(_('Superficie: ') ~ selected_surface, 'surface') }}{% endif %}
+        {% if selected_provider %}{{ _filter_tag(_('Proveedor: ') ~ provider_label(selected_provider), 'provider') }}{% endif %}
+        {% if selected_scenario_id %}{{ _filter_tag(_('Escenario: ') ~ selected_scenario_id, 'scenario_id', true) }}{% endif %}
+        {% if selected_event_type %}{{ _filter_tag(_('Tipo: ') ~ event_type_label(selected_event_type), 'event_type') }}{% endif %}
+        {% if selected_event_kind %}{{ _filter_tag(_('Evento: ') ~ selected_event_kind, 'event_kind') }}{% endif %}
+        {% if selected_event_id %}{{ _filter_tag(_('ID de evento: ') ~ selected_event_id, 'event_id', true) }}{% endif %}
+        {% if selected_ttp_id %}{{ _filter_tag('TTP=' ~ selected_ttp_id, 'ttp_id', true) }}{% endif %}
+        {% if selected_period %}{{ _filter_tag(_('Per&iacute;odo: ') ~ selected_period, 'period') }}{% endif %}
+        {% if selected_date_from %}{{ _filter_tag(_('Desde: ') ~ selected_date_from, 'date_from') }}{% endif %}
+        {% if selected_date_to %}{{ _filter_tag(_('Hasta: ') ~ selected_date_to, 'date_to') }}{% endif %}
+      </div>
+    {% endif %}
+    <div class="telemetry-filter-footer">
+      <div class="filter-actions"><button type="submit" class="primary">{{ _("Aplicar filtros") }}</button>{% if filters_active %}<a class="button" href="{{ url_for('telemetry.detail', operation_id=operation_id, view=selected_view) }}">{{ _("Limpiar filtros") }}</a>{% endif %}</div>
+      <div class="filter-actions"><a class="button" href="{{ url_for('telemetry.detail', operation_id=operation_id, **export_csv_args) }}">{{ _("Exportar CSV") }}</a><a class="button" data-export-json href="{{ url_for('telemetry.detail', operation_id=operation_id, **export_json_args) }}">{{ _("Exportar JSON") }}</a></div>
+    </div>
+    <p class="muted telemetry-result-count" role="status">{{ events | length }} {{ _("evento(s) coinciden.") }}</p>
+    </div>
+    </details>
+  </form>
+
+  <section class="saved-views" aria-labelledby="saved-views-title">
+    <h2 id="saved-views-title">{{ _("Vistas guardadas") }}</h2>
+    <div class="filter-actions">
+      <label for="saved-view-select">{{ _("Vista local") }}</label>
+      <select id="saved-view-select"><option value="">{{ _('Elegir&hellip;') }}</option></select>
+      <button type="button" class="small" data-save-view>{{ _("Guardar filtros actuales") }}</button>
+      <button type="button" class="small" data-forget-view disabled>{{ _("Olvidar vista") }}</button>
+    </div>
+    <p class="muted">{{ _("Se guardan solo en este navegador y para esta operaci&oacute;n.") }}</p>
+  </section>
+
+  {% if selected_view == 'summary' %}
+  <section class="panel telemetry-data-section" aria-labelledby="telemetry-breakdown-title">
+    <div class="panel-heading"><div><h2 id="telemetry-breakdown-title">{{ _("Distribuci&oacute;n operativa") }}</h2><p class="muted">{{ _("El alcance de cada cifra es esta operaci&oacute;n y los filtros activos.") }}</p></div></div>
+    <div class="telemetry-breakdown-grid">
+      {# El tercer elemento marca cual de los tres grupos traduce su clave:
+         solo el proveedor tiene etiqueta visible distinta de su valor. #}
+      {% for title, values, traducir in [(_('Proveedores'), breakdowns.providers, true), (_('Superficies'), breakdowns.surfaces, false), (_('Eventos'), breakdowns.kinds, false)] %}
+      <div><h3>{{ title }}</h3>{% if values %}<ul class="metric-list">{% for label, count in values.most_common() %}<li><span>{{ provider_label(label) if traducir else label }}</span><strong>{{ count }}</strong></li>{% endfor %}</ul>{% else %}<p class="muted">{{ _("Sin datos.") }}</p>{% endif %}</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if selected_view == 'live' %}
+  <section class="panel telemetry-data-section live-data-panel" aria-labelledby="telemetry-live-title">
+    <div class="panel-heading">
+      <div><h2 id="telemetry-live-title">{{ _("Actividad en vivo") }}</h2><p class="muted">{{ _("Buffer reciente de este proceso. El estado &ldquo;Persistido&rdquo; confirma que el evento ya est&aacute; en SQLite.") }}</p></div>
+      <span id="telemetry-live-status" class="badge {% if ingestion_status.enabled %}health-available{% else %}health-disabled{% endif %}" role="status" aria-live="polite">{% if ingestion_status.enabled %}{{ _("Sondeo cada") }} {{ ingestion_status.interval_seconds | int }} {{ _("s") }}{% else %}{{ _("Captura externa deshabilitada") }}{% endif %}</span>
+    </div>
+    {% if ingestion_status.last_error %}<p class="notice warning"><strong>{{ _("Captura parcial:") }}</strong> {{ ingestion_status.last_error }}. {{ _("Revis&aacute; Salud y configuraci&oacute;n.") }}</p>{% endif %}
+    <div class="table-scroll"><table id="telemetry-live-table"><thead><tr><th>{{ _("Momento") }}</th><th>{{ _("Proveedor") }}</th><th>{{ _("Escenario") }}</th><th>{{ _("Evento") }}</th><th>{{ _("Superficie") }}</th><th>{{ _("Registro") }}</th><th>{{ _("Detalle") }}</th></tr></thead><tbody id="telemetry-live-body">
+      {% for event in live_rows %}<tr><td class="mono">{{ event.timestamp }}</td><td>{{ provider_label(event.provider) }}</td><td>{{ event.scenario }}</td><td>{{ event.kind or event.event_type }}</td><td>{{ event.surface }}</td><td><span class="badge {% if event.persisted %}health-available{% else %}health-disabled{% endif %}">{% if event.persisted %}{{ _("Persistido") }}{% else %}{{ _("Solo en vivo") }}{% endif %}</span></td><td>{{ event.detail or event.ttp_id or '-' }}</td></tr>{% endfor %}
+      {% if not live_rows %}<tr class="live-empty-row"><td colspan="7">{{ _("Esperando actividad de esta operaci&oacute;n&hellip;") }}</td></tr>{% endif %}
+    </tbody></table></div>
+    <p class="muted">{{ _("La captura no ejecuta acciones ni modifica el despliegue. Todas las capacidades alimentan el mismo flujo de Telemetr&iacute;a.") }}</p>
+  </section>
+  <script>
+    (function () {
+      const endpoint = {{ url_for('telemetry.live_feed', operation_id=operation_id, **request.args.to_dict()) | tojson }};
+      const body = document.getElementById('telemetry-live-body');
+      const status = document.getElementById('telemetry-live-status');
+      function cell(row, value, className) { const td = row.insertCell(); td.textContent = value || '-'; if (className) td.className = className; return td; }
+      function render(items) {
+        body.replaceChildren();
+        if (!items.length) { const row = body.insertRow(); row.className = 'live-empty-row'; const td = row.insertCell(); td.colSpan = 7; td.textContent = {{ _("Esperando actividad de esta operación…") | tojson }}; return; }
+        items.forEach(function (event) {
+          const row = body.insertRow(); cell(row, event.timestamp, 'mono'); cell(row, event.provider_label || event.provider); cell(row, event.scenario); cell(row, event.kind || event.event_type); cell(row, event.surface);
+          const state = cell(row, ''); const badge = document.createElement('span'); badge.className = 'badge ' + (event.persisted ? 'health-available' : 'health-disabled'); badge.textContent = event.persisted ? {{ _("Persistido") | tojson }} : {{ _("Solo en vivo") | tojson }}; state.appendChild(badge);
+          cell(row, event.detail || event.ttp_id || '-');
+        });
+      }
+      async function refreshLive() {
+        try {
+          const response = await fetch(endpoint, {headers: {'Accept': 'application/json'}}); const data = await response.json(); render(data.events || []);
+          status.textContent = data.status.enabled ? {{ _("Sondeo activo") | tojson }} + ' · ' + data.status.interval_seconds + ' ' + {{ _("s") | tojson }} : {{ _("Captura externa deshabilitada") | tojson }};
+          status.className = 'badge ' + (data.status.enabled ? 'health-available' : 'health-disabled');
+        } catch (error) { status.textContent = {{ _("Sin conexión") | tojson }}; status.className = 'badge health-unavailable'; }
+      }
+      window.setInterval(refreshLive, 5000);
+    })();
+  </script>
+  {% endif %}
+
+  {% if selected_view in ('summary', 'ttps') %}
+  <section class="panel telemetry-data-section" aria-labelledby="telemetry-ttps-title">
+  <h2 id="telemetry-ttps-title">{{ _("TTPs observadas") }} <span class="summary-count-badge">{{ ttps | length }}</span></h2>
+  {% if ttps %}
+    <span class="tag-list">
+      {% for ttp in ttps %}
+        <a class="tag mono drilldown-link" href="{{ drilldown_url('ttp_id', ttp) }}" aria-label="{{ _('Filtrar por TTP') }} {{ ttp }}">{{ ttp }}</a>
+      {% endfor %}
+    </span>
+  {% else %}
+    <p class="muted">{{ _("Sin TTPs observadas todav&iacute;a.") }}</p>
+  {% endif %}
+  </section>
+  {% endif %}
+
+  {% if selected_view in ('summary', 'iocs') %}
+  <section class="panel telemetry-data-section" aria-labelledby="telemetry-iocs-title">
+  <h2 id="telemetry-iocs-title">{{ _("IoCs") }} <span class="summary-count-badge">{{ iocs | length }}</span></h2>
+  {% if ioc_rows %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Tipo") }}</th><th>{{ _("Valor") }}</th><th>{{ _("TLP") }}</th><th>{{ _("VirusTotal") }}</th></tr></thead>
+      <tbody>
+        {% for row in ioc_rows %}
+          <tr>
+            <td>{{ row.ioc.type }}</td>
+            <td>{{ row.ioc.value }}</td>
+            <td>{{ _tlp_cell(row.subject_key, "ioc", row.classification, "iocs") }}</td>
+            <td>
+              {% if row.virustotal %}
+                <p><strong>{{ row.virustotal.malicious }} {{ _("maliciosas") }} · {{ row.virustotal.suspicious }} {{ _("sospechosas") }} / {{ row.virustotal.total }} {{ _("motores") }}</strong></p>
+                <p class="muted"><a href="{{ row.virustotal.result_url }}" target="_blank" rel="noopener noreferrer">{{ _("Ver resultado en VirusTotal") }}</a> · <time datetime="{{ row.virustotal.queried_at.isoformat() }}">{{ row.virustotal.queried_at.strftime('%Y-%m-%d %H:%M UTC') }}</time></p>
+              {% endif %}
+              {% if row.virustotal_supported %}
+                <form method="post" action="{{ url_for('telemetry.enrich_ioc_with_virustotal', operation_id=operation_id) }}" data-slow-action><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="ioc_type" value="{{ row.ioc.type }}">
+                  <input type="hidden" name="ioc_value" value="{{ row.ioc.value }}">
+                  <button type="submit" class="small" {% if not virustotal_configured %}disabled title="{{ _('Configurá la API key en Salud y configuración') }} → {{ _('Inteligencia de amenazas') }}"{% endif %}>{{ _("Consultar en VirusTotal") }}</button>
+                </form>
+                <p class="muted">{{ _("El indicador se compartirá con VirusTotal. Las redes y nombres internos se bloquean.") }}</p>
+                {% if not virustotal_configured %}<p class="muted"><a href="{{ url_for('health.threat_intelligence') }}">{{ _("Configurar API key") }}</a></p>{% endif %}
+              {% else %}
+                <span class="muted">{{ _("Tipo no compatible") }}</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Sin IoCs observados todav&iacute;a.") }}</p>
+  {% endif %}
+  </section>
+  {% endif %}
+
+  {% if selected_view in ('summary', 'events') %}
+  <section class="panel telemetry-data-section telemetry-events-section" aria-labelledby="telemetry-events-title">
+  <h2 id="telemetry-events-title">{{ _("Eventos") }} <span class="summary-count-badge">{{ events | length }}</span></h2>
+  {% if events %}
+    <div class="telemetry-events-layout">
+      <div class="selection-toolbar">
+        <button type="button" class="small" data-copy-selected disabled>{{ _("Copiar seleccionados") }}</button>
+        <button type="button" class="small" data-export-selected disabled>{{ _("Exportar seleccionados") }}</button>
+        <button type="button" class="small" data-group-incident disabled>{{ _("Agrupar en incidente") }}</button>
+        {% if can_operate %}<button type="button" class="small" data-create-signal disabled>{{ _("Crear señal") }}</button>{% endif %}
+        <span class="muted" data-selection-status role="status">0 {{ _("seleccionados") }}</span>
+        <button type="button" class="small new-events-button" data-new-events hidden>{{ _("Hay eventos nuevos &middot; actualizar") }}</button>
+      </div>
+      <div class="table-scroll">
+      <table id="telemetry-events-table">
+        <thead><tr><th><input type="checkbox" data-select-all aria-label="{{ _('Seleccionar todos los eventos') }}"></th><th>{{ _("Fecha y hora") }}</th><th>{{ _("Tipo") }}</th><th>{{ _("Subtipo") }}</th><th>{{ _("Proveedor") }}</th><th>{{ _("Escenario") }}</th><th>{{ _("Capacidad") }}</th><th>{{ _("Recurso") }}</th><th>{{ _("Superficie") }}</th><th>{{ _("TTP") }}</th><th>{{ _("TLP") }}</th><th>{{ _("Detalle t&eacute;cnico") }}</th></tr></thead>
+        <tbody>
+          {% for event in events %}
+            {% set event_context_data = {
+              "provider": provider_label(event_context[event.id].provider),
+              "scenario": event_context[event.id].scenario,
+              "scenario_id": event_context[event.id].scenario_id,
+            } %}
+            <tr data-event-row data-event-id="{{ event.id }}">
+              <td><input type="checkbox" data-select-event aria-label="{{ _('Seleccionar evento') }} {{ event.id }}"></td>
+              <td class="muted"><time data-local-time datetime="{{ event.timestamp.isoformat() }}">{{ event.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+              <td>{{ event_type_label(event.event_type.value) }}</td>
+              <td>{% if event.payload.get('kind') %}<a class="drilldown-link" href="{{ drilldown_url('event_kind', event.payload.get('kind')) }}">{{ event.payload.get('kind') }}</a>{% else %}-{% endif %}</td>
+              <td><a class="drilldown-link" href="{{ drilldown_url('provider', event_context_data.provider) }}">{{ provider_label(event_context_data.provider) }}</a></td>
+              <td>{{ event_context_data.scenario }}</td>
+              <td><a class="drilldown-link mono" href="{{ drilldown_url('plugin_id', event.plugin_id) }}">{{ event.plugin_id }}</a></td>
+              <td class="mono">{{ event.resource_id or _("No disponible") }}</td>
+              <td><a class="drilldown-link" href="{{ drilldown_url('surface', event.surface) }}">{{ event.surface }}</a></td>
+              <td>{% if event.ttp_id %}<a class="drilldown-link mono" href="{{ drilldown_url('ttp_id', event.ttp_id) }}">{{ event.ttp_id }}</a>{% else %}-{% endif %}</td>
+              <td>{{ _tlp_cell(event.id, "event", event_tlp.get(event.id), "events") }}</td>
+              <td>
+                <code class="payload-preview">{{ event.payload }}</code>
+                <button type="button" class="small telemetry-inspect-button" data-inspect-event data-event-id="{{ event.id }}">{{ _("Inspeccionar") }}</button>
+                <script type="application/json" id="telemetry-event-data-{{ event.id }}">
+                  {{ event_inspector_payloads[event.id] | tojson }}
+                </script>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      <aside class="panel telemetry-event-inspector" id="telemetry-event-inspector" aria-live="polite">
+        <h3>{{ _("Inspector de evento") }}</h3>
+        <p class="muted telemetry-event-inspector-empty">{{ _("Seleccion&aacute; un evento para ver su contexto sin salir del listado.") }}</p>
+        <div class="telemetry-event-inspector-content" hidden>
+          <dl class="operation-overview">
+            <div><dt>{{ _("Evento") }}</dt><dd><span id="telemetry-inspector-id" class="mono"></span></dd></div>
+            <div><dt>{{ _("Fecha") }}</dt><dd><time id="telemetry-inspector-timestamp"></time></dd></div>
+            <div><dt>{{ _("Tipo") }}</dt><dd id="telemetry-inspector-type"></dd></div>
+            <div><dt>{{ _("Proveedor") }}</dt><dd id="telemetry-inspector-provider"></dd></div>
+            <div><dt>{{ _("Escenario") }}</dt><dd id="telemetry-inspector-scenario"></dd></div>
+            <div><dt>{{ _("Capacidad") }}</dt><dd><code id="telemetry-inspector-plugin" class="mono"></code></dd></div>
+            <div><dt>{{ _("Recurso observado") }}</dt><dd><code id="telemetry-inspector-resource" class="mono"></code></dd></div>
+            <div><dt>{{ _("Superficie") }}</dt><dd id="telemetry-inspector-surface"></dd></div>
+            <div><dt>{{ _("TTP") }}</dt><dd id="telemetry-inspector-ttp"></dd></div>
+            <div><dt>{{ _("Subtipo") }}</dt><dd id="telemetry-inspector-kind"></dd></div>
+            <div><dt>{{ _("Detalle t&eacute;cnico") }}</dt><dd id="telemetry-inspector-detail"></dd></div>
+          </dl>
+          <p><strong>{{ _("IoCs") }}</strong></p>
+          <ul id="telemetry-inspector-iocs" class="metric-list"></ul>
+          <p><strong>{{ _("Payload bruto") }}</strong></p>
+          <pre id="telemetry-inspector-payload" class="payload-preview"></pre>
+        </div>
+      </aside>
+    </div>
+  {% else %}
+    <div class="empty-state"><p class="muted">{{ _("No hay eventos persistidos para esta operaci&oacute;n") }}{% if filters_active %}{{ _(" con los filtros elegidos") }}{% endif %}.</p>{% if filters_active %}<a href="{{ url_for('telemetry.detail', operation_id=operation_id) }}">{{ _("Limpiar filtros") }}</a>{% else %}<a href="{{ url_for('operations.detail', operation_id=operation_id) }}#tab-plugins">{{ _("Revisar capacidades y despliegues") }}</a>{% endif %}</div>
+  {% endif %}
+  </section>
+  {% endif %}
+
+  {% if selected_view in ('summary', 'incidents') %}
+  <section class="panel telemetry-data-section" aria-labelledby="telemetry-incidents-title">
+  <h2 id="telemetry-incidents-title">{{ _("Incidentes") }} <span class="summary-count-badge">{{ incidents | length }}</span></h2>
+  <p class="muted">{{ _("Agrupaci&oacute;n manual de eventos ya observados, para correlacionarlos y estudiarlos en conjunto &mdash; el motor de reglas no los usa para nada. Se arman desde la pesta&ntilde;a &quot;Eventos&quot;, seleccionando filas y eligiendo &quot;Agrupar en incidente&quot;.") }}</p>
+  {% if incidents %}
+    {% for row in incidents %}
+      <details class="collapsible incident-card">
+        <summary>
+          <span><strong>{{ row.incident.name }}</strong></span>
+          <span class="summary-count">{{ row.events | length }} evento(s){% if row.missing_count %} &middot; {{ row.missing_count }} referencia(s) rota(s){% endif %}</span>
+        </summary>
+        <div class="collapsible-body">
+          {% if row.incident.notes %}<p>{{ row.incident.notes }}</p>{% endif %}
+          <p class="muted">{{ _("Creado") }} <time data-local-time datetime="{{ row.incident.created_at.isoformat() }}">{{ row.incident.created_at.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></p>
+
+          <form method="post" action="{{ url_for('telemetry.update_incident', operation_id=operation_id, incident_id=row.incident.id) }}" class="table-toolbar"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="table-toolbar-field"><label for="incident-name-{{ row.incident.id }}">{{ _("Nombre") }}</label><input id="incident-name-{{ row.incident.id }}" name="name" value="{{ row.incident.name }}" required></div>
+            <div class="table-toolbar-field"><label for="incident-notes-{{ row.incident.id }}">{{ _("Notas") }}</label><textarea id="incident-notes-{{ row.incident.id }}" name="notes" rows="1">{{ row.incident.notes }}</textarea></div>
+            <button type="submit" class="small">{{ _("Guardar cambios") }}</button>
+          </form>
+
+          {% if row.events %}
+          <div class="table-scroll">
+          <table>
+            <thead><tr><th>{{ _("Fecha y hora") }}</th><th>{{ _("Tipo") }}</th><th>{{ _("Proveedor") }}</th><th>{{ _("Capacidad") }}</th><th>{{ _("TTP") }}</th><th></th></tr></thead>
+            <tbody>
+              {% for item in row.events %}
+                <tr>
+                  <td class="mono"><time data-local-time datetime="{{ item.event.timestamp.isoformat() }}">{{ item.event.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+                  <td>{{ event_type_label(item.event.event_type.value) }}</td>
+                  <td>{{ provider_label(item.context.provider) }}</td>
+                  <td class="mono">{{ item.event.plugin_id }}</td>
+                  <td>{{ item.event.ttp_id or "-" }}</td>
+                  <td>
+                    <form method="post" action="{{ url_for('telemetry.remove_incident_event', operation_id=operation_id, incident_id=row.incident.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="event_id" value="{{ item.event.id }}">
+                      <button type="submit" class="small">{{ _("Quitar") }}</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+          {% else %}
+            <p class="muted">{{ _("Ninguno de los eventos agrupados sigue disponible.") }}</p>
+          {% endif %}
+
+          <form method="post" action="{{ url_for('telemetry.delete_incident', operation_id=operation_id, incident_id=row.incident.id) }}" data-confirm="{{ _('¿Eliminar el incidente') }} '{{ row.incident.name }}'? {{ _('Los eventos no se borran, solo la agrupación.') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="small danger">{{ _("Eliminar incidente") }}</button>
+          </form>
+        </div>
+      </details>
+    {% endfor %}
+  {% else %}
+    <p class="muted">{{ _("Sin incidentes todav&iacute;a.") }}</p>
+  {% endif %}
+  </section>
+  {% endif %}
+
+  <dialog class="app-dialog" id="incident-dialog" aria-labelledby="incident-dialog-title">
+    <form method="post" action="{{ url_for('telemetry.create_incident', operation_id=operation_id) }}" id="incident-dialog-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <h2 id="incident-dialog-title">{{ _("Agrupar en incidente") }}</h2>
+      <p class="muted" id="incident-dialog-count">0 {{ _("evento(s) seleccionados.") }}</p>
+      <div id="incident-dialog-hidden-events"></div>
+      <div class="table-toolbar-field">
+        <label for="incident-mode">{{ _("Destino") }}</label>
+        <select id="incident-mode" name="mode">
+          <option value="new">{{ _("Incidente nuevo") }}</option>
+          {% if incidents %}<option value="existing">{{ _("Incidente existente") }}</option>{% endif %}
+        </select>
+      </div>
+      <div id="incident-new-fields">
+        <div class="table-toolbar-field"><label for="incident-name">{{ _("Nombre") }}</label><input id="incident-name" name="name" required></div>
+        <div class="table-toolbar-field"><label for="incident-notes">{{ _("Notas") }}</label><textarea id="incident-notes" name="notes" rows="3"></textarea></div>
+      </div>
+      {% if incidents %}
+      <div id="incident-existing-fields" hidden>
+        <div class="table-toolbar-field">
+          <label for="incident-existing-select">{{ _("Incidente") }}</label>
+          <select id="incident-existing-select" name="incident_id">
+            {% for row in incidents %}<option value="{{ row.incident.id }}">{{ row.incident.name }} ({{ row.events | length }})</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      {% endif %}
+      <div class="dialog-actions">
+        <button type="button" data-incident-dialog-cancel>{{ _("Cancelar") }}</button>
+        <button type="submit" class="primary">{{ _("Guardar") }}</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+  (function () {
+      const inspector = document.getElementById('telemetry-event-inspector');
+      const eventsLayout = document.querySelector('.telemetry-events-layout');
+      const storageKey = 'apate-telemetry-views:{{ operation_id }}';
+      const select = document.getElementById('saved-view-select');
+      const forget = document.querySelector('[data-forget-view]');
+      function views() {
+        try { return JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch (error) { return {}; }
+      }
+      function renderViews() {
+        const saved = views();
+        select.replaceChildren(new Option({{ _('Elegir…') | tojson }}, ''));
+        Object.keys(saved).sort().forEach(function (name) { select.add(new Option(name, name)); });
+        forget.disabled = !select.value;
+      }
+      document.querySelector('[data-save-view]').addEventListener('click', function () {
+        const name = window.prompt({{ _('Nombre de la vista:') | tojson }});
+        if (!name || !name.trim()) return;
+        const saved = views();
+        const params = new URLSearchParams(window.location.search); params.delete('format');
+        saved[name.trim()] = params.toString();
+        localStorage.setItem(storageKey, JSON.stringify(saved));
+        renderViews(); select.value = name.trim(); forget.disabled = false;
+      });
+      select.addEventListener('change', function () {
+        forget.disabled = !select.value;
+        if (select.value) window.location.search = views()[select.value] || '';
+      });
+      forget.addEventListener('click', function () {
+        const saved = views(); delete saved[select.value];
+        localStorage.setItem(storageKey, JSON.stringify(saved)); renderViews();
+      });
+      renderViews();
+
+      const rows = Array.from(document.querySelectorAll('[data-event-row]'));
+      const boxes = rows.map(function (row) { return row.querySelector('[data-select-event]'); });
+      const status = document.querySelector('[data-selection-status]');
+      const copyButton = document.querySelector('[data-copy-selected]');
+      const exportButton = document.querySelector('[data-export-selected]');
+      const groupButton = document.querySelector('[data-group-incident]');
+      const signalButton = document.querySelector('[data-create-signal]');
+      function selectedRows() { return rows.filter(function (row) { return row.querySelector('[data-select-event]').checked; }); }
+      function updateSelection() {
+        const count = selectedRows().length;
+        status.textContent = count + ' ' + (count === 1 ? {{ _('seleccionado') | tojson }} : {{ _('seleccionados') | tojson }});
+        copyButton.disabled = exportButton.disabled = count === 0;
+        if (groupButton) groupButton.disabled = count === 0;
+        if (signalButton) signalButton.disabled = count === 0;
+      }
+      const selectAll = document.querySelector('[data-select-all]');
+      if (selectAll) selectAll.addEventListener('change', function () { boxes.forEach(function (box) { box.checked = selectAll.checked; }); updateSelection(); });
+      boxes.forEach(function (box) { box.addEventListener('change', updateSelection); });
+      if (signalButton) signalButton.addEventListener('click', function () {
+        const link = new URL({{ url_for('attention.index', operation_id=operation_id) | tojson }}, window.location.origin);
+        selectedRows().forEach(function (row) { link.searchParams.append('event_ids', row.dataset.eventId); });
+        window.location.assign(link.toString());
+      });
+      function selectedTsv() { return selectedRows().map(function (row) { return Array.from(row.cells).slice(1).map(function (cell) { return cell.innerText.trim(); }).join('\t'); }).join('\n'); }
+      if (copyButton) copyButton.addEventListener('click', async function () { await navigator.clipboard.writeText(selectedTsv()); status.textContent += ' · copiados'; });
+      if (exportButton) exportButton.addEventListener('click', function () {
+        const blob = new Blob([selectedTsv()], {type: 'text/tab-separated-values;charset=utf-8'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'telemetry-selected.tsv'; link.click(); URL.revokeObjectURL(link.href);
+      });
+
+      const incidentDialog = document.getElementById('incident-dialog');
+      if (groupButton && incidentDialog) {
+        const hiddenEvents = document.getElementById('incident-dialog-hidden-events');
+        const countLabel = document.getElementById('incident-dialog-count');
+        const modeSelect = document.getElementById('incident-mode');
+        const newFields = document.getElementById('incident-new-fields');
+        const existingFields = document.getElementById('incident-existing-fields');
+        const nameInput = document.getElementById('incident-name');
+        groupButton.addEventListener('click', function () {
+          const ids = selectedRows().map(function (row) { return row.dataset.eventId; });
+          hiddenEvents.replaceChildren();
+          ids.forEach(function (id) {
+            const input = document.createElement('input');
+            input.type = 'hidden'; input.name = 'event_ids'; input.value = id;
+            hiddenEvents.appendChild(input);
+          });
+          countLabel.textContent = ids.length + ' ' + {{ _('evento(s) seleccionados.') | tojson }};
+          incidentDialog.showModal();
+        });
+        if (modeSelect) modeSelect.addEventListener('change', function () {
+          const existing = modeSelect.value === 'existing';
+          if (existingFields) existingFields.hidden = !existing;
+          newFields.hidden = existing;
+          if (nameInput) nameInput.required = !existing;
+        });
+        const cancelButton = document.querySelector('[data-incident-dialog-cancel]');
+        if (cancelButton) cancelButton.addEventListener('click', function () { incidentDialog.close(); });
+      }
+
+      const emptyInspectorMessage = document.querySelector('.telemetry-event-inspector-empty');
+      const inspectorContent = document.querySelector('.telemetry-event-inspector-content');
+      function setInspectorVisibility(open) {
+        if (eventsLayout) {
+          eventsLayout.classList.toggle('has-inspection', !!open);
+        }
+      }
+      const inspectorFields = {
+        id: document.getElementById('telemetry-inspector-id'),
+        timestamp: document.getElementById('telemetry-inspector-timestamp'),
+        type: document.getElementById('telemetry-inspector-type'),
+        provider: document.getElementById('telemetry-inspector-provider'),
+        scenario: document.getElementById('telemetry-inspector-scenario'),
+        plugin: document.getElementById('telemetry-inspector-plugin'),
+        resource: document.getElementById('telemetry-inspector-resource'),
+        surface: document.getElementById('telemetry-inspector-surface'),
+        ttp: document.getElementById('telemetry-inspector-ttp'),
+        kind: document.getElementById('telemetry-inspector-kind'),
+        detail: document.getElementById('telemetry-inspector-detail'),
+        iocs: document.getElementById('telemetry-inspector-iocs'),
+        payload: document.getElementById('telemetry-inspector-payload'),
+      };
+      const inspectorButtons = Array.from(document.querySelectorAll('[data-inspect-event]'));
+      function setText(target, value) { target.textContent = value || "-"; }
+      function renderInspector(eventId) {
+        if (!inspector) return;
+        const source = document.getElementById('telemetry-event-data-' + eventId);
+        if (!source) return;
+        const payload = JSON.parse(source.textContent);
+        setText(inspectorFields.id, payload.id);
+        setText(inspectorFields.timestamp, payload.timestamp);
+        setText(inspectorFields.type, payload.event_type + (payload.kind ? ' · ' + payload.kind : ''));
+        setText(inspectorFields.provider, payload.provider);
+        setText(inspectorFields.scenario, payload.scenario);
+        setText(inspectorFields.plugin, payload.plugin_id);
+        setText(inspectorFields.resource, payload.resource_id);
+        setText(inspectorFields.surface, payload.surface);
+        setText(inspectorFields.ttp, payload.ttp_id || '-');
+        setText(inspectorFields.kind, payload.kind);
+        setText(inspectorFields.detail, payload.detail);
+        inspectorFields.iocs.replaceChildren();
+        if ((payload.iocs || []).length) {
+          payload.iocs.forEach(function (entry) {
+            const item = document.createElement('li');
+            item.textContent = entry.type + ': ' + entry.value;
+            inspectorFields.iocs.appendChild(item);
+          });
+        } else {
+          const item = document.createElement('li');
+          item.textContent = {{ _('Sin IoCs detectados.') | tojson }};
+        inspectorFields.iocs.appendChild(item);
+      }
+        inspectorFields.payload.textContent = JSON.stringify(payload.payload || {}, null, 2);
+        emptyInspectorMessage.hidden = true;
+        inspectorContent.hidden = false;
+        setInspectorVisibility(true);
+      }
+      inspectorButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          renderInspector(button.dataset.eventId);
+        });
+      });
+      const selectedEventId = {{ selected_event_id | tojson }};
+      if (selectedEventId) {
+        renderInspector(selectedEventId);
+        const selectedRow = document.querySelector('[data-event-row][data-event-id="' + CSS.escape(selectedEventId) + '"]');
+        if (selectedRow) selectedRow.setAttribute('aria-current', 'true');
+      }
+
+      const refreshUrl = document.querySelector('[data-export-json]')?.href;
+      const initialCount = rows.length;
+      const newEventsButton = document.querySelector('[data-new-events]');
+      async function checkNewEvents() {
+        if (!refreshUrl || !newEventsButton) return;
+        try {
+          const response = await fetch(refreshUrl, {headers: {'Accept': 'application/json'}});
+          const fresh = await response.json();
+          const difference = fresh.length - initialCount;
+          if (difference > 0) { newEventsButton.textContent = difference + ' ' + {{ _('evento(s) nuevo(s) · actualizar') | tojson }}; newEventsButton.hidden = false; }
+        } catch (error) { /* La lectura actual sigue intacta si el sondeo falla. */ }
+      }
+      if (newEventsButton) newEventsButton.addEventListener('click', function () { window.location.reload(); });
+      window.setInterval(checkNewEvents, 30000);
+    })();
+  </script>
+{% endblock %}

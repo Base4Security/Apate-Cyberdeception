@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Previsualizar importación") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('assets.index') }}">{{ _("Inventario de activos") }}</a> / {{ _("Previsualizar CSV") }}</nav>{% endblock %}
+{% block content %}
+  <h1>{{ _("Previsualización de importación CSV") }}</h1>
+  <p class="muted">{{ _("Aún no se escribió ningún activo. Revisá el resultado completo y confirmá solo si corresponde.") }}</p>
+  <section class="card">
+    <h2>{{ _("Se importarán %(count)s activo(s) del inventario", count=preview.assets | length) }}</h2>
+    {% if preview.assets %}
+      <ul>{% for asset in preview.assets %}<li><code>{{ asset.identifier }}</code> — {{ asset.name }} ({{ asset.asset_type }}, {{ criticality_labels[asset.criticality] }})</li>{% endfor %}</ul>
+    {% else %}<p>{{ _("No hay filas válidas para importar.") }}</p>{% endif %}
+  </section>
+  <section class="card">
+    <h2>{{ _("Se omitirán %(count)s fila(s) del inventario", count=preview.issues | length) }}</h2>
+    {% if preview.issues %}<ul>{% for issue in preview.issues %}<li>{{ _("Fila") }} {{ issue.row_number }}: {{ issue.reason }}</li>{% endfor %}</ul>{% else %}<p>{{ _("No hay filas omitidas.") }}</p>{% endif %}
+  </section>
+  <p><a class="button secondary" href="{{ url_for('assets.index') }}">{{ _("Cancelar") }}</a>
+  {% if preview.assets %}<form method="post" action="{{ url_for('assets.confirm_csv', token=preview.token) }}" class="inline-form"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><button type="submit">{{ _("Confirmar importación") }}</button></form>{% endif %}</p>
+{% endblock %}

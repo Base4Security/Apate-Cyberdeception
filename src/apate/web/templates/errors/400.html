@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Petición rechazada") }} - Apate{% endblock %}
+{# Sin barra lateral, igual que login.html: esta pagina se muestra a alguien
+   que puede no tener sesion, y el bloque de identidad de base.html asume que
+   si la autenticacion esta activa hay una identidad cargada. #}
+{% block sidebar %}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {{ _("Petición rechazada") }}</nav>{% endblock %}
+{% block content %}
+<section class="empty-state" aria-labelledby="bad-request-title">
+  <span class="empty-state-kicker">{{ _("Error 400") }}</span>
+  {% if csrf %}
+  <h1 id="bad-request-title">{{ _("No pudimos confirmar que esta acción la iniciaste vos") }}</h1>
+  <p>{{ _("La petición llegó sin el testigo de sesión que APATE exige para cualquier cambio, o con uno que ya no es válido. Casi siempre es una pestaña que quedó abierta desde antes de volver a iniciar sesión: volvé a cargar la página y repetí la acción.") }}</p>
+  <p class="muted">{{ _("Si no iniciaste ninguna acción, alguien pudo haber intentado dispararla desde otro sitio con tu sesión abierta. En ese caso, avisale a quien administre esta instalación.") }}</p>
+  {% else %}
+  <h1 id="bad-request-title">{{ _("La petición no era válida") }}</h1>
+  <p>{{ _("El servidor no pudo interpretar lo que se le envió. Volvé a cargar la página e intentá de nuevo.") }}</p>
+  {% endif %}
+  <div class="filter-actions">
+    <a class="button primary" href="{{ url_for('index') }}">{{ _("Volver al inicio") }}</a>
+  </div>
+</section>
+{% endblock %}

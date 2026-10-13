@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Integración deshabilitada") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('health.index') }}">{{ _("Salud y configuración") }}</a> / {{ _("Integración deshabilitada") }}</nav>{% endblock %}
+{% block content %}
+  {% include "health/_configuration_nav.html" %}
+  <section class="panel tools-unavailable empty-state-panel">
+    <span class="empty-state-kicker">{{ _("Configuración no disponible") }}</span>
+    <h1>{{ _("La integración externa está deshabilitada") }}</h1>
+    <p>{{ _("Iniciá APATE con") }} <code>APATE_MOUNT_EXTERNAL_TOOLS</code> {{ _("habilitado para preparar los motores de red/host e identidad/comportamiento.") }}</p>
+    <p><a class="button-link" href="{{ url_for('health.index') }}">{{ _("Volver al resumen de salud") }}</a></p>
+  </section>
+{% endblock %}

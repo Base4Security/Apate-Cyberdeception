@@ -1,0 +1,2 @@
+# Solo para verificar que release.txt corresponda exactamente a uv.lock en CI.
+uv==0.12.21

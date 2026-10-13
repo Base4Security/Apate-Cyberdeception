@@ -1,0 +1,6 @@
+<nav class="tools-context-nav" aria-label="{{ _('Secciones del catálogo') }}">
+  <a href="{{ url_for('capabilities.catalog') }}" {% if request.endpoint == 'capabilities.catalog' %}aria-current="page"{% endif %}>{{ _("Resumen") }}</a>
+  <a href="{{ url_for('capabilities.identity_profiles') }}" {% if request.endpoint and request.endpoint.startswith('capabilities.identity_profile') %}aria-current="page"{% endif %}>{{ _("Perfiles de identidad") }}</a>
+  <a href="{{ url_for('capabilities.behavior_activities') }}" {% if request.endpoint and request.endpoint.startswith('capabilities.behavior_activit') %}aria-current="page"{% endif %}>{{ _("Tipos de actividad") }}</a>
+  <a href="{{ url_for('capabilities.behavior_context') }}" {% if request.endpoint and request.endpoint.startswith('capabilities.behavior_context') %}aria-current="page"{% endif %}>{{ _("Contexto de comportamiento") }}</a>
+</nav>

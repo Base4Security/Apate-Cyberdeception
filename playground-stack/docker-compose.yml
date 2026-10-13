@@ -1,0 +1,263 @@
+# Deception Level Configuration
+# Set DECEPTION_LEVEL to: none, basic, complete, or impossible
+# Each level applies different deception techniques and configurations
+
+services:
+  prod-ssh:
+    build: ./ssh-honeypot
+    container_name: prod-ssh
+    volumes:
+      - ./ssh-honeypot/logs:/app/logs
+    environment:
+      - DECEPTION_LEVEL=${DECEPTION_LEVEL:-none}
+    restart: always
+    networks:
+      playground-server-network:
+        aliases:
+          - ssh
+    profiles:
+      - basic
+      - complete
+      - impossible
+
+  fake-activity:
+    build: ./fake-activity
+    container_name: deception-fake-activity
+    environment:
+      - DECEPTION_LEVEL=${DECEPTION_LEVEL:-none}
+      - ELASTICSEARCH_HOSTS=elasticsearch:9200
+    restart: always
+    networks:
+      - playground-server-network
+      - playground-monitor-network
+    depends_on:
+      - elasticsearch
+    profiles:
+      - complete
+      - impossible
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: monitoring-filebeat
+    user: root
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./ssh-honeypot/logs:/var/log/ssh_honeypot:ro
+      - ./logs/frontend:/var/log/frontend:ro
+      - ./logs/backend:/var/log/backend:ro
+      - ./logs/mysql:/var/log/mysql:ro
+      - ./filebeat/filebeat.yml:/tmp/filebeat.yml:ro
+    environment:
+      - ELASTICSEARCH_HOSTS=elasticsearch:9200
+      - KIBANA_HOST=kibana:5601
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_started
+    networks:
+      - playground-monitor-network
+    command: >
+      sh -c "
+        cp /tmp/filebeat.yml /usr/share/filebeat/filebeat.yml &&
+        chmod 644 /usr/share/filebeat/filebeat.yml &&
+        /usr/local/bin/docker-entrypoint -e
+      "
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: monitoring-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      # Bound to loopback only: reachable from the host (verify.sh, curl) but not
+      # exposed on the LAN. ES runs with security disabled — keep it host-local.
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - playground-monitor-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: monitoring-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - xpack.security.enabled=false
+    ports:
+      - "0.0.0.0:5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - playground-monitor-network
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+  kibana-setup:
+    image: curlimages/curl:latest
+    volumes:
+      - ./dashboards/setup-kibana.sh:/tmp/setup-kibana.sh:ro
+      - ./dashboards/ndjson:/tmp/ndjson:ro
+    depends_on:
+      kibana:
+        condition: service_started
+    networks:
+      - playground-monitor-network
+    restart: "no"
+    command: >
+      sh -c "
+        echo 'Starting Kibana setup...' &&
+        ls -la /tmp/setup-kibana.sh &&
+        cp /tmp/setup-kibana.sh /tmp/setup-kibana-executable.sh &&
+        ls -la /tmp/setup-kibana-executable.sh &&
+        chmod +x /tmp/setup-kibana-executable.sh &&
+        echo 'Executing setup script...' &&
+        sh /tmp/setup-kibana-executable.sh &&
+        echo 'Kibana setup completed successfully. Container will exit.'
+      "
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+  frontend:
+    build: ./frontend
+    container_name: prod-frontend
+    ports:
+      - "0.0.0.0:3000:3000"
+    environment:
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=3001
+      - DECEPTION_LEVEL=${DECEPTION_LEVEL:-none}
+    volumes:
+      - ./logs/frontend:/var/log/frontend
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - playground-dmz-network
+      - playground-external-network
+      - playground-server-network
+    restart: always
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+  backend:
+    build: ./backend
+    container_name: prod-backend
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=vulnerable_password
+      - DB_NAME=andesfinance_db
+      - DECEPTION_LEVEL=${DECEPTION_LEVEL:-none}
+    volumes:
+      - ./logs/backend:/var/log/backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - playground-server-network
+      - playground-database-network
+    restart: always
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+  mysql:
+    build: ./mysql
+    container_name: prod-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=vulnerable_password
+      - MYSQL_DATABASE=andesfinance_db
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD=app_password
+      - DECEPTION_LEVEL=${DECEPTION_LEVEL:-none}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
+    command: >
+      --general-log=1
+      --general-log-file=/var/log/mysql/mysql-general.log
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/mysql-slow.log
+      --long-query-time=1
+      --log-error=/var/log/mysql/mysql-error.log
+      --bind-address=0.0.0.0
+      --skip-networking=false
+      --default-authentication-plugin=mysql_native_password
+      --skip-name-resolve
+    networks:
+      - playground-database-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pvulnerable_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+  attacker:
+    build: ./attacker
+    container_name: attacker-tools
+    restart: always
+    networks:
+      - playground-external-network
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+    profiles:
+      - none
+      - basic
+      - complete
+      - impossible
+
+volumes:
+  elasticsearch_data:
+  mysql_data:
+
+networks:
+  playground-dmz-network:
+    driver: bridge
+  playground-external-network:
+    driver: bridge
+  playground-server-network:
+    driver: bridge
+  playground-database-network:
+    driver: bridge
+  playground-monitor-network:
+    driver: bridge

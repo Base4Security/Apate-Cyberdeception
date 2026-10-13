@@ -1,0 +1,3 @@
+# Herramientas de build usadas para la candidata Python 3.11.
+setuptools==84.0.0
+wheel==0.48.0

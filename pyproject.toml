@@ -1,0 +1,154 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "apate"
+version = "0.1.0rc1"
+description = "Open-source cyberdeception orchestration and decision tool, centered on the operation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "AGPL-3.0-or-later" }
+# Autoria y titularidad son cosas distintas, y las dos son ciertas a la vez:
+# `authors` dice quien escribio el software, mientras que el titular de los
+# derechos patrimoniales es BASE4 Security -- APATE se desarrollo como trabajo
+# para la empresa. Los metadatos de empaquetado de Python no tienen un campo
+# para el titular del copyright, asi que ese dato vive donde corresponde: en
+# `LICENSE` y en `NOTICE`. `maintainers` lo deja visible tambien aca, para que
+# quien lea solo el `pyproject.toml` no concluya que el titular es la persona.
+authors = [{ name = "Federico Pacheco" }, { name = "Diego Staino" }]
+maintainers = [{ name = "BASE4 Security" }]
+keywords = ["cyberdeception", "honeypot", "honeytoken", "mitre-engage", "orchestration"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Flask",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+]
+dependencies = [
+    "PyYAML>=6.0",
+    "Flask>=3.0",
+    "Flask-SocketIO>=5.3",
+    # fpdf2 (M13h, docs/roadmap.md seccion M13h): exportacion a PDF del
+    # informe post-operacion (M6) y el kit de taller (M12i) -- ver
+    # apate/reporting/pdf.py. Elegida sobre reportlab/WeasyPrint a
+    # proposito: 100% Python puro, sin ninguna extension C propia, asi
+    # que "pip install" no puede fallar por faltar un compilador o una
+    # libreria de sistema (WeasyPrint necesita Pango/Cairo instalados
+    # aparte) -- prioridad declarada de una demo confiable en vivo
+    # sobre la superficie mucho mas grande que ofrece
+    # reportlab (motor de graficos completo) para lo que este hito
+    # necesita (texto + una tabla simple + un par de rectangulos en
+    # blanco). Trae Pillow/fonttools/defusedxml como dependencias
+    # transitivas -- Pillow si tiene extensiones C, pero publica
+    # wheels precompilados para practicamente cualquier plataforma
+    # soportada, y apate no la llama directo.
+    "fpdf2>=2.7",
+    # pypdf (Fase 6 post-BlackHat, docs/roadmap.md): extraccion de
+    # texto de informes de CTI en PDF, para el matching determinista
+    # de apate.cti contra el catalogo de apate.attack -- cierra el
+    # placeholder de M12k. Mismo criterio que fpdf2 (M13h): 100%
+    # Python puro, sin extension C propia, para no arriesgar un
+    # "pip install" que falle por faltar una libreria de sistema.
+    # Elegida sobre PyPDF2 (proyecto predecesor, sin mantenimiento
+    # activo desde 2022 -- pypdf es su continuacion real) y sobre
+    # pdfminer.six/PyMuPDF (mas capaces pero mucho mas de lo que este
+    # hito necesita: solo texto plano, sin layout ni imagenes).
+    "pypdf>=4.0",
+    # DOLOS-T y BUDA (Base4Security, AGPLv3) estan vendorizados como
+    # codigo fuente bajo src/DOLOST/ y src/BUDA/ desde la correccion de
+    # empaquetado post-M14 (ver docs/roadmap.md y "Atribucion" en
+    # README.md) -- ya no son paquetes editables instalados aparte desde
+    # checkouts hermanos (`pip install -e ../DOLOS-T`/`../BUDA`), asi que
+    # sus dependencias de runtime pasan a declararse aca directo, fusionadas
+    # con las propias de apate (una sola distribucion). Confirmadas contra
+    # los requirements.txt reales de cada repo al vendorizar, no asumidas:
+    "docker",              # DOLOS-T: DockerManager (deploy/rotate/retire de decoys)
+    "Flask-SQLAlchemy",    # BUDA: modelos de Narrative/UserProfile/Activity
+    "python-dotenv",       # BUDA: carga de variables de entorno (config.py)
+    "requests",            # BUDA: llamadas HTTP salientes de utilidades varias
+    "openai",              # BUDA: generacion de comandos/actividades asistida por LLM
+    "python-evtx",         # BUDA: extraccion de contexto UEBA desde archivos .evtx
+    "pywinrm",             # BUDA: ejecucion de comandos remotos via WinRM
+    "cryptography",        # BUDA: cifrado Fernet de credenciales WinRM en reposo (M8b)
+    "PyJWT[crypto]>=2.8",  # Fase 07: validación OIDC RS256/JWKS, sin dependencia de sistema
+    # Flask-Babel (tanda 1 de i18n, ver src/apate/i18n.py): catalogos
+    # gettext para la version en ingles de la interfaz. Mismo criterio
+    # que fpdf2/pypdf -- Babel es 100% Python puro, sin extension C ni
+    # libreria de sistema, asi que no puede romper un "pip install".
+    # Se eligio gettext sobre un diccionario propio porque un catalogo
+    # de ~1500 frases sin extraccion automatica ni deteccion de
+    # huerfanas se desincroniza sin que nada falle; ver
+    # tests/test_i18n.py para los tres tests que fuerzan esa sincronia.
+    "Flask-Babel>=4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Base4Security/Apate-Cyberdeception"
+Source = "https://github.com/Base4Security/Apate-Cyberdeception"
+Issues = "https://github.com/Base4Security/Apate-Cyberdeception/issues"
+
+[project.optional-dependencies]
+# stix2 (libreria de referencia de OASIS) es exclusivamente para
+# validar en tests que apate.reporting.stix genera bundles que
+# realmente parsean con una implementacion real de STIX 2.1 -- apate
+# serializa a mano (json/uuid/datetime de la libreria estandar, sin
+# runtime dependency), ver docstring de apate/reporting/stix.py.
+dev = ["pytest>=7.0", "stix2>=3.0"]
+
+# Gunicorn solo es para la instalación de
+# producción Linux. `simple-websocket` habilita WebSocket con el worker
+# threaded, sin cambiar el async_mode="threading" de Flask-SocketIO.
+prod = ["gunicorn>=21.0", "simple-websocket>=1.0"]
+
+# Ver apate.plugins.registry: los plugins "de fabrica" se descubren via
+# entry points, igual que cualquier plugin de terceros lo haria instalando
+# un paquete que declare este mismo grupo -- PluginRegistry ya no los
+# importa a mano.
+[project.entry-points."apate.plugins"]
+mock = "apate.plugins.mock:MockHoneypotPlugin"
+honeytoken = "apate.plugins.honeytoken:HoneytokenPlugin"
+dolost = "apate.plugins.dolost_plugin:DolosTPlugin"
+buda = "apate.plugins.buda_plugin:BudaPlugin"
+canarytoken = "apate.plugins.canarytoken_plugin:CanarytokenPlugin"
+opencanary = "apate.plugins.opencanary_plugin:OpenCanaryPlugin"
+playground = "apate.plugins.playground_plugin:PlaygroundPlugin"
+
+# Proveedores de identidad intercambiables.
+# El almacén local se registra de fábrica; un proveedor adicional puede
+# declararse sin que apate.web importe una clase especial.
+[project.entry-points."apate.identity_providers"]
+local = "apate.identity.providers:LocalIdentityProvider"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# Los catalogos de traduccion viajan junto a las plantillas: el `.mo`
+# compilado es lo que lee la aplicacion en tiempo de ejecucion, y el
+# `.po` acompana para que una instalacion pueda revisar o corregir una
+# traduccion sin necesitar el repositorio.
+"apate.web" = [
+    "templates/**/*.html",
+    "translations/*/LC_MESSAGES/*.mo",
+    "translations/*/LC_MESSAGES/*.po",
+    # La hoja de estilos y los dos scripts. Sin esta linea la aplicacion se
+    # instala y arranca, pero se sirve entera sin estilos: sale a la vista
+    # solo en una instalacion no editable, porque `pip install -e .` lee del
+    # arbol de fuentes y ahi los archivos estan igual. La cubre
+    # `tests/test_packaging.py`, que compara lo declarado aca contra lo que
+    # existe de verdad bajo `src/apate/`.
+    "static/*",
+]
+"apate.data" = ["*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    # Los tests que corren con la verificacion CSRF real. El resto de la suite
+    # la neutraliza (ver la fixture `csrf_neutralizado` en tests/conftest.py).
+    "csrf: corre con la proteccion CSRF instalada de verdad",
+]

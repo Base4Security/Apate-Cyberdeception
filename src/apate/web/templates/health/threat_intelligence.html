@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Inteligencia de amenazas") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('health.index') }}">{{ _("Salud y configuración") }}</a> / {{ _("Inteligencia de amenazas") }}</nav>{% endblock %}
+{% block content %}
+  {% include "health/_configuration_nav.html" %}
+  <div class="content-toolbar tools-page-header">
+    <div><h1>{{ _("Inteligencia de amenazas") }}</h1><p class="muted">{{ _("Enriquecimiento opcional y bajo demanda de") }} <abbr title="{{ _("Indicadores de compromiso") }}">IoC</abbr>s {{ _("observados.") }}</p></div>
+    <span class="badge {{ 'health-configured' if api_key_configured else 'health-disabled' }}">{{ _("configurada") if api_key_configured else _("sin configurar") }}</span>
+  </div>
+  <aside class="assist-note"><strong>{{ _("Consulta explícita, nunca automática") }}</strong><span>{{ _("Apate consulta VirusTotal solo al pulsar el botón de un") }} <abbr title="{{ _("Indicador de compromiso") }}">IoC</abbr>. {{ _("El resultado es una anotación analítica: no activa reglas, plugins ni despliegues.") }}</span></aside>
+  <div class="settings-layout">
+    <form class="panel settings-form" method="post" action="{{ url_for('health.threat_intelligence') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <fieldset>
+        <legend>VirusTotal API v3</legend>
+        <label for="virustotal-api-key">{{ _("API key de VirusTotal") }}</label>
+        <input type="password" id="virustotal-api-key" name="api_key" autocomplete="new-password" placeholder="{{ _("configurada — dejar en blanco para conservarla") if api_key_configured else _("sin configurar") }}">
+        <p class="credential-status {{ 'configured' if api_key_configured else 'missing' }}"><strong>{{ _("API key:") }}</strong> {{ _("configurada (su valor no se muestra).") if api_key_configured else _("no configurada.") }} {{ _("Dejar el campo en blanco conserva el valor existente.") }}</p>
+      </fieldset>
+      <p><button type="submit" class="primary">{{ _("Guardar configuración") }}</button></p>
+    </form>
+    <aside class="panel">
+      <h2>{{ _("Uso y cuota") }}</h2>
+      <p class="muted">{{ _("Cada pulsación realiza una consulta HTTPS y puede consumir cuota de VirusTotal. Apate recupera reportes existentes; no sube archivos ni solicita nuevos análisis.") }}</p>
+    </aside>
+  </div>
+{% endblock %}

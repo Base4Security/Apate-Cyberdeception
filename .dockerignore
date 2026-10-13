@@ -1,0 +1,24 @@
+# Contexto de build de la imagen de contenedor.
+# Se excluye todo lo que no hace falta en runtime: la imagen instala el
+# paquete y corre `examples/seed_demo.py`, nada mas.
+.git
+.gitattributes
+.venv
+venv
+tests
+docs
+logs
+.apate_data
+instance
+uploads
+buda.db
+context.json
+config_llm.json
+docker_client_config
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+*.egg-info
+CONTRIBUTING.md
+playground-stack/logs

@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "source": "Investigacion puntual M14g contra el checkout real de github.com/Base4Security/cyberdeception-playground -- a diferencia de mitre_attack_groups.json/mitre_engage_matrix.json/engage_ttp_suggestions.json (M12a/M12j/M12d), NO sale de una fuente publica versionada: es un inventario de lo que ESTE repo, en el estado en que se lo investigo, efectivamente puede producir. Re-verificar contra el checkout real si el repo del Playground cambia -- no hay ninguna garantia de estabilidad externa como con los datasets de MITRE.",
+    "verification_date": "2026-08-09",
+    "verification_methodology": "Lectura directa de dos archivos del repo real, sin aproximar ningun id: attacker/attack_scripts/components/base_attacker.py::MITRE_TTPS (diccionario Python a nivel de modulo, 8 entradas fijas fase->TTP -- nunca cambia segun DECEPTION_LEVEL ni segun que Operation de APATE este vinculada, confirmado en la investigacion M14g) y filebeat/filebeat.yml (seccion `processors`, tabla estatica de 6 reglas `if: contains security_indicators/message -> then: add_fields target: mitre` -- independiente del diccionario del atacante, sin fuente de verdad compartida entre ambas; una de las 6 reglas, la de 'message contains CRITICAL', no agrega campos mitre.*, por eso el dataset tiene 9 tecnicas distintas y no 14 (8 del atacante + 6 de Filebeat con solapamiento real en T1059.004/T1190/T1110.001).",
+    "schema_version": "1.0"
+  },
+  "ttps": [
+    {
+      "id": "T1595.003",
+      "name": "Active Scanning: Vulnerability Scanning",
+      "origin": "attacker",
+      "attacker_phase": "web_application_discovery",
+      "filebeat_rule": null
+    },
+    {
+      "id": "T1059.004",
+      "name": "Command and Scripting Interpreter: Unix Shell",
+      "origin": "both",
+      "attacker_phase": "command_injection",
+      "filebeat_rule": "DANGEROUS_COMMAND"
+    },
+    {
+      "id": "T1190",
+      "name": "Exploit Public-Facing Application",
+      "origin": "both",
+      "attacker_phase": "sql_injection",
+      "filebeat_rule": "SQL_INJECTION_ATTEMPT / HONEYTOKEN_ACCESS"
+    },
+    {
+      "id": "T1018",
+      "name": "Remote System Discovery",
+      "origin": "attacker",
+      "attacker_phase": "reconnaissance",
+      "filebeat_rule": null
+    },
+    {
+      "id": "T1046",
+      "name": "Network Service Scanning",
+      "origin": "attacker",
+      "attacker_phase": "port_scanning",
+      "filebeat_rule": null
+    },
+    {
+      "id": "T1110.001",
+      "name": "Brute Force: Password Guessing",
+      "origin": "both",
+      "attacker_phase": "ssh_bruteforce",
+      "filebeat_rule": "SSH_BRUTE_FORCE / SUSPICIOUS_USERNAME"
+    },
+    {
+      "id": "T1021.004",
+      "name": "Remote Services: SSH",
+      "origin": "attacker",
+      "attacker_phase": "lateral_movement",
+      "filebeat_rule": null
+    },
+    {
+      "id": "T1041",
+      "name": "Exfiltration Over C2 Channel",
+      "origin": "attacker",
+      "attacker_phase": "data_exfiltration",
+      "filebeat_rule": null
+    },
+    {
+      "id": "T1083",
+      "name": "File and Directory Discovery",
+      "origin": "filebeat",
+      "attacker_phase": null,
+      "filebeat_rule": "PATH_TRAVERSAL_ATTEMPT"
+    }
+  ]
+}

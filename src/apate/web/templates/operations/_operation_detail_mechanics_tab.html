@@ -1,0 +1,683 @@
+  {% if mechanics_available %}
+  <div class="tab-panel" id="tab-mechanics" role="tabpanel" aria-labelledby="tab-control-mechanics" tabindex="0">
+    {% if request.args.get('catalog_profile_id') or request.args.get('catalog_activity_id') %}
+      <aside class="assist-note"><strong>{{ _("Recurso elegido en el Cat&aacute;logo") }}</strong><span>{{ _("Revis&aacute; el despliegue de esta operaci&oacute;n y confirm&aacute; manualmente a qu&eacute; narrativa o perfil se asigna.") }}</span></aside>
+    {% endif %}
+    <h2>{{ _("Despliegue contextual") }}</h2>
+    <p class="muted">
+      {{ _("Los recursos est&aacute;n ordenados por escenario y superficie. Desde esta operaci&oacute;n pod&eacute;s\n      configurar y operar decoys, identidades, actividades y honeytokens desde una misma operaci&oacute;n.") }}
+    </p>
+    <p>
+      <form class="inline" method="post" data-confirm="¿Desplegar toda la campaña de esta operaci&oacute;n?" data-slow-action action="{{ url_for('operations.deploy_all_campaign', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="primary small" data-loading-text="Desplegando...">{{ _("Desplegar toda la campaña") }}</button>
+      </form>
+    </p>
+
+    <section class="deployment-map" aria-labelledby="deployment-map-title">
+      <h3 id="deployment-map-title">{{ _("Mapa de despliegue") }}</h3>
+      <div class="deployment-scenario-grid">
+        {% for group in deployment_groups %}
+          <article class="deployment-scenario">
+            <h4>{{ group.label }}</h4>
+            {% for surface in group.surfaces %}
+              <div class="deployment-surface">
+                <span class="tag">{{ surface.name }}</span>
+                <span class="muted">
+                  {% for item in surface["items"] %}
+                    <span class="mono">{{ item.binding.plugin_id }}</span>{% if item.kind %} {{ _("&middot;") }} {{ capability_kind_label(item.kind) }}{% endif %}{% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                </span>
+              </div>
+            {% endfor %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if unavailable_external_bindings %}
+      <aside class="dependency-warning">
+        <strong>{{ _("Dependencias externas no disponibles") }}</strong>
+        <p>{{ _("Estos recursos siguen vinculados a la operaci&oacute;n, pero necesitan configuraci&oacute;n antes de poder operarse:") }}</p>
+        <ul>
+          {% for item in unavailable_external_bindings %}
+            <li>
+              <span class="mono">{{ item.binding.plugin_id }}</span> ({{ item.binding.surface }}{{ _(") &mdash;") }}
+              {% if item.kind == "dolost" %}
+                <a href="{{ url_for('health.network_host_runtime') }}">{{ _("revisar Docker y red/host") }}</a>
+              {% else %}
+                <a href="{{ url_for('health.index') }}">{{ _("revisar comportamiento simulado y generaci&oacute;n de contenido") }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </aside>
+    {% endif %}
+
+    {% if dolost_panels %}
+    <h3 class="section-heading">{{ _("Decoys &middot; Red / host") }}</h3>
+    {% for binding in operation.plugins %}
+      {% if binding.plugin_id in dolost_panels %}
+        {% set panel = dolost_panels[binding.plugin_id] %}
+        <div class="panel deployment-provider-panel">
+          <div class="deployment-provider-heading">
+            <h4>{{ _("Decoys") }}</h4>
+            <span class="tag">{{ binding.surface }}</span>
+            <span class="mono">{{ binding.plugin_id }}</span>
+          </div>
+          <p>
+            <form class="inline" method="post" data-slow-action action="{{ url_for('operations.dolost_deploy', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="primary small" data-loading-text="{{ _('Desplegando...') }}">{{ _("Deploy completo") }}</button>
+            </form>
+            <form class="inline" method="post" data-slow-action action="{{ url_for('operations.dolost_rotate', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="small" data-loading-text="{{ _('Rotando...') }}">{{ _("Rotar") }}</button>
+            </form>
+            <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Retirar el collector y todos los decoys de este plugin?') }}" action="{{ url_for('operations.dolost_retire', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="danger small" data-loading-text="{{ _('Retirando...') }}">{{ _("Retirar todo") }}</button>
+            </form>
+          </p>
+
+          {% if not panel.docker_available %}
+            <p class="muted">{{ _("Docker no est&aacute; configurado o no responde en este proceso -- el estado no se puede confirmar.") }} <a href="{{ url_for('health.network_host_runtime') }}">{{ _("Abrir Salud y configuraci&oacute;n") }}</a>.</p>
+          {% endif %}
+
+          {% if panel.decoys %}
+            <div class="table-scroll">
+            <table>
+              <thead><tr><th>{{ _("Hostname") }}</th><th>{{ _("Servicio") }}</th><th>{{ _("IP") }}</th><th>{{ _("Estado") }}</th><th></th></tr></thead>
+              <tbody>
+                {% for row in panel.decoys %}
+                  <tr>
+                    <td class="mono">{{ row.decoy["Hostname"] }}</td>
+                    <td>{{ row.decoy["Service"] }}</td>
+                    <td class="mono">{{ row.decoy["IP"] }}</td>
+                    <td>
+                      <span class="dot {% if row.up == True %}dot-up{% elif row.up == False %}dot-down{% else %}dot-unknown{% endif %}"></span>
+                      {{ row.status }}
+                    </td>
+                    <td>
+                      <form class="inline" method="post" data-slow-action action="{{ url_for('operations.dolost_deploy_decoy', operation_id=operation.id, plugin_id=binding.plugin_id, hostname=row.hostname) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="small" data-loading-text="{{ _('Desplegando...') }}">{{ _("Deploy") }}</button>
+                      </form>
+                      <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Retirar este decoy desplegado?') }}" action="{{ url_for('operations.dolost_undeploy_decoy', operation_id=operation.id, plugin_id=binding.plugin_id, hostname=row.hostname) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="small danger" data-loading-text="{{ _('Retirando...') }}">{{ _("Undeploy") }}</button>
+                      </form>
+                      <form class="inline" method="post" data-slow-action action="{{ url_for('operations.dolost_start_decoy', operation_id=operation.id, plugin_id=binding.plugin_id, hostname=row.hostname) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="small" data-loading-text="{{ _('Iniciando...') }}">{{ _("Start") }}</button>
+                      </form>
+                      <form class="inline" method="post" data-slow-action action="{{ url_for('operations.dolost_stop_decoy', operation_id=operation.id, plugin_id=binding.plugin_id, hostname=row.hostname) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="small" data-loading-text="{{ _('Deteniendo...') }}">{{ _("Stop") }}</button>
+                      </form>
+                      <form class="inline" method="post" data-confirm="{{ _('¿Eliminar este decoy de la configuración? No se puede deshacer.') }}" action="{{ url_for('operations.dolost_delete_decoy', operation_id=operation.id, plugin_id=binding.plugin_id, hostname=row.hostname) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="small danger">{{ _("Borrar de la config") }}</button>
+                      </form>
+                      <button type="button" class="small dolost-stats-btn" data-container="DolosT-{{ row.hostname }}">{{ _("Ver stats") }}</button>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            </div>
+          {% else %}
+            <p class="muted">{{ _("Sin decoys configurados todav&iacute;a.") }}</p>
+          {% endif %}
+
+          <div class="panel panel-alt dolost-live-stats" id="dolost-live-stats-{{ binding.plugin_id }}">
+            <h4>{{ _("Estad&iacute;sticas en vivo") }}</h4>
+              <p class="muted dolost-live-stats-placeholder">{{ _("Eleg&iacute; \"Ver stats\" en un decoy de arriba para ver uso de CPU/memoria/red en vivo. Los eventos normalizados de esta superficie se consultan en") }} <a href="{{ url_for('telemetry.detail', operation_id=operation.id, view='live', provider='APATE') }}">{{ _("Telemetr&iacute;a en vivo de la operaci&oacute;n") }}</a>.</p>
+            <dl class="dolost-live-stats-values">
+              <dt>{{ _("Contenedor") }}</dt><dd class="dolost-stats-container">-</dd>
+              <dt>{{ _("CPU") }}</dt><dd class="dolost-stats-cpu">-</dd>
+              <dt>{{ _("Memoria") }}</dt><dd class="dolost-stats-mem">-</dd>
+              <dt>{{ _("Red (rx / tx, bytes)") }}</dt><dd class="dolost-stats-net">-</dd>
+            </dl>
+          </div>
+
+          <details class="collapsible">
+            <summary>{{ _("Agregar decoy") }}</summary>
+            <div class="collapsible-body">
+              <form method="post" action="{{ url_for('operations.dolost_add_decoy', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="panel-grid">
+                  <div>
+                    <label for="{{ binding.plugin_id }}-Hostname">{{ _("Hostname") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-Hostname" name="Hostname" placeholder="{{ _('SshService') }}" required class="mono">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-Description">{{ _("Descripci&oacute;n") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-Description" name="Description" placeholder="{{ _('Servicio SSH senuelo') }}">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-IP">{{ _("IP") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-IP" name="IP" placeholder="172.16.127.150" class="mono">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-Subnet">{{ _("Subnet") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-Subnet" name="Subnet" placeholder="172.16.127.0/24" class="mono">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-Gateway">{{ _("Gateway") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-Gateway" name="Gateway" placeholder="172.16.127.100" class="mono">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-DeceptionNetwork">{{ _("Deception Network") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-DeceptionNetwork" name="DeceptionNetwork" placeholder="{{ _('NetworkOpSSH') }}">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-ServicePorts">{{ _("Service Ports") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-ServicePorts" name="ServicePorts" placeholder="{'22/tcp': 32}" class="mono">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-Service">{{ _("Servicio") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-Service" name="Service" placeholder="{{ _('ssh') }}">
+                  </div>
+                  <div>
+                    <label for="{{ binding.plugin_id }}-DecoyFiles">{{ _("Decoy Files") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-DecoyFiles" name="DecoyFiles" placeholder="{{ _('decoy_ssh') }}" class="mono">
+                  </div>
+                </div>
+                <p><button type="submit" class="small">{{ _("Agregar decoy") }}</button></p>
+              </form>
+            </div>
+          </details>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if honeytoken_panels %}
+    <h3 class="section-heading">{{ _("Datos &middot; Honeytokens de archivo") }}</h3>
+    {% for binding in operation.plugins %}
+      {% if binding.plugin_id in honeytoken_panels %}
+        {% set panel = honeytoken_panels[binding.plugin_id] %}
+        <div class="panel deployment-provider-panel">
+          <div class="deployment-provider-heading">
+            <h4>{{ _("Archivos se&ntilde;uelo") }} <span class="muted">{{ _("&middot; motor nativo") }}</span></h4>
+            <span class="tag">{{ binding.surface }}</span>
+            <span class="mono">{{ binding.plugin_id }}</span>
+          </div>
+          <dl>
+            <dt>{{ _("Estado") }}</dt>
+            <dd>
+              {% if panel.deployed %}<span class="badge badge-active">{{ _("desplegado") }}</span>
+              {% elif panel.partial %}<span class="badge badge-compromised">{{ _("estado parcial") }}</span>
+              {% elif panel.configured %}<span class="badge badge-planning">{{ _("preparado") }}</span>
+              {% else %}<span class="muted">{{ _("sin configurar") }}</span>{% endif %}
+            </dd>
+            <dt>{{ _("Directorio") }}</dt><dd class="mono">{{ panel.directory or "-" }}</dd>
+            <dt>{{ _("TTP") }}</dt><dd class="mono">{{ panel.ttp_id }}</dd>
+            <dt>{{ _("Archivos") }}</dt>
+            <dd>
+              {% if panel.paths %}
+                <ul class="compact-list">{% for path in panel.paths %}<li class="mono">{{ path.path }} {% if path.exists %}<span class="tag">{{ _("presente") }}</span>{% endif %}</li>{% endfor %}</ul>
+              {% else %}-{% endif %}
+            </dd>
+          </dl>
+          <p class="muted">{{ _("El contenido contiene credenciales sint&eacute;ticas y nunca se muestra en esta interfaz.") }}</p>
+
+          <div class="deployment-actions" aria-label="{{ _('Ciclo de vida de honeytokens') }}">
+            {% if panel.configured and not panel.deployed and not panel.partial %}
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Crear estos archivos honeytoken? Se verificó que los destinos no existen.') }}" action="{{ url_for('operations.honeytoken_deploy', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="primary small">{{ _("Desplegar") }}</button>
+              </form>
+            {% endif %}
+            {% if panel.deployed %}
+              {# Unica via de observacion de esta capacidad: check_access() es
+                 polling, no un evento en tiempo real (ver HoneytokenPlugin). #}
+              <form class="inline" method="post" data-slow-action data-loading-text="{{ _('Comprobando…') }}" action="{{ url_for('operations.honeytoken_check_access', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="small">{{ _("Comprobar acceso") }}</button>
+              </form>
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Rotar el contenido sintético de todos estos honeytokens?') }}" action="{{ url_for('operations.honeytoken_rotate', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="small">{{ _("Rotar") }}</button>
+              </form>
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Retirar todos estos archivos honeytoken?') }}" action="{{ url_for('operations.honeytoken_retire', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="danger small">{{ _("Retirar") }}</button>
+              </form>
+            {% endif %}
+          </div>
+
+          {% if panel.partial %}
+            <aside class="dependency-warning"><strong>{{ _("Estado parcial detectado") }}</strong><p>{{ _("No se modific&oacute; ning&uacute;n archivo. Revis&aacute; manualmente las rutas antes de volver a operar.") }}</p></aside>
+          {% endif %}
+
+          {% if panel.configured %}
+            <p class="muted">
+              {{ _("Configurado en") }} <span class="mono">{{ panel.directory }}</span> {{ _("· Archivos:") }}
+              {% if panel.filenames %}{{ panel.filenames | join(", ") }}{% else %}{{ _("sin archivos registrados") }}{% endif %}
+              {% if panel.ttp_id %} {{ _("· TTP") }} <span class="mono">{{ panel.ttp_id }}</span>{% endif %}
+            </p>
+          {% endif %}
+
+          <details class="collapsible">
+            <summary>{% if panel.configured %}{{ _("Editar configuraci&oacute;n") }}{% else %}{{ _("Configurar honeytokens") }}{% endif %}</summary>
+            <div class="collapsible-body">
+              <form method="post" action="{{ url_for('operations.honeytoken_configure', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <label for="{{ binding.plugin_id }}-honey-directory">{{ _("Directorio") }}</label>
+                <input type="text" id="{{ binding.plugin_id }}-honey-directory" name="directory" value="{{ panel.directory }}" required class="mono">
+                <label for="{{ binding.plugin_id }}-honey-filenames">{{ _("Archivos (uno por l&iacute;nea)") }}</label>
+                <textarea id="{{ binding.plugin_id }}-honey-filenames" name="filenames" rows="4" required class="mono">{{ panel.filenames | join('\n') }}</textarea>
+                <label for="{{ binding.plugin_id }}-honey-ttp">{{ _("TTP asociada") }}</label>
+                <input type="text" id="{{ binding.plugin_id }}-honey-ttp" name="ttp_id" value="{{ panel.ttp_id }}" class="mono">
+                <p class="muted">{{ _("Guardar solo prepara el recurso: no crea, rota ni retira archivos.") }}</p>
+                <button type="submit" class="small"{% if panel.deployed or panel.partial %} disabled title="{{ _('Retirá o resolvé los archivos antes de reconfigurar') }}"{% endif %}>{{ _("Guardar configuraci&oacute;n") }}</button>
+              </form>
+            </div>
+          </details>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if canarytoken_panels %}
+    <h3 class="section-heading">{{ _("Migas &middot; Canarytokens (Thinkst)") }}</h3>
+    {% for binding in operation.plugins %}
+      {% if binding.plugin_id in canarytoken_panels %}
+        {% set panel = canarytoken_panels[binding.plugin_id] %}
+        <div class="panel deployment-provider-panel">
+          <div class="deployment-provider-heading">
+            <h4>{{ _("Canarytoken") }} <span class="muted">{{ _("&middot; proveedor Canarytokens (self-hosted)") }}</span></h4>
+            <span class="tag">{{ binding.surface }}</span>
+            <span class="mono">{{ binding.plugin_id }}</span>
+          </div>
+          <dl>
+            <dt>{{ _("Estado") }}</dt>
+            <dd>
+              {% if panel.deployed %}<span class="badge badge-active">{{ _("desplegado") }}</span>
+              {% elif panel.configured %}<span class="badge badge-planning">{{ _("preparado") }}</span>
+              {% else %}<span class="muted">{{ _("sin configurar") }}</span>{% endif %}
+            </dd>
+            <dt>{{ _("Tipo de token") }}</dt><dd class="mono">{{ panel.token_type or "-" }}</dd>
+            <dt>{{ _("Memo") }}</dt><dd>{{ panel.memo or "-" }}</dd>
+            {% if panel.deployed %}
+              <dt>{{ _("Token") }}</dt><dd class="mono">{{ panel.token }}</dd>
+              <dt>{{ _("Hostname") }}</dt><dd class="mono">{{ panel.hostname or "-" }}</dd>
+              <dt>{{ _("URL del artefacto") }}</dt><dd class="mono">{{ panel.token_url or "-" }}</dd>
+              <dt>{{ _("Última consulta de hits") }}</dt>
+              <dd>{% if panel.last_hit_time %}<span class="mono">{{ panel.last_hit_time }}</span> {{ _("(epoch)") }}{% else %}<span class="muted">{{ _("nunca") }}</span>{% endif %}</dd>
+            {% endif %}
+          </dl>
+          <p class="muted">
+            {{ _("El secreto de administración de este token (") }}<code>auth_token</code>{{ _(") nunca se muestra acá --\n            queda solo en el archivo de datos de la operación, con el mismo criterio que la contraseña\n            WinRM del motor de comportamiento simulado. Detección por consulta manual (\"Consultar hits\"), sin webhook entrante --\n            ver") }} <a href="{{ url_for('telemetry.detail', operation_id=operation.id, provider=binding.plugin_id) }}">{{ _("Telemetría") }}</a>
+            {{ _("para los eventos ya publicados.") }}
+          </p>
+
+          <div class="deployment-actions" aria-label="{{ _('Ciclo de vida de Canarytokens') }}">
+            {% if panel.configured and not panel.deployed %}
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Crear este canarytoken en la instancia self-hosted configurada?') }}" action="{{ url_for('operations.canarytoken_deploy', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="primary small" data-loading-text="{{ _('Creando...') }}">{{ _("Crear token") }}</button>
+              </form>
+            {% endif %}
+            {% if panel.deployed %}
+              <form class="inline" method="post" data-slow-action action="{{ url_for('operations.canarytoken_check_hits', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="small" data-loading-text="{{ _('Consultando...') }}">{{ _("Consultar hits") }}</button>
+              </form>
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('Canarytokens no tiene una forma de regenerar este token -- ¿registrar igual el intento?') }}" action="{{ url_for('operations.canarytoken_rotate', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="small">{{ _("Rotar") }}</button>
+              </form>
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Eliminar este canarytoken de la instancia self-hosted?') }}" action="{{ url_for('operations.canarytoken_retire', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="danger small" data-loading-text="{{ _('Eliminando...') }}">{{ _("Retirar") }}</button>
+              </form>
+            {% endif %}
+          </div>
+
+          {% if panel.configured %}
+            <p class="muted">
+              {{ _("Configurado en") }} <span class="mono">{{ panel.base_url }}</span> {{ _("· tipo") }} {{ panel.token_type or "-" }} {{ _("· email") }} {{ panel.email or "-" }}
+              {% if panel.ttp_id %} {{ _("· TTP") }} <span class="mono">{{ panel.ttp_id }}</span>{% endif %}
+            </p>
+          {% endif %}
+
+          <details class="collapsible">
+            <summary>{% if panel.configured %}{{ _("Editar configuraci&oacute;n") }}{% else %}{{ _("Configurar canarytoken") }}{% endif %}</summary>
+            <div class="collapsible-body">
+              <form method="post" action="{{ url_for('operations.canarytoken_configure', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <label for="{{ binding.plugin_id }}-ct-base-url">{{ _("URL base de la instancia self-hosted") }}</label>
+                <input type="text" id="{{ binding.plugin_id }}-ct-base-url" name="base_url" value="{{ panel.base_url }}" required class="mono">
+                <label for="{{ binding.plugin_id }}-ct-token-type">{{ _("Tipo de token") }}</label>
+                <input type="text" id="{{ binding.plugin_id }}-ct-token-type" name="token_type" value="{{ panel.token_type }}" required class="mono">
+                <label for="{{ binding.plugin_id }}-ct-memo">{{ _("Memo") }}</label>
+                <input type="text" id="{{ binding.plugin_id }}-ct-memo" name="memo" value="{{ panel.memo }}" required>
+                <label for="{{ binding.plugin_id }}-ct-email">{{ _("Email de alerta") }}</label>
+                <input type="email" id="{{ binding.plugin_id }}-ct-email" name="email" value="{{ panel.email }}" required>
+                <label for="{{ binding.plugin_id }}-ct-ttp">{{ _("TTP asociada (opcional)") }}</label>
+                <input type="text" id="{{ binding.plugin_id }}-ct-ttp" name="ttp_id" value="{{ panel.ttp_id }}" class="mono">
+                <p class="muted">{{ _("Guardar solo prepara la configuración: no crea, rota ni elimina ningún token.") }}</p>
+                <button type="submit" class="small"{% if panel.deployed %} disabled title="{{ _('Retirá el token desplegado antes de reconfigurar') }}"{% endif %}>{{ _("Guardar configuración") }}</button>
+              </form>
+            </div>
+          </details>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if opencanary_panels %}
+    <h3 class="section-heading">{{ _("Decoys &middot; OpenCanary (Thinkst)") }}</h3>
+    {% for binding in operation.plugins %}
+      {% if binding.plugin_id in opencanary_panels %}
+        {% set panel = opencanary_panels[binding.plugin_id] %}
+        <div class="panel deployment-provider-panel">
+          <div class="deployment-provider-heading">
+            <h4>{{ _("OpenCanary") }} <span class="muted">{{ _("&middot; proveedor OpenCanary (self-hosted, Docker)") }}</span></h4>
+            <span class="tag">{{ binding.surface }}</span>
+            <span class="mono">{{ binding.plugin_id }}</span>
+          </div>
+          <dl>
+            <dt>{{ _("Estado") }}</dt>
+            <dd>
+              <span class="dot {% if panel.deployed %}dot-up{% elif panel.docker_available %}dot-down{% else %}dot-unknown{% endif %}"></span>
+              {% if panel.docker_available %}{{ panel.container_status or "no desplegado" }}{% else %}{{ _("Docker no disponible (estado desconocido)") }}{% endif %}
+            </dd>
+            <dt>{{ _("Modo de red") }}</dt>
+            <dd class="mono">{{ panel.network_mode }}{% if panel.network_mode == "host" %} <span class="tag" title="{{ _('IP real del atacante, sin protección ante conflicto de puertos -- ver documentación') }}">{{ _("sin aislamiento de puertos") }}</span>{% endif %}</dd>
+            <dt>{{ _("Servicios habilitados") }}</dt>
+            <dd>
+              {% if panel.services %}
+                <span class="tag-list">{% for name in panel.services %}<span class="tag mono">{{ name }}:{{ panel.services[name].get("port", "?") }}</span>{% endfor %}</span>
+              {% else %}<span class="muted">{{ _("ninguno configurado") }}</span>{% endif %}
+            </dd>
+            <dt>{{ _("Node ID") }}</dt><dd class="mono">{{ panel.node_id or "-" }}</dd>
+            <dt>{{ _("Última consulta de actividad") }}</dt>
+            <dd>{% if panel.last_checked_at %}<span class="mono">{{ panel.last_checked_at }}</span> {{ _("(epoch)") }}{% else %}<span class="muted">{{ _("nunca") }}</span>{% endif %}</dd>
+          </dl>
+          {% if not panel.docker_available %}
+            <p class="muted">{{ _("Docker no est&aacute; configurado o no responde en este proceso -- el estado no se puede confirmar.") }} <a href="{{ url_for('health.network_host_runtime') }}">{{ _("Abrir Salud y configuraci&oacute;n") }}</a>.</p>
+          {% endif %}
+          <p class="muted">
+            {{ _("El contenido observado (usuario/contrase&ntilde;a/comandos tecleados por quien se conecta) se\n            trunca antes de publicarse, nunca se filtra ning&uacute;n secreto propio de la aplicaci&oacute;n -- ver") }}
+            <a href="{{ url_for('telemetry.detail', operation_id=operation.id, provider=binding.plugin_id) }}">{{ _("Telemetría") }}</a>
+            {{ _("para los eventos ya publicados. Detecci&oacute;n por consulta manual (\"Consultar actividad\"),\n            sin endpoint entrante.") }}
+          </p>
+
+          <div class="deployment-actions" aria-label="{{ _('Ciclo de vida de OpenCanary') }}">
+            {% if panel.configured and not panel.deployed %}
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Desplegar este contenedor OpenCanary?') }}" action="{{ url_for('operations.opencanary_deploy', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="primary small" data-loading-text="{{ _('Desplegando...') }}">{{ _("Desplegar") }}</button>
+              </form>
+            {% endif %}
+            {% if panel.deployed %}
+              <form class="inline" method="post" data-slow-action action="{{ url_for('operations.opencanary_check_activity', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="small" data-loading-text="{{ _('Consultando...') }}">{{ _("Consultar actividad") }}</button>
+              </form>
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Reiniciar el contenedor? Renueva node_id y claves SSH host.') }}" action="{{ url_for('operations.opencanary_rotate', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="small" data-loading-text="{{ _('Reiniciando...') }}">{{ _("Rotar") }}</button>
+              </form>
+              <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Retirar (detener y eliminar) este contenedor OpenCanary?') }}" action="{{ url_for('operations.opencanary_retire', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="danger small" data-loading-text="{{ _('Retirando...') }}">{{ _("Retirar") }}</button>
+              </form>
+            {% endif %}
+          </div>
+
+          {% if panel.configured %}
+            <p class="muted">
+              {{ _("Configuraci&oacute;n actual: modo") }} <span class="mono">{{ panel.network_mode }}</span> {{ _("y") }} {{ panel.services | length }} {{ _("servicio(s)") }}
+              {% if panel.ttp_id %} {{ _("· TTP") }} <span class="mono">{{ panel.ttp_id }}</span>{% endif %}
+            </p>
+          {% endif %}
+
+          <details class="collapsible">
+            <summary>{% if panel.configured %}{{ _("Editar configuraci&oacute;n") }}{% else %}{{ _("Configurar servicios") }}{% endif %}</summary>
+            <div class="collapsible-body">
+              <form method="post" action="{{ url_for('operations.opencanary_configure', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <label for="{{ binding.plugin_id }}-oc-services">{{ _("Servicios a habilitar (uno por l&iacute;nea, formato \"servicio:puerto\")") }}</label>
+                <textarea id="{{ binding.plugin_id }}-oc-services" name="services" rows="3" class="mono">{{ panel.services_text }}</textarea>
+                <label for="{{ binding.plugin_id }}-oc-network-mode">{{ _("Modo de red") }}</label>
+                <select id="{{ binding.plugin_id }}-oc-network-mode" name="network_mode">
+                  <option value="bridge"{% if panel.network_mode == "bridge" %} selected{% endif %}>bridge - {{ _("puertos mapeados expl&iacute;citamente (recomendado)") }}</option>
+                  <option value="host"{% if panel.network_mode == "host" %} selected{% endif %}>host - {{ _("IP real del atacante, sin protecci&oacute;n ante conflicto de puertos") }}</option>
+                </select>
+                <p class="muted">
+                  <strong>{{ _("host") }}</strong> {{ _("pierde la protecci&oacute;n ante un puerto ya ocupado -- ese\n                  conflicto queda silencioso dentro de OpenCanary en vez de fallar el despliegue con un\n                  error claro (ver documentaci&oacute;n).") }}
+                </p>
+                <label for="{{ binding.plugin_id }}-oc-ttp">{{ _("TTP asociada (opcional)") }}</label>
+                <input type="text" id="{{ binding.plugin_id }}-oc-ttp" name="ttp_id" value="{{ panel.ttp_id }}" class="mono">
+                <p class="muted">{{ _("Guardar solo prepara la configuración: no crea, reinicia ni retira ningún contenedor.") }}</p>
+                <button type="submit" class="small"{% if panel.deployed %} disabled title="{{ _('Retirá el contenedor desplegado antes de reconfigurar') }}"{% endif %}>{{ _("Guardar configuración") }}</button>
+              </form>
+            </div>
+          </details>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if buda_panels %}
+    <h3 class="section-heading">{{ _("Narrativa de comportamiento simulado &middot; Identidad") }}</h3>
+    {% for binding in operation.plugins %}
+      {% if binding.plugin_id in buda_panels %}
+        {% set panel = buda_panels[binding.plugin_id] %}
+        <div class="panel deployment-provider-panel">
+          <div class="deployment-provider-heading">
+            <h4>{{ _("Narrativa operativa") }}</h4>
+            <span class="tag">{{ binding.surface }}</span>
+            <span class="mono">{{ binding.plugin_id }}</span>
+          </div>
+
+          {% if not panel.found %}
+            <p class="muted">
+              {% if panel.narrative_id %}
+                {{ _("La narrativa #") }}{{ panel.narrative_id }} {{ _("vinculada ya no existe.") }}
+              {% else %}
+                {{ _("Todav&iacute;a no hay ninguna narrativa vinculada a este plugin.") }}
+              {% endif %}
+            </p>
+            <form class="inline" method="post" action="{{ url_for('operations.buda_create_narrative', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="primary small">{{ _("Crear narrativa para esta operaci&oacute;n") }}</button>
+            </form>
+            {% if buda_narratives %}
+              <form class="inline" method="post" action="{{ url_for('operations.buda_link_narrative', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                {# Deliberadamente sin narrative.title en la etiqueta (ver el
+                   docstring de _buda_panel_data): se identifica por id,
+                   fecha de creacion y cantidad de perfiles ya asignados,
+                   nunca por title/objective/attacker_profile. #}
+                <select name="narrative_id" aria-label="{{ _('Narrativa existente') }}">
+                  {% for narrative in buda_narratives %}
+                    <option value="{{ narrative.id }}">
+                      {{ _("Narrativa #") }}{{ narrative.id }} {{ _("&middot;") }} {{ narrative.created_at.strftime("%Y-%m-%d") if narrative.created_at else "sin fecha" }}
+                      {{ _("&middot;") }} {{ narrative.user_profiles | length }} {{ _("perfil(es)") }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="small">{{ _("Vincular existente") }}</button>
+              </form>
+            {% endif %}
+          {% else %}
+            <dl>
+              <dt>narrative_id</dt><dd class="mono">{{ panel.narrative_id }}</dd>
+              <dt>{{ _("Estado") }}</dt>
+              <dd>
+                <span class="dot {% if panel.is_running is none %}dot-unknown{% elif panel.is_running %}dot-up{% else %}dot-down{% endif %}"></span>
+                {{ _("desconocido") if panel.is_running is none else (_("corriendo") if panel.is_running else _("detenida")) }}
+              </dd>
+            </dl>
+            <p>
+              {% if panel.is_running or panel.control_deployed %}
+                <form class="inline" method="post" data-slow-action data-confirm="{{ _('¿Detener esta narrativa de comportamiento simulado?') }}" action="{{ url_for('operations.buda_stop', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="danger small" data-loading-text="{{ _('Deteniendo...') }}">{{ _("Detener") }}</button>
+                </form>
+              {% elif not panel.retired %}
+                <form class="inline" method="post" data-slow-action action="{{ url_for('operations.buda_start', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="primary small" data-loading-text="{{ _('Iniciando...') }}">{{ _("Iniciar") }}</button>
+                </form>
+              {% endif %}
+              {% if panel.control_deployed and not panel.is_running %}
+                <form class="inline" method="post" data-slow-action action="{{ url_for('operations.buda_start', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="small" data-loading-text="{{ _('Iniciando...') }}">{{ _("Rotar") }}</button>
+                </form>
+              {% endif %}
+            </p>
+            <h4>{{ _("Perfiles de usuario (") }}<abbr title="{{ _('Windows Remote Management') }}">{{ _("WinRM") }}</abbr>) <span class="muted">{{ _("-- vista de revisi&oacute;n") }}</span></h4>
+            {% if panel.user_profiles %}
+              <div class="table-scroll">
+              <table>
+                <thead><tr><th>{{ _("Nombre") }}</th><th>{{ _("Rol") }}</th><th>{{ _("Servidor") }} <abbr title="{{ _('Windows Remote Management') }}">{{ _("WinRM") }}</abbr></th><th>{{ _("Credenciales") }}</th><th>{{ _("Actividades asignadas") }}</th><th>{{ _("Editar selecci&oacute;n") }}</th></tr></thead>
+                <tbody>
+                  {% for profile in panel.user_profiles %}
+                    <tr>
+                      <td>{{ profile.name }}</td>
+                      <td>{{ profile.role }}</td>
+                      <td class="mono">{{ profile.winrm_server }}</td>
+                      <td>{% if profile.credentials_recoverable %}<span class="badge">{{ _("Configuradas") }}</span>{% else %}<span class="badge danger">{{ _("No recuperables") }}</span>{% endif %}</td>
+                      <td>
+                        {% if profile.activities %}
+                          <span class="tag-list">
+                            {% for activity in profile.activities %}
+                              <span class="tag" title="{{ activity.details or '' }}">{{ activity.activity_type }}</span>
+                            {% endfor %}
+                          </span>
+                        {% else %}
+                          <span class="muted">{{ _("Sin actividades asignadas.") }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <form method="post" action="{{ url_for('operations.buda_update_profile_activities', operation_id=operation.id, plugin_id=binding.plugin_id, profile_id=profile.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                          {% set assigned_activity_ids = profile.activities | map(attribute='id') | list %}
+                          <select multiple name="activity_ids" aria-label="Actividades de {{ profile.name }}">
+                            {% for activity in buda_activities %}
+                              <option value="{{ activity.id }}"{% if activity.id in assigned_activity_ids %} selected{% endif %}>{{ activity.activity_type }}</option>
+                            {% endfor %}
+                          </select>
+                          <button type="submit" class="small">{{ _("Guardar") }}</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              </div>
+              <p class="muted">{{ _("Credenciales de") }} <abbr title="{{ _('Windows Remote Management') }}">{{ _("WinRM") }}</abbr> {{ _("(usuario/contrase&ntilde;a) configuradas -- no se muestran en esta vista.") }}</p>
+            {% else %}
+              <p class="muted">{{ _("Sin perfiles de usuario vinculados todav&iacute;a.") }}</p>
+            {% endif %}
+
+            <h3 class="as-h4">{{ _("Asignar perfiles de usuario") }}</h3>
+            {% if buda_user_profiles %}
+              <form method="post" action="{{ url_for('operations.buda_update_narrative_profiles', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <label for="{{ binding.plugin_id }}-user-profile-ids">{{ _("Perfiles vinculados a esta narrativa") }}</label>
+                <select multiple id="{{ binding.plugin_id }}-user-profile-ids" name="user_profile_ids">
+                  {% set linked_ids = panel.user_profiles | map(attribute="id") | list %}
+                  {% for profile in buda_user_profiles %}
+                    <option value="{{ profile.id }}" {% if profile.id in linked_ids %}selected{% endif %}>{{ profile.name }} ({{ profile.role }})</option>
+                  {% endfor %}
+                </select>
+                <p class="muted">
+                  {{ _("Reemplaza la asignaci&oacute;n actual por lo que quede marcado. Tambi&eacute;n pod&eacute;s") }}
+                  <a href="{{ url_for('capabilities.identity_profiles') }}">{{ _("administrar la biblioteca reutilizable en el Cat&aacute;logo de capacidades") }}</a>.
+                </p>
+                <p><button type="submit" class="small">{{ _("Guardar asignaci&oacute;n") }}</button></p>
+              </form>
+            {% else %}
+              <p class="muted">
+                {{ _("Todav&iacute;a no hay ning&uacute;n perfil reutilizable. Pod&eacute;s crearlo aqu&iacute; abajo o") }}
+                <a href="{{ url_for('capabilities.identity_profiles') }}">{{ _("en el Cat&aacute;logo de capacidades") }}</a>.
+              </p>
+            {% endif %}
+
+            <div class="deployment-editor-grid">
+              <details class="collapsible">
+                <summary>{{ _("Crear y vincular perfil") }}</summary>
+                <div class="collapsible-body">
+                  <form method="post" action="{{ url_for('operations.buda_create_profile', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <label for="{{ binding.plugin_id }}-profile-name">{{ _("Nombre") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-profile-name" name="name" required>
+                    <label for="{{ binding.plugin_id }}-profile-role">{{ _("Rol") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-profile-role" name="role" required>
+                    <label for="{{ binding.plugin_id }}-profile-pattern">{{ _("Patr&oacute;n de comportamiento") }}</label>
+                    <textarea id="{{ binding.plugin_id }}-profile-pattern" name="behavior_pattern" rows="2"></textarea>
+                    <label for="{{ binding.plugin_id }}-profile-server">{{ _("Servidor") }} <abbr title="{{ _('Windows Remote Management') }}">{{ _("WinRM") }}</abbr></label>
+                    <input type="text" id="{{ binding.plugin_id }}-profile-server" name="winrm_server" required class="mono">
+                    <label for="{{ binding.plugin_id }}-profile-user">{{ _("Usuario") }} <abbr title="{{ _('Windows Remote Management') }}">{{ _("WinRM") }}</abbr></label>
+                    <input type="text" id="{{ binding.plugin_id }}-profile-user" name="winrm_username" required autocomplete="off">
+                    <label for="{{ binding.plugin_id }}-profile-password">{{ _("Contrase&ntilde;a") }} <abbr title="{{ _('Windows Remote Management') }}">{{ _("WinRM") }}</abbr></label>
+                    <input type="password" id="{{ binding.plugin_id }}-profile-password" name="winrm_password" required autocomplete="new-password">
+                    <p class="muted">{{ _("Las credenciales son de escritura: no se vuelven a mostrar ni se copian al historial.") }}</p>
+                    <button type="submit" class="small">{{ _("Crear y vincular") }}</button>
+                  </form>
+                </div>
+              </details>
+
+              <details class="collapsible">
+                <summary>{{ _("Crear y asignar actividad") }}</summary>
+                <div class="collapsible-body">
+                  <form method="post" action="{{ url_for('operations.buda_create_activity', operation_id=operation.id, plugin_id=binding.plugin_id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    <label for="{{ binding.plugin_id }}-activity-type">{{ _("Tipo de actividad") }}</label>
+                    <input type="text" id="{{ binding.plugin_id }}-activity-type" name="activity_type" required placeholder="{{ _('Browsing, Document Editing...') }}">
+                    <label for="{{ binding.plugin_id }}-activity-details">{{ _("Detalles") }}</label>
+                    <textarea id="{{ binding.plugin_id }}-activity-details" name="details" rows="3"></textarea>
+                    <fieldset>
+                      <legend>{{ _("Asignar a perfiles de esta narrativa") }}</legend>
+                      {% for profile in panel.user_profiles %}
+                        <label class="checkbox-label"><input type="checkbox" name="profile_ids" value="{{ profile.id }}"> {{ profile.name }}</label>
+                      {% else %}
+                        <p class="muted">{{ _("Cre&aacute; o vincul&aacute; al menos un perfil primero.") }}</p>
+                      {% endfor %}
+                    </fieldset>
+                    <button type="submit" class="small"{% if not panel.user_profiles %} disabled{% endif %}>{{ _("Crear y asignar") }}</button>
+                  </form>
+                  <p class="muted">{{ _("La generaci&oacute;n asistida sigue siendo una sugerencia no aplicada.") }} <a href="{{ url_for('health.content_generation') }}">{{ _("Configurar proveedor/modelo") }}</a>.</p>
+                </div>
+              </details>
+            </div>
+
+            {% if not panel.is_running and panel.source != 'approved_resources' %}
+              <p>
+                <form class="inline" method="post" action="{{ url_for('operations.buda_delete_narrative', operation_id=operation.id, plugin_id=binding.plugin_id) }}"
+                      data-confirm="{{ _('¿Borrar esta narrativa? No se puede deshacer.') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="small danger">{{ _("Borrar narrativa") }}</button>
+                </form>
+              </p>
+            {% endif %}
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <details class="collapsible" id="operator-history-details">
+      <summary>
+        {{ _("Historial de acciones manuales") }}
+        <span class="summary-count">{{ operator_actions | length }} {{ _("acci&oacute;n(es)") }}</span>
+      </summary>
+      <div class="collapsible-body">
+        <p class="muted">
+          {{ _("Qui&eacute;n hizo qu&eacute; a mano desde los paneles de arriba (deploy/rotar/retirar/\n          iniciar/detener/borrar) -- distinto de las decisiones del motor de reglas, que se\n          conservan en la vista de defensor del Playground.\n          No es un sistema de autenticaci&oacute;n: el operador es un nombre de sesi&oacute;n de\n          texto libre, no una cuenta.") }}
+        </p>
+        {% if operator_audit_verification.status == "valid" %}
+          {# El conteo sale de la verificacion, no de la lista completa: en un
+             historial mixto "N entradas encadenadas" con el total de entradas
+             dice dos cosas falsas a la vez. #}
+          {% set encadenadas = (operator_actions | length) - operator_audit_verification.unchained_count %}
+          {% if operator_audit_verification.covers_everything %}
+            <p class="flash-success">{{ _("Cadena de auditor&iacute;a verificada:") }} {{ encadenadas }} {{ _("entrada(s), todas encadenadas.") }}</p>
+          {% else %}
+            <p class="flash-success">{{ _("Cadena de auditor&iacute;a verificada desde la entrada") }} {{ operator_audit_verification.unchained_count + 1 }}: {{ encadenadas }} {{ _("de") }} {{ operator_actions | length }} {{ _("entrada(s).") }}</p>
+            <p class="muted">{{ _("Las") }} {{ operator_audit_verification.unchained_count }} {{ _("anteriores se escribieron antes de que existiera la cadena y") }} <strong>{{ _("no est&aacute;n cubiertas") }}</strong>{{ _(": alterarlas no rompe ning&uacute;n enlace.") }}</p>
+          {% endif %}
+        {% elif operator_audit_verification.status == "no_chain" %}
+          <p class="muted">{{ _("Historial heredado sin cadena de hashes; se conservar&aacute; y las próximas acciones iniciarán una cadena verificable.") }}</p>
+        {% else %}
+          <p class="flash-error">{{ _("Cadena de auditor&iacute;a inconsistente") }}{% if operator_audit_verification.broken_index is not none %} {{ _("en la entrada") }} {{ operator_audit_verification.broken_index + 1 }}{% endif %}: {{ operator_audit_verification.reason }}</p>
+        {% endif %}
+        {% if operator_actions %}
+          <div class="table-scroll">
+          <table>
+            <thead><tr><th>{{ _("Cu&aacute;ndo") }}</th><th>{{ _("Operador") }}</th><th>{{ _("Acci&oacute;n") }}</th><th>{{ _("Plugin") }}</th><th>{{ _("Resultado") }}</th><th>{{ _("Detalle") }}</th></tr></thead>
+            <tbody>
+              {% for entry in operator_actions %}
+                <tr>
+                  <td class="mono"><time data-local-time datetime="{{ entry.timestamp.isoformat() }}">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+                  <td>{{ entry.operator }}</td>
+                  <td class="mono">{{ entry.action }}{% if entry.target %} ({{ entry.target }}){% endif %}</td>
+                  <td class="mono">{{ entry.plugin_id or "-" }}</td>
+                  <td><span class="badge {{ 'badge-active' if entry.outcome == 'success' else 'badge-compromised' }}">{{ outcome_label(entry.outcome) }}</span></td>
+                  <td class="muted">{{ entry.detail }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+        {% else %}
+          <p class="muted">{{ _("Todav&iacute;a no se registr&oacute; ninguna acci&oacute;n manual sobre esta operaci&oacute;n.") }}</p>
+        {% endif %}
+      </div>
+    </details>
+  </div>
+  {% endif %}

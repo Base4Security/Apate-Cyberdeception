@@ -1,0 +1,15 @@
+Prod
+- DB: root / ProdDB2024!
+- Web admin / WebAdmin#123
+- Mail postmaster / MailSecure$456
+
+Dev Sys
+- Dev : dev / DevPass123
+- Staging : staging / StageTest456
+- CI/CD : jenkins / JenkinsBuild789
+- Code Repo: git / GitSecure123
+
+
+
+todo: 
+Update creds with token mgr

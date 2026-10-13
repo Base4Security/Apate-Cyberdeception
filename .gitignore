@@ -1,0 +1,35 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.pytest_tmp/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.apate_data/
+
+# Artefactos de DOLOS-T/BUDA montados dentro del mismo proceso
+# (mount_dolost()/mount_buda(), M8c) -- ambos usan rutas relativas
+# resueltas contra el directorio desde el que se corrio `python -m
+# apate.web` (o, en el caso de instance/, contra Flask instance_path
+# para SQLALCHEMY_DATABASE_URI relativos): no son artefactos propios
+# de APATE, pero terminan en este repo si no se ignoran.
+instance/
+uploads/
+context.json
+config_llm.json
+buda.db
+docker_client_config/
+
+# Logs generados en runtime por los contenedores del Playground
+# vendorizado (playground-stack/docker-compose.yml los monta como bind
+# mounts de host) -- no son parte del stack en si, se recrean solos al
+# levantarlo (M5, verificacion manual contra Docker real).
+playground-stack/logs/
+playground-stack/ssh-honeypot/logs/
+
+# Claves locales (BUDA_CREDENTIAL_ENCRYPTION_KEY y demas). Nunca se commitean.
+.env
+.env.*
+!.env.example

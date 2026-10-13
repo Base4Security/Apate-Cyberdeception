@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Reglas") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _('Inicio') }}</a> / {{ _('Reglas') }}</nav>{% endblock %}
+{% block extra_head %}
+  {# M13c: CodeMirror 5 via CDN (dependencia cliente-only, sin paquete
+     Python nuevo) -- modo YAML para resaltado de sintaxis, tema
+     material-darker para no desentonar con el tema oscuro de APATE. #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/yaml/yaml.min.js"></script>
+{% endblock %}
+{% block content %}
+  <div class="content-toolbar rules-page-header">
+    <div>
+      <h1>{{ _("Reglas del motor de decisi&oacute;n") }}</h1>
+      <p class="muted">{{ _("Condiciones y acciones auditables en un documento YAML versionable.") }}</p>
+    </div>
+    <span class="engine-mode-badge"><span aria-hidden="true">&#9679;</span> {{ _("Motor determinista") }}</span>
+  </div>
+
+  <aside class="decision-scope-note" aria-label="{{ _('Alcance de las reglas') }}">
+    <strong>{{ _("Alcance operativo") }}</strong>
+    <span>{{ _("Las reglas de interacci&oacute;n (RoE) gobiernan las acciones autom&aacute;ticas del motor. Las acciones manuales del operador se auditan por separado.") }}</span>
+  </aside>
+
+  {% if error %}
+    <div class="flash flash-error">{{ _("Documento YAML inv&aacute;lido:") }} {{ error }}</div>
+  {% endif %}
+
+  <section class="panel rules-overview" aria-labelledby="loaded-rules-title">
+    <div class="panel-heading">
+      <div>
+        <h2 id="loaded-rules-title">{{ _("Reglas cargadas") }}</h2>
+        <p class="muted">{{ _("Vista de lectura del documento activo.") }}</p>
+      </div>
+      <span class="summary-count-badge">{{ rules | length }}</span>
+    </div>
+    {% if rules %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Nombre") }}</th><th>{{ _("Condici&oacute;n") }}</th><th>{{ _("Acciones") }}</th></tr></thead>
+      <tbody>
+        {% for rule in rules %}
+          <tr>
+            <td><strong class="rule-name">{{ rule.name }}</strong></td>
+            <td><div class="rule-condition">
+              {# event_type/plugin_id/payload/closure_due se muestran tal
+                 cual, sin etiqueta traducida: es un eco literal de las
+                 claves del YAML de reglas que este operador esta editando
+                 (M3), no prosa -- traducirlo lo volveria incorrecto contra
+                 el archivo real. Mismo criterio para action.kind/action.to
+                 mas abajo. Ver apate.web._enum_labels para el detalle
+                 completo de esta decision. #}
+              {% if rule.when.closure_due %}
+                <span class="tag mono">closure_due</span>
+              {% else %}
+                <span class="tag mono">event_type={{ rule.when.event_type.value }}</span>
+                {% if rule.when.plugin_id %}<span class="tag mono">plugin_id={{ rule.when.plugin_id }}</span>{% endif %}
+                {% if rule.when.payload %}<span class="tag mono">payload={{ rule.when.payload }}</span>{% endif %}
+              {% endif %}
+            </div></td>
+            <td>
+              <ul class="rule-action-list">
+              {% for action in rule.then %}
+                <li><span class="mono">{{ action.kind.value }}</span>{% if action.plugin_id %}<span class="muted">plugin_id={{ action.plugin_id }}</span>{% elif action.kind.value != "transition" %}<span class="muted">{{ _("todos los plugins") }}</span>{% endif %}{% if action.to %}<span aria-hidden="true">&rarr;</span> <strong>{{ action.to.value }}</strong>{% endif %}</li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <div class="empty-state compact-empty-state"><p class="muted">{{ _("No hay reglas cargadas todav&iacute;a. El editor conserva el documento vac&iacute;o como un estado v&aacute;lido.") }}</p></div>
+  {% endif %}
+  </section>
+
+  <details class="collapsible rule-builder-panel" id="rule-builder" {% if not rules %}open{% endif %}>
+    <summary>{{ _("Constructor visual") }} <span class="summary-count">{{ _("arma una regla nueva sin escribir YAML") }}</span></summary>
+    <div class="collapsible-body">
+      <p class="muted">
+        {{ _("Complet&aacute; los campos con valores reales (tipo de evento, plugin vinculado, transici&oacute;n de estado) y se arma el YAML por vos.") }}
+        <strong>{{ _("Solo agrega reglas nuevas") }}</strong>
+        {{ _("al documento de abajo -- nunca lo reemplaza ni modifica una regla existente. Para editar o borrar una regla ya cargada, hacelo directamente en el editor de texto de m&aacute;s abajo. Nada se guarda hasta que hag&aacute;s click en") }}
+        &ldquo;{{ _("Guardar y recargar") }}&rdquo;.
+      </p>
+      <form id="rule-builder-form">
+        <label for="rb-name">{{ _("Nombre de la regla") }}</label>
+        <input type="text" id="rb-name" required placeholder="{{ _('Ej. Escaneo detectado: activar la operaci&oacute;n') }}">
+
+        <fieldset>
+          <legend>{{ _("Cu&aacute;ndo (condici&oacute;n)") }}</legend>
+          <label class="checkbox-label"><input type="radio" name="rb-condition-mode" value="event" checked> {{ _("Evento del bus") }}</label>
+          <label class="checkbox-label"><input type="radio" name="rb-condition-mode" value="closure"> {{ _("Cierre por vencimiento") }} (<span class="mono">closure_due</span>)</label>
+
+          <div id="rb-event-fields">
+            <label for="rb-event-type">{{ _("Tipo de evento") }}</label>
+            <select id="rb-event-type">
+              {% for event_type in event_types %}
+                <option value="{{ event_type.value }}">{{ event_type.value }}</option>
+              {% endfor %}
+            </select>
+
+            <label for="rb-plugin-id">{{ _("Plugin (opcional -- vac&iacute;o = cualquiera)") }}</label>
+            <input type="text" id="rb-plugin-id" list="rb-known-plugins" placeholder="mock-1" class="mono">
+
+            <label>{{ _("Condiciones sobre el payload (opcional)") }}</label>
+            <p class="muted">{{ _("Solo se dispara si el evento tiene exactamente esa clave/valor en su payload -- por ejemplo") }} <span class="mono">ttp_id</span> / <span class="mono">T1078</span>.</p>
+            <div id="rb-payload-rows"></div>
+            <button type="button" class="small" id="rb-add-payload-row">+ {{ _("Agregar par clave/valor") }}</button>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>{{ _("Entonces (acciones)") }}</legend>
+          <div id="rb-actions"></div>
+          <button type="button" class="small" id="rb-add-action-row">+ {{ _("Agregar acci&oacute;n") }}</button>
+        </fieldset>
+
+        <h3>{{ _("Vista previa del YAML generado") }}</h3>
+        <pre class="panel panel-alt mono rule-builder-preview" id="rb-preview"></pre>
+
+        <p class="rule-builder-actions">
+          <button type="submit" class="primary">{{ _("Agregar regla al documento") }}</button>
+          <button type="button" class="small" id="rb-clear-form">{{ _("Limpiar formulario") }}</button>
+          <span id="rb-added-status" class="muted" role="status" aria-live="polite"></span>
+        </p>
+      </form>
+
+      <datalist id="rb-known-plugins">
+        {% for plugin_id in known_plugin_ids %}<option value="{{ plugin_id }}">{% endfor %}
+      </datalist>
+
+      <template id="rb-payload-row-template">
+        <div class="rb-row rb-payload-row">
+          <input type="text" class="rb-payload-key mono" placeholder="clave (ej. ttp_id)" aria-label="{{ _("Clave del payload") }}">
+          <input type="text" class="rb-payload-value mono" placeholder="valor (ej. T1078)" aria-label="{{ _("Valor del payload") }}">
+          <button type="button" class="small danger rb-remove-row" aria-label="{{ _("Quitar este par clave/valor") }}">Quitar</button>
+        </div>
+      </template>
+
+      <template id="rb-action-row-template">
+        <div class="rb-row rb-action-row">
+          <select class="rb-action-kind" aria-label="{{ _("Tipo de acci&oacute;n") }}">
+            {% for action_kind in action_kinds %}<option value="{{ action_kind.value }}">{{ action_kind.value }}</option>{% endfor %}
+          </select>
+          <input type="text" class="rb-action-plugin-id mono" list="rb-known-plugins" placeholder="plugin_id {{ _('(vac&iacute;o = todos)') }}" aria-label="{{ _("Plugin de la acci&oacute;n") }}">
+          <select class="rb-action-to" hidden aria-label="{{ _("Transicionar a") }}">
+            {% for target in transition_targets %}<option value="{{ target.value }}">{{ target.value }}</option>{% endfor %}
+          </select>
+          <button type="button" class="small danger rb-remove-row" aria-label="{{ _("Quitar esta acci&oacute;n") }}">Quitar</button>
+        </div>
+      </template>
+    </div>
+  </details>
+
+  <section class="panel rules-editor-panel" id="rules-editor-panel" aria-labelledby="rules-editor-title">
+  <div class="panel-heading">
+    <div>
+      <h2 id="rules-editor-title">{{ _("Editar documento") }}</h2>
+      <p class="muted">{{ _("La validaci&oacute;n usa el mismo parser del guardado real.") }}</p>
+    </div>
+    <span class="tag mono">YAML</span>
+  </div>
+  <form method="post" action="{{ url_for('rules.save_rules') }}" id="rules-form" data-guard-unsaved data-undo-label="{{ _('Deshacer última edición') }}" data-undo-description="{{ _('Solo revierte campos locales; nunca acciones ya ejecutadas.') }}" data-undo-status="{{ _('Última edición local revertida. Guardar sigue siendo una decisión explícita.') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <label for="rules_text" class="visually-hidden">{{ _("Documento YAML") }}</label>
+    <textarea id="rules_text" name="rules_text" rows="20">{{ rules_text }}</textarea>
+    <div class="editor-actions">
+      <p id="rules-live-status" class="editor-validation-status muted" role="status" aria-live="polite">{{ _("La validaci&oacute;n en vivo aparece ac&aacute; mientras escrib&iacute;s.") }}</p>
+      <span class="muted">{{ _("Antes de escribir el archivo ver&aacute;s el diff completo.") }}</span>
+      <button type="submit" class="primary">{{ _("Guardar y recargar") }}</button>
+    </div>
+  </form>
+  </section>
+
+  <dialog class="app-dialog rules-diff-dialog" id="rules-diff-dialog" aria-labelledby="rules-diff-title">
+    <form method="dialog">
+      <h2 id="rules-diff-title">{{ _("Revisar cambios antes de guardar") }}</h2>
+      <p id="rules-diff-summary"></p>
+      <div class="rules-diff-grid">
+        <section><h3>{{ _("Versi&oacute;n actual") }}</h3><pre id="rules-diff-before"></pre></section>
+        <section><h3>{{ _("Nueva versi&oacute;n") }}</h3><pre id="rules-diff-after"></pre></section>
+      </div>
+      <div class="dialog-actions">
+        <button value="cancel" type="submit">{{ _("Seguir editando") }}</button>
+        <button value="confirm" type="submit" class="primary">{{ _("Confirmar y guardar") }}</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // M13c: CodeMirror envuelve el <textarea> real (name="rules_text"
+    // sin cambios) -- CodeMirror.fromTextArea() lo deja oculto en el DOM
+    // y mantiene su .value sincronizado solo cuando se llama editor.save(),
+    // asi que el listener de 'submit' de abajo es necesario, no cosmetico:
+    // sin el, el POST mandaria el valor original pre-edicion.
+    const rulesTextarea = document.getElementById("rules_text");
+    const rulesEditor = window.CodeMirror ? CodeMirror.fromTextArea(rulesTextarea, {
+      mode: "yaml",
+      theme: "material-darker",
+      lineNumbers: true,
+      tabSize: 2,
+      indentUnit: 2,
+    }) : (function () {
+      // El CDN mejora el editor, pero no es una dependencia funcional: en
+      // una instalación aislada el textarea conserva guardado, diff,
+      // validación y constructor visual.
+      function positionToOffset(value, position) {
+        const lines = value.split("\n");
+        return lines.slice(0, position.line).reduce(function (total, line) {
+          return total + line.length + 1;
+        }, 0) + position.ch;
+      }
+      return {
+        getValue: function () { return rulesTextarea.value; },
+        setValue: function (value) { rulesTextarea.value = value; rulesTextarea.dispatchEvent(new Event("input", { bubbles: true })); },
+        save: function () {},
+        on: function (name, handler) { if (name === "change") rulesTextarea.addEventListener("input", handler); },
+        lastLine: function () { return rulesTextarea.value.split("\n").length - 1; },
+        getLine: function (line) { return rulesTextarea.value.split("\n")[line] || ""; },
+        replaceRange: function (text, from, to) {
+          const value = rulesTextarea.value;
+          const start = positionToOffset(value, from);
+          const end = positionToOffset(value, to || from);
+          rulesTextarea.value = value.slice(0, start) + text + value.slice(end);
+          rulesTextarea.dispatchEvent(new Event("input", { bubbles: true }));
+        },
+      };
+    })();
+
+    const rulesForm = document.getElementById("rules-form");
+    const initialRulesText = {{ rules_text | tojson }};
+    const rulesDiffDialog = document.getElementById("rules-diff-dialog");
+    let rulesSaveConfirmed = false;
+
+    rulesForm.addEventListener("submit", function (event) {
+      rulesEditor.save();
+      if (rulesSaveConfirmed || rulesEditor.getValue() === initialRulesText) return;
+      event.preventDefault();
+      const beforeLines = initialRulesText.split("\n");
+      const afterLines = rulesEditor.getValue().split("\n");
+      const unchangedLines = beforeLines.filter(function (line, index) {
+        return afterLines[index] === line;
+      }).length;
+      const changedLines = Math.max(beforeLines.length, afterLines.length) - unchangedLines;
+      document.getElementById("rules-diff-summary").textContent = changedLines + " línea(s) agregadas, eliminadas o modificadas. Nada se guardó todavía.";
+      document.getElementById("rules-diff-before").textContent = initialRulesText || "(vacío)";
+      document.getElementById("rules-diff-after").textContent = rulesEditor.getValue() || "(vacío)";
+      rulesDiffDialog.showModal();
+    });
+
+    rulesDiffDialog.addEventListener("close", function () {
+      if (rulesDiffDialog.returnValue !== "confirm") return;
+      rulesSaveConfirmed = true;
+      rulesForm.requestSubmit();
+    });
+
+    // Validacion en vivo (M13c): fetch() debounced a POST /rules/validate
+    // -- mismo _try_parse()/parse_rules() que save_rules(), nunca
+    // reimplementado en JS. No escribe nada en APATE_RULES_PATH, solo
+    // parsea y devuelve {"valid": ...}.
+    const rulesLiveStatus = document.getElementById("rules-live-status");
+    let rulesValidateTimer = null;
+
+    function validateRulesLive() {
+      const body = new URLSearchParams({ rules_text: rulesEditor.getValue() });
+      fetch("{{ url_for('rules.validate_rules') }}", { method: "POST", headers: window.apateCsrfHeaders(), body: body })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (result) {
+          if (result.valid) {
+            rulesLiveStatus.className = "editor-validation-status flash flash-success";
+            rulesLiveStatus.textContent = "YAML válido -- " + result.rule_count + " regla(s).";
+          } else {
+            rulesLiveStatus.className = "editor-validation-status flash flash-error";
+            rulesLiveStatus.textContent = "YAML inválido: " + result.error;
+          }
+        })
+        .catch(function () {
+          // Sin conectividad/servidor no disponible -- no bloquea la
+          // edicion ni el guardado real (save_rules() sigue validando
+          // server-side de todas formas), solo se pierde el feedback
+          // en vivo por esta vuelta.
+          rulesLiveStatus.className = "editor-validation-status muted";
+          rulesLiveStatus.textContent = "No se pudo validar en vivo -- guardar sigue validando igual.";
+        });
+    }
+
+    rulesEditor.on("change", function () {
+      rulesTextarea.dispatchEvent(new Event("input", { bubbles: true }));
+      clearTimeout(rulesValidateTimer);
+      rulesValidateTimer = setTimeout(validateRulesLive, 400);
+    });
+  </script>
+
+  <script>
+    // Constructor visual (referencia declarada: CounterCraft, cuya interfaz
+    // de reglas es drag-and-drop -- evaluado y descartado, ver docstring de
+    // apate.web.blueprints.rules). Genera el YAML de UNA regla nueva del
+    // lado del cliente, sin ningun endpoint nuevo ni logica de parseo: es
+    // texto con formato fijo, y termina insertado en el MISMO `rulesEditor`
+    // de arriba -- de ahi en mas sigue exactamente el mismo camino de
+    // siempre (validacion en vivo via /rules/validate, diff antes de
+    // guardar, parse_rules() real en save_rules()). Todo string libre
+    // tipeado por el operador (nombre, plugin_id, clave/valor de payload)
+    // se serializa con JSON.stringify() -- sintaxis de string YAML valida
+    // (subconjunto de JSON), sin necesidad de escapar caracteres especiales
+    // a mano.
+    (function () {
+      const form = document.getElementById("rule-builder-form");
+      const conditionModeInputs = Array.from(document.querySelectorAll('input[name="rb-condition-mode"]'));
+      const eventFields = document.getElementById("rb-event-fields");
+      const payloadRows = document.getElementById("rb-payload-rows");
+      const payloadRowTemplate = document.getElementById("rb-payload-row-template");
+      const actionRows = document.getElementById("rb-actions");
+      const actionRowTemplate = document.getElementById("rb-action-row-template");
+      const preview = document.getElementById("rb-preview");
+      const addedStatus = document.getElementById("rb-added-status");
+
+      function updateConditionModeVisibility() {
+        const mode = conditionModeInputs.find(function (input) { return input.checked; }).value;
+        eventFields.hidden = mode !== "event";
+      }
+      conditionModeInputs.forEach(function (input) { input.addEventListener("change", updateConditionModeVisibility); });
+
+      function updateActionRowVisibility(row) {
+        const isTransition = row.querySelector(".rb-action-kind").value === "transition";
+        row.querySelector(".rb-action-to").hidden = !isTransition;
+        row.querySelector(".rb-action-plugin-id").hidden = isTransition;
+      }
+
+      function updateRemoveButtonsState() {
+        const rows = Array.from(actionRows.querySelectorAll(".rb-action-row"));
+        rows.forEach(function (row) {
+          // "then" necesita al menos una accion -- no se puede quitar la
+          // ultima fila que queda, en vez de dejar generar una regla sin
+          // ninguna accion.
+          row.querySelector(".rb-remove-row").disabled = rows.length <= 1;
+        });
+      }
+
+      function addPayloadRow() {
+        const row = payloadRowTemplate.content.firstElementChild.cloneNode(true);
+        row.querySelector(".rb-remove-row").addEventListener("click", function () {
+          row.remove();
+          updatePreview();
+        });
+        payloadRows.appendChild(row);
+        return row;
+      }
+
+      function addActionRow() {
+        const row = actionRowTemplate.content.firstElementChild.cloneNode(true);
+        row.querySelector(".rb-action-kind").addEventListener("change", function () {
+          updateActionRowVisibility(row);
+          updatePreview();
+        });
+        row.querySelector(".rb-remove-row").addEventListener("click", function () {
+          row.remove();
+          updateRemoveButtonsState();
+          updatePreview();
+        });
+        actionRows.appendChild(row);
+        updateActionRowVisibility(row);
+        updateRemoveButtonsState();
+        return row;
+      }
+
+      document.getElementById("rb-add-payload-row").addEventListener("click", function () {
+        addPayloadRow();
+        updatePreview();
+      });
+      document.getElementById("rb-add-action-row").addEventListener("click", function () {
+        addActionRow();
+        updatePreview();
+      });
+
+      // Indentacion fija de 2 espacios por nivel, igual que el editor de
+      // arriba (indentUnit: 2) y el estilo de examples/rules_example.yaml.
+      function buildRuleYamlBlock() {
+        const name = document.getElementById("rb-name").value.trim();
+        const mode = conditionModeInputs.find(function (input) { return input.checked; }).value;
+        const lines = ["  - name: " + JSON.stringify(name || "(sin nombre)")];
+
+        lines.push("    when:");
+        if (mode === "closure") {
+          lines.push("      closure_due: true");
+        } else {
+          lines.push("      event_type: " + document.getElementById("rb-event-type").value);
+          const pluginId = document.getElementById("rb-plugin-id").value.trim();
+          if (pluginId) lines.push("      plugin_id: " + JSON.stringify(pluginId));
+          const pairs = Array.from(payloadRows.querySelectorAll(".rb-payload-row"))
+            .map(function (row) {
+              return {
+                key: row.querySelector(".rb-payload-key").value.trim(),
+                value: row.querySelector(".rb-payload-value").value.trim(),
+              };
+            })
+            .filter(function (pair) { return pair.key; });
+          if (pairs.length) {
+            lines.push("      payload:");
+            pairs.forEach(function (pair) {
+              lines.push("        " + JSON.stringify(pair.key) + ": " + JSON.stringify(pair.value));
+            });
+          }
+        }
+
+        lines.push("    then:");
+        Array.from(actionRows.querySelectorAll(".rb-action-row")).forEach(function (row) {
+          const kind = row.querySelector(".rb-action-kind").value;
+          lines.push("      - action: " + kind);
+          if (kind === "transition") {
+            lines.push("        to: " + row.querySelector(".rb-action-to").value);
+          } else {
+            const actionPluginId = row.querySelector(".rb-action-plugin-id").value.trim();
+            if (actionPluginId) lines.push("        plugin_id: " + JSON.stringify(actionPluginId));
+          }
+        });
+
+        return lines.join("\n") + "\n";
+      }
+
+      function updatePreview() {
+        preview.textContent = buildRuleYamlBlock();
+      }
+      form.addEventListener("input", updatePreview);
+      form.addEventListener("change", updatePreview);
+
+      // Inserta el bloque generado en el MISMO editor de arriba -- nunca
+      // reemplaza el documento entero salvo que ya estuviera vacio (nada
+      // que perder en ese caso). Preserva el historial de undo de
+      // CodeMirror con replaceRange() en vez de setValue() siempre que se
+      // pueda, para que Ctrl+Z tambien pueda deshacer la insercion.
+      function mergeRuleIntoDocument(ruleBlock) {
+        const lines = rulesEditor.getValue().split("\n");
+        const meaningfulLines = lines.map(function (l) { return l.trim(); }).filter(function (l) { return l && !l.startsWith("#"); });
+        const isEmptyRulesList = meaningfulLines.length === 1 && /^rules:\s*(\[\s*\])?$/.test(meaningfulLines[0]);
+        const isBlankDocument = meaningfulLines.length === 0;
+
+        if (isBlankDocument) {
+          rulesEditor.setValue("rules:\n" + ruleBlock);
+          return;
+        }
+        if (isEmptyRulesList) {
+          const rulesLineIndex = lines.findIndex(function (l) { return /^\s*rules:\s*(\[\s*\])?\s*$/.test(l); });
+          rulesEditor.replaceRange(
+            "rules:\n" + ruleBlock,
+            { line: rulesLineIndex, ch: 0 },
+            { line: rulesLineIndex, ch: lines[rulesLineIndex].length }
+          );
+          return;
+        }
+        // Caso general: ya hay al menos una regla -- se agrega al final,
+        // preservando todo lo anterior (comentarios/formato incluidos).
+        const lastLine = rulesEditor.lastLine();
+        const endPos = { line: lastLine, ch: rulesEditor.getLine(lastLine).length };
+        rulesEditor.replaceRange("\n" + ruleBlock, endPos);
+      }
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        mergeRuleIntoDocument(buildRuleYamlBlock());
+        document.getElementById("rules-editor-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+        resetBuilderFields();
+        // Va DESPUES de resetBuilderFields(): ese reset no toca este
+        // mensaje (a diferencia del boton "{{ _("Limpiar formulario") }}", que si lo
+        // borra) -- el operador tiene que ver la confirmacion, no que se
+        // pise sola al volver el formulario a su estado inicial.
+        addedStatus.textContent = "Regla agregada al documento de abajo -- todavía no se guardó.";
+      });
+
+      // Estado inicial compartido entre "ya se agrego la regla, arranco de
+      // nuevo para la siguiente" (submit) y "{{ _("Limpiar formulario") }}" (boton
+      // explicito) -- las dos vuelven al mismo punto de partida, solo
+      // difieren en si tocan addedStatus (ver los dos callers).
+      function resetBuilderFields() {
+        form.reset();
+        payloadRows.replaceChildren();
+        actionRows.replaceChildren();
+        addActionRow();
+        updateConditionModeVisibility();
+        updatePreview();
+      }
+
+      document.getElementById("rb-clear-form").addEventListener("click", function () {
+        resetBuilderFields();
+        addedStatus.textContent = "";
+      });
+
+      addActionRow();
+      updateConditionModeVisibility();
+      updatePreview();
+    })();
+  </script>
+{% endblock %}

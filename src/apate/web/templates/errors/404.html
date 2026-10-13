@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Página no encontrada") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {{ _("No encontrada") }}</nav>{% endblock %}
+{% block content %}
+<section class="empty-state" aria-labelledby="not-found-title">
+  <span class="empty-state-kicker">{{ _("Error 404") }}</span>
+  <h1 id="not-found-title">{{ _("No encontramos esta página") }}</h1>
+  <p>{{ _("La dirección puede ser incorrecta o el recurso ya no estar disponible.") }}</p>
+  <div class="filter-actions">
+    <a class="button primary" href="{{ url_for('operations.list_operations') }}">{{ _("Ir a Operaciones") }}</a>
+    <a class="button" href="{{ url_for('index') }}">{{ _("Volver al inicio") }}</a>
+  </div>
+</section>
+{% endblock %}

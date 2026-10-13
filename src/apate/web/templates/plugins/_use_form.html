@@ -1,0 +1,14 @@
+{% if operations and item.available %}
+  <form class="capability-use-form" method="get" action="{{ url_for('capabilities.use_in_operation') }}">
+    <input type="hidden" name="resource_type" value="{{ item.resource_type }}">
+    <input type="hidden" name="resource_id" value="{{ item.resource_id }}">
+    <label class="visually-hidden" for="operation-{{ item.resource_type }}-{{ item.resource_id }}">{{ _("Operación") }}</label>
+    <select id="operation-{{ item.resource_type }}-{{ item.resource_id }}" name="operation_id" required>
+      <option value="">{{ _("Elegir operación") }}</option>
+      {% for operation in operations %}<option value="{{ operation.id }}">{{ operation.name }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="small">{{ _("Usar en una operación") }}</button>
+  </form>
+{% elif not operations %}
+  <span class="muted">{{ _("Creá una operación para usarla.") }}</span>
+{% endif %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ case.title }} · {{ _('Bandeja SOC') }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('attention.inbox') }}">{{ _('Bandeja SOC') }}</a> / <a href="{{ url_for('attention.index', operation_id=operation.id) }}">{{ operation.name }}</a> / {{ case.title }}</nav>{% endblock %}
+{% block content %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('attention.inbox') }}">{{ _('&larr; Bandeja SOC') }}</a></p>
+  <header class="page-header"><div><p class="eyebrow">{{ operation.name }}</p><h1>{{ case.title }}</h1><p>{{ case.description }}</p></div></header>
+  <div class="panel soc-case-summary">
+    <dl class="operation-overview"><dt>{{ _('Estado') }}</dt><dd>{{ _('Abierto') if case.status == 'open' else _('Resuelto') }}</dd>
+      <dt>{{ _('Responsable') }}</dt><dd>{{ case.responsible or _('Sin responsable') }}</dd>
+      <dt>{{ _('Actualizado') }}</dt><dd><time data-local-time datetime="{{ case.updated_at.isoformat() }}">{{ case.updated_at.strftime('%Y-%m-%d %H:%M UTC') }}</time></dd>
+      <dt>{{ _('Señales vinculadas') }}</dt><dd>{{ case.signal_ids|length }}</dd></dl>
+    <p class="muted">{{ _('Este caso organiza evidencia para una decisión humana; sus enlaces no prueban causalidad.') }}</p>
+    {% if case.resolution_note %}<p><strong>{{ _('Resolución:') }}</strong> {{ case.resolution_note }}</p>{% endif %}
+  </div>
+
+  {% if can_operate %}<section class="panel" aria-labelledby="case-actions-title"><h2 id="case-actions-title">{{ _('Gestionar caso') }}</h2>
+    <div class="deployment-actions">
+      <form method="post" action="{{ url_for('attention.case_action', operation_id=operation.id, case_id=case.id, action='assign') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label>{{ _('Responsable') }}<input name="responsible" value="{{ case.responsible }}"></label><button type="submit">{{ _('Asignar') }}</button></form>
+      <form method="post" {% if case.status == 'open' %}data-confirm="{{ _('¿Cerrar este caso?') }}"{% endif %} action="{{ url_for('attention.case_action', operation_id=operation.id, case_id=case.id, action='resolve' if case.status == 'open' else 'reopen') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label>{{ _('Nota o motivo') }}<input name="note" required></label><button type="submit">{{ _('Cerrar caso') if case.status == 'open' else _('Reabrir caso') }}</button></form>
+    </div>
+    {% if case.status == 'open' %}<details><summary>{{ _('Editar señales vinculadas') }}</summary><div class="deployment-actions">
+      {% if available_signals %}<form method="post" action="{{ url_for('attention.case_action', operation_id=operation.id, case_id=case.id, action='add_signal') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label>{{ _('Agregar señal') }}<select name="signal_ids">{% for signal in available_signals %}<option value="{{ signal.id }}">{{ signal.title }}</option>{% endfor %}</select></label><button type="submit">{{ _('Agregar') }}</button></form>{% endif %}
+      {% if signals|length > 1 %}<form method="post" action="{{ url_for('attention.case_action', operation_id=operation.id, case_id=case.id, action='remove_signal') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}"><label>{{ _('Quitar señal') }}<select name="signal_ids">{% for signal in signals %}<option value="{{ signal.id }}">{{ signal.title }}</option>{% endfor %}</select></label><button type="submit">{{ _('Quitar') }}</button></form>{% endif %}
+    </div></details>{% endif %}
+  </section>{% endif %}
+
+  <section class="panel" aria-labelledby="case-signals-title"><h2 id="case-signals-title">{{ _('Señales y evidencia') }}</h2>
+    {% if missing_signals %}<p role="status">{{ _('%(count)s referencia(s) de señal no están disponibles.', count=missing_signals) }}</p>{% endif %}
+    {% for signal in signals %}<article class="soc-signal" id="signal-{{ signal.id }}">
+      <h3>{{ signal.title }}</h3><p>{{ signal.description }}</p>
+      <p><span class="tag">{{ severity_labels[signal.severity] }}</span> · {{ status_labels[signal.status] }} · {{ origin_labels[signal.origin] }}{% if signal.responsible %} · {{ _('Responsable:') }} {{ signal.responsible }}{% endif %}</p>
+      <ul>{% for evidence in signal.evidence %}<li>{% if evidence.kind == 'telemetry_event' %}{% if evidence.value in events_by_id %}<a href="{{ url_for('telemetry.detail', operation_id=operation.id, view='events', event_id=evidence.value) }}">{{ _('Inspeccionar evento') }} {{ evidence.value[:8] }}</a>{% else %}{{ _('Evidencia no disponible') }}{% endif %}{% else %}{{ evidence.value }}{% if evidence.operator %} · {{ evidence.operator }}{% endif %}{% endif %}</li>{% endfor %}</ul>
+      <a href="{{ url_for('attention.index', operation_id=operation.id) }}#signal-{{ signal.id }}">{{ _('Gestionar señal') }}</a>
+    </article>{% endfor %}
+  </section>
+  <section class="panel" aria-labelledby="case-history-title"><h2 id="case-history-title">{{ _('Historial de atención') }}</h2>
+    {% if actions %}<ol>{% for action in actions %}<li><time data-local-time datetime="{{ action.timestamp.isoformat() }}">{{ action.timestamp.strftime('%Y-%m-%d %H:%M UTC') }}</time> · {{ action.operator }} · {{ action.action }} · {{ action.target or '' }}</li>{% endfor %}</ol>{% else %}<p class="empty-state">{{ _('Aún no hay acciones humanas sobre este caso.') }}</p>{% endif %}
+  </section>
+  <p><a class="button small" href="{{ url_for('attention.case_handoff', operation_id=operation.id, case_id=case.id) }}">{{ _('Descargar expediente para el SOC') }}</a></p>
+{% endblock %}

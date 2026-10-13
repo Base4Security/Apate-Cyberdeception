@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('operations.list_operations') }}">{{ _("Operaciones") }}</a> / {{ operation.name }}</nav>{% endblock %}
+{% block title %}{{ operation.name }} {{ _("- Apate") }}{% endblock %}
+{% block extra_head %}
+  {% if dolost_panels %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+  {% endif %}
+{% endblock %}
+{% block content %}
+  {% set control = operation_control_state(operation.id) %}
+  {% if control %}
+    <aside class="alert alert-info" role="status">
+      <strong>{{ _("Control de ejecución") }}: {{ control.state }}</strong>
+      <p>{{ _("El diseño visible es un borrador. Las acciones usan exclusivamente el plan aprobado; editarlo requiere proponer, revisar y activar otra versión.") }}</p>
+      <p>{{ _("Plan activo") }}: <code>{{ control.plan_id or "—" }}</code> · {% if current_identity %}<a href="{{ url_for('operation_control.overview', operation_id=operation.id) }}">{{ _('Comparar plan y borrador') }}</a>{% else %}<span class="muted">{{ _('La revisión del plan requiere una identidad autenticada.') }}</span>{% endif %}</p>
+    </aside>
+  {% endif %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('operations.list_operations') }}">{{ _("&larr; Operaciones") }}</a></p>
+  <header class="operation-context">
+    <div>
+      <h1>{{ operation.name }}</h1>
+      <div class="detail-subtitle">
+        <span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span>
+        <span class="muted">{{ _("Operando como") }} {{ current_operator or _("sin especificar") }}</span>
+      </div>
+    </div>
+    <details class="operation-actions-menu"><summary>{{ _('Acciones adicionales') }}</summary>
+    <div class="operation-state-actions" aria-label="{{ _('Acciones de estado') }}">
+      {% if not control and operation.status.value == "planning" %}
+        <form class="inline" method="post" action="{{ url_for('operations.transition', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="to" value="active">
+          <button type="submit">{{ _("Marcar activa") }}</button>
+        </form>
+      {% elif not control and operation.status.value == "active" %}
+        <form class="inline" method="post" action="{{ url_for('operations.transition', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="to" value="compromised">
+          <button type="submit">{{ _("Marcar comprometida") }}</button>
+        </form>
+      {% endif %}
+      {% if not control and operation.status.value != "closed" %}
+        <form class="inline" method="post" data-confirm="{{ _('Cerrar es irreversible: esta operación no podrá reabrirse. Podrás crear otra mediante Reoperar. ¿Cerrar ahora?') }}" data-confirm-name="{{ operation.name }}" action="{{ url_for('operations.transition', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="to" value="closed">
+          <button type="submit" class="danger" data-close-operation>{{ _("Cerrar") }}</button>
+        </form>
+      {% endif %}
+      {% if control and control.state in ["preparation", "active", "paused"] %}
+        <form class="inline" method="post" action="{{ url_for('operations.transition', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="to" value="closed">
+          <button type="submit" class="danger">{{ _("Iniciar cierre") }}</button>
+        </form>
+      {% endif %}
+      <a class="button operation-secondary-action" href="{{ url_for('telemetry.detail', operation_id=operation.id) }}">{{ _("Ver telemetría") }} <span aria-hidden="true">{{ _("&rarr;") }}</span></a>
+      <a class="button operation-secondary-action" href="{{ url_for('deployments.operation_deployments', operation_id=operation.id) }}">{{ _("Despliegues AD y archivos") }}</a>
+      <a class="button operation-secondary-action" href="{{ url_for('deployments.operation_health', operation_id=operation.id) }}">{{ _("Salud de la operación") }}</a>
+      <a class="button operation-secondary-action" href="{{ url_for('rules.replay', operation_id=operation.id) }}">{{ _("Reproducir reglas") }}</a>
+      {% if operation.status.value == "closed" %}
+        <a class="button" href="{{ url_for('operations.reoperate', operation_id=operation.id) }}">{{ _("Reoperar") }}</a>
+      {% endif %}
+    </div></details>
+  </header>
+
+  <section class="operation-center panel" id="operation-center" aria-labelledby="operation-center-title">
+    <div class="operation-center-heading">
+      <div>
+        <p class="eyebrow">{{ _("Centro operativo") }}</p>
+        <h2 id="operation-center-title">{{ _("Estado, atenci&oacute;n y siguiente acci&oacute;n") }}</h2>
+      </div>
+      <span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span>
+    </div>
+
+    <div class="operation-center-grid">
+      <article class="operation-center-card operation-next-action">
+        <span class="operation-center-label">{{ _("Siguiente acci&oacute;n permitida") }}</span>
+        <h3>{{ operation_center.next_action.label }}</h3>
+        <p>{{ operation_center.next_action.reason }}</p>
+        {% if operation_center.next_action.kind == "anchor" %}
+          <a class="button primary" href="#{{ operation_center.next_action.target }}">{{ operation_center.next_action.label }}</a>
+        {% elif operation_center.next_action.kind == "telemetry" %}
+          <a class="button primary" href="{{ url_for('telemetry.detail', operation_id=operation.id) }}">{{ operation_center.next_action.label }}</a>
+        {% elif operation_center.next_action.kind == "reoperate" %}
+          <a class="button primary" href="{{ url_for('operations.reoperate', operation_id=operation.id) }}">{{ operation_center.next_action.label }}</a>
+        {% elif operation_center.next_action.kind == "rules" %}
+          <a class="button primary" href="{{ url_for('rules.show_rules') }}">{{ operation_center.next_action.label }}</a>
+        {% else %}
+          <form method="post" action="{{ url_for('operations.transition', operation_id=operation.id) }}"{% if operation_center.next_action.transition == "closed" %} data-confirm="{{ _('Cerrar es irreversible: esta operación no podrá reabrirse. Podrás crear otra mediante Reoperar. ¿Cerrar ahora?') }}" data-confirm-name="{{ operation.name }}"{% endif %}><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="to" value="{{ operation_center.next_action.transition }}">
+            <button type="submit" class="primary{% if operation_center.next_action.transition == 'closed' %} danger{% endif %}">{{ operation_center.next_action.label }}</button>
+          </form>
+        {% endif %}
+      </article>
+
+      <article class="operation-center-card">
+        <span class="operation-center-label">{{ _("Requiere atenci&oacute;n") }}</span>
+        {% if open_signals %}
+          <ul class="operation-attention-list">{% for signal in open_signals %}<li><a href="{{ url_for('attention.index', operation_id=operation.id) }}"><strong>{{ signal.title }}</strong><span>{{ signal.severity }} · {{ signal.created_at.strftime('%Y-%m-%d %H:%M UTC') }}</span></a></li>{% endfor %}</ul>
+          <a href="{{ url_for('attention.index', operation_id=operation.id) }}">{{ _('Ver toda la atención') }}</a>
+        {% elif operation_center.attention %}
+          <ul class="operation-attention-list">
+            {% for item in operation_center.attention %}
+              {% if item.external_url == "rules" %}
+              <li><a href="{{ url_for('rules.show_rules') }}"><strong>{{ item.label }}</strong><span>{{ item.detail }}</span></a></li>
+              {% else %}
+              <li><a href="#{{ item.target }}"><strong>{{ item.label }}</strong><span>{{ item.detail }}</span></a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="operation-clear-state"><strong>{{ _("Sin pendientes detectados") }}</strong><span>{{ _("No hay condiciones expl&iacute;citas pendientes en el ciclo actual.") }}</span></p>
+        {% endif %}
+      </article>
+
+      <article class="operation-center-card">
+        <span class="operation-center-label">{{ _("Despliegue") }}</span>
+        <div class="operation-deployment-state">
+          <span class="cycle-state cycle-state-{{ operation_center.deployment.state }}">{{ operation_center.deployment.state_label }}</span>
+          <strong>{{ operation_center.deployment.active }}/{{ operation_center.deployment.total }} {{ _("activas") }}</strong>
+        </div>
+        <p>{{ operation_center.deployment.detail }}</p>
+        <a href="#tab-plugins">{{ _("Revisar capacidades &rarr;") }}</a>
+      </article>
+
+      <article class="operation-center-card">
+        <span class="operation-center-label">{{ _("Actividad reciente") }}</span>
+        <ol class="operation-recent-list">
+          {% for entry in operation_center.recent_activity %}
+            <li><strong>{{ entry.title }}</strong><span>{{ entry.detail }}</span><time data-local-time datetime="{{ entry.timestamp.isoformat() }}">{{ entry.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}</time></li>
+          {% endfor %}
+        </ol>
+        <a href="#operation-timeline">{{ _("Ver l&iacute;nea de tiempo &rarr;") }}</a>
+      </article>
+    </div>
+
+    <div class="operation-cycle" aria-labelledby="operation-cycle-title">
+      <div class="operation-cycle-heading">
+        <h3 id="operation-cycle-title">{{ _("Ciclo de la operaci&oacute;n") }}</h3>
+        <span class="muted">{{ _("Estados derivados de evidencia, no un score.") }}</span>
+      </div>
+      <div class="operation-cycle-scroll" tabindex="0">
+        <ol class="operation-cycle-track">
+          {% for step in operation_center.steps %}
+            <li class="operation-cycle-step cycle-step-{{ step.state }}">
+              <span class="operation-cycle-number">{{ loop.index }}</span>
+              {% if step.external_url == "rules" %}
+              <a href="{{ url_for('rules.show_rules') }}">{{ step.label }}</a>
+              {% else %}<a href="#{{ step.target }}">{{ step.label }}</a>{% endif %}
+              <span class="cycle-state cycle-state-{{ step.state }}">{{ step.state_label }}</span>
+              <small>{{ step.detail }}</small>
+              {% if step.external_url == "rules" %}
+              <a class="operation-cycle-action" href="{{ url_for('rules.show_rules') }}">{{ step.action_label }} &rarr;</a>
+              {% else %}
+              <a class="operation-cycle-action" href="#{{ step.target }}">{{ step.action_label }} &rarr;</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  {% if can_administer %}
+    <details class="panel operation-team-settings" id="operation-team-settings">
+      <summary>{{ _("Equipo de la operación") }}</summary>
+      <p class="muted">{{ _("Define qué equipo puede ver y operar esta operación. Administración conserva acceso a todas.") }}</p>
+      <form method="post" action="{{ url_for('operations.assign_team', operation_id=operation.id) }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label for="operation-team">{{ _("Equipo") }}</label>
+        <select id="operation-team" name="team_id">
+          <option value="" {% if not operation.team_id %}selected{% endif %}>{{ _("Sin equipo — solo administración") }}</option>
+          {% for team in available_teams %}
+            <option value="{{ team }}" {% if team == operation.team_id %}selected{% endif %}>{{ team }}</option>
+          {% endfor %}
+        </select>
+        {% if not available_teams %}
+          <p class="muted">{{ _("Todavía no hay equipos en las identidades configuradas.") }}</p>
+        {% endif %}
+        <p><button type="submit" class="primary">{{ _("Guardar equipo") }}</button></p>
+      </form>
+    </details>
+  {% endif %}
+
+  {% set incomplete_preparation = preparation_coverage | rejectattr('status', 'equalto', 'covered') | rejectattr('status', 'equalto', 'no_field') | list %}
+  {% if incomplete_preparation %}
+    <aside class="preparation-alert" aria-labelledby="preparation-alert-title">
+      <div>
+        <strong id="preparation-alert-title">{{ _("Preparaci&oacute;n incompleta") }}</strong>
+        <span>{{ incomplete_preparation | length }} {{ _("actividad(es) requieren atenci&oacute;n antes de considerar completa la preparaci&oacute;n.") }}</span>
+      </div>
+      <a href="#tab-preparation">{{ _("Revisar pendientes &rarr;") }}</a>
+    </aside>
+  {% endif %}
+  {# La disponibilidad de mec&aacute;nica se define antes de los tabs: el bot&oacute;n y
+   su panel dependen de la misma variable. #}
+  {% set mechanics_available = deployment_groups | length > 0 %}
+  <div class="tabs operation-tabs" role="tablist" aria-label="{{ _('Secciones de la operaci&oacute;n') }}">
+    <button id="tab-control-design" type="button" role="tab" class="tab-link" data-tab="tab-design" aria-controls="tab-design">{{ _("Dise&ntilde;o") }} <span class="tab-count">{{ operation.scenarios | length }} {{ _("esc. /") }} {{ operation.plugins | length }} {{ _("cap.") }}</span></button>
+    {% if mechanics_available %}
+      <button id="tab-control-mechanics" type="button" role="tab" class="tab-link" data-tab="tab-mechanics" aria-controls="tab-mechanics">{{ _("Despliegue") }} <span class="tab-count">{{ operation.plugins | length }}</span></button>
+    {% endif %}
+    <button id="tab-control-review" type="button" role="tab" class="tab-link" data-tab="tab-review" aria-controls="tab-review">{{ _("Preparaci&oacute;n y revisi&oacute;n") }} <span class="tab-count">{{ preparation_coverage | selectattr('status', 'equalto', 'covered') | list | length }}{{ _("/8 prep. &middot;") }} {{ (operation_dry_run.findings | length) + (narrative_coherence.checks | length) }} {{ _("rev.") }}</span></button>
+    <button id="tab-control-mapa" type="button" role="tab" class="tab-link" data-tab="tab-mapa" aria-controls="tab-mapa">{{ _("Mapa") }} <span class="tab-count">{{ operation.plugins | length }}</span></button>
+    <button id="tab-control-resultados" type="button" role="tab" class="tab-link" data-tab="tab-resultados" aria-controls="tab-resultados">{{ _("Resultados") }} <span class="tab-count">{{ operation_metrics.event_count }}</span></button>
+  </div>
+
+  {% include "operations/_operation_detail_design_tab.html" %}
+
+  {% include "operations/_operation_detail_mechanics_tab.html" %}
+
+  {% include "operations/_operation_detail_review_tab.html" %}
+
+  {% include "operations/_operation_detail_map_tab.html" %}
+  {% include "operations/_operation_detail_results_tab.html" %}
+
+  {% if dolost_panels %}
+    <script>
+      // M14b: stats en vivo por contenedor -- gap real de M14a
+      // (ContainerStatsManager.fetch_container_stats no tenia ningun
+      // consumidor en apate.web). Mismo WebSocketNamespace('/') que usa
+      // la integración de DOLOS-T (evento request_data/update_data,
+      // igual que DOLOST/static/js/view_operations_worker.js) -- sin
+      // graficos doughnut nuevos, solo los numeros en vivo. El
+      // protocolo real no devuelve a que container_id corresponde cada
+      // 'update_data' (sin id de correlacion): igual que la vista
+      // original, solo se puede mirar un contenedor a la
+      // vez (un timer compartido, no uno por decoy ni por panel).
+      const dolostSocket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+      let dolostStatsTimer = null;
+      let dolostStatsTarget = null;
+
+      function watchDolostContainer(button) {
+        if (dolostStatsTimer) {
+          clearInterval(dolostStatsTimer);
+        }
+        // Todos los paneles vuelven al estado "sin seleccion" antes de
+        // activar el del boton clickeado -- evita que quede un panel
+        // viejo mostrando valores que ya no se estan actualizando.
+        document.querySelectorAll('.dolost-live-stats').forEach(function (panel) {
+          panel.querySelector('.dolost-live-stats-placeholder').classList.remove('hidden');
+          panel.querySelector('.dolost-live-stats-values').classList.remove('visible');
+        });
+
+        const containerName = button.dataset.container;
+        const panel = button.closest('.panel').querySelector('.dolost-live-stats');
+        panel.querySelector('.dolost-live-stats-placeholder').classList.add('hidden');
+        const values = panel.querySelector('.dolost-live-stats-values');
+        values.classList.add('visible');
+        values.querySelector('.dolost-stats-container').textContent = containerName;
+
+        dolostStatsTarget = values;
+        const request = () => dolostSocket.emit('request_data', { container_id: containerName });
+        request();
+        dolostStatsTimer = setInterval(request, 2000);
+      }
+
+      document.querySelectorAll('.dolost-stats-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+          watchDolostContainer(button);
+        });
+      });
+
+      dolostSocket.on('update_data', function (data) {
+        if (!dolostStatsTarget) {
+          return;
+        }
+        dolostStatsTarget.querySelector('.dolost-stats-cpu').textContent = (data.cpu_percentage || 0).toFixed(1) + '%';
+        dolostStatsTarget.querySelector('.dolost-stats-mem').textContent = (data.memory_percentage || 0).toFixed(1) + '%';
+        dolostStatsTarget.querySelector('.dolost-stats-net').textContent =
+          (data.network_rx || 0) + ' / ' + (data.network_tx || 0);
+      });
+
+      dolostSocket.on('update_data_error', function (err) {
+        if (!dolostStatsTarget) {
+          return;
+        }
+        const message = (err && err.error) || 'error';
+        dolostStatsTarget.querySelector('.dolost-stats-cpu').textContent = message;
+        dolostStatsTarget.querySelector('.dolost-stats-mem').textContent = message;
+        dolostStatsTarget.querySelector('.dolost-stats-net').textContent = message;
+      });
+    </script>
+  {% endif %}
+
+  <script>
+    (function () {
+      const form = document.getElementById('operation-context-upload-form');
+      if (!form) return;
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const button = form.querySelector('button[type="submit"]');
+        const status = document.getElementById('operation-context-upload-status');
+        button.disabled = true;
+        button.innerHTML = '<span class="btn-spinner"></span>' + {{ _("Extrayendo...") | tojson }};
+        status.textContent = {{ _("Guardando y validando el EVTX...") | tojson }};
+        try {
+          const response = await fetch(form.action, {method: 'POST', body: new FormData(form)});
+          if (!response.ok || !response.body) throw new Error('upload');
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let buffer = '';
+          let candidateReady = false;
+          while (true) {
+            const result = await reader.read();
+            if (result.done) break;
+            buffer += decoder.decode(result.value, {stream: true});
+            const events = buffer.split('\n\n');
+            buffer = events.pop();
+            events.forEach(function (entry) {
+              const value = entry.replace(/^data:\s*/, '');
+              if (value.startsWith('records:')) status.textContent = value.slice(8) + ' ' + {{ _("registros detectados; extrayendo señales...") | tojson }};
+              if (value.startsWith('candidate:')) {
+                candidateReady = true;
+                status.textContent = {{ _("Candidato listo para revisar.") | tojson }};
+              }
+              if (value.startsWith('error:')) throw new Error('extraction');
+            });
+          }
+          if (!candidateReady) throw new Error('candidate');
+          window.location.hash = 'tab-preparation';
+          window.location.reload();
+        } catch (error) {
+          status.textContent = {{ _("No se pudo procesar el EVTX.") | tojson }};
+          button.disabled = false;
+          button.textContent = {{ _("Extraer candidato") | tojson }};
+        }
+      });
+    })();
+
+    // M13e: tabs sobre secciones que ya existian apiladas -- ningun
+    // formulario cambia de accion/campos, solo donde vive visualmente y
+    // a que tab vuelve el redirect despues del submit (ver
+    // _redirect_to_detail() en operations.py, que agrega el fragmento
+    // #tab-... a la URL de vuelta). Sin esto, cualquier submit de
+    // Escenarios/Plugins vinculados/Mecanica especifica devolveria al
+    // operador siempre al primer tab en vez de a donde estaba
+    // trabajando.
+    (function () {
+      // Acotado a .operation-tabs a proposito, NO a todo el documento: el
+      // selector de lentes del tab "Mapa" reusa la clase .tab-link para verse
+      // igual, y con un querySelectorAll('.tab-link') global quedaba capturado
+      // por este script, que le pisaba la clase .active recien puesta por su
+      // propio switcher -- resultado: hacer click en una lente no hacia nada.
+      const tabButtons = Array.from(document.querySelectorAll('.operation-tabs .tab-link'));
+      const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
+
+      function activateTab(tabId) {
+        const availableTabIds = tabButtons.map(function (button) {
+          return button.dataset.tab;
+        });
+        if (availableTabIds.indexOf(tabId) === -1) {
+          return false;
+        }
+        tabPanels.forEach(function (panel) {
+          panel.classList.toggle('active', panel.id === tabId);
+        });
+        tabButtons.forEach(function (button) {
+          const isActive = button.dataset.tab === tabId;
+          button.classList.toggle('active', isActive);
+          button.setAttribute('aria-selected', String(isActive));
+          button.tabIndex = isActive ? 0 : -1;
+        });
+        return true;
+      }
+
+      function resolveTabIdFromHash(rawHash) {
+        const target = String(rawHash || '').replace(/^#/, '');
+        if (!target) {
+          return null;
+        }
+        if (tabPanels.some(function (panel) { return panel.id === target; })) {
+          return target;
+        }
+        const section = document.getElementById(target);
+        if (!section) {
+          return null;
+        }
+        // Los IDs históricos de Perfil, RoE, Escenarios, Narrativa,
+        // Capacidades, Preparación y Ensayo en seco ahora viven como
+        // secciones dentro de tabs consolidados. Resolver el panel
+        // ancestro conserva sus enlaces compartidos y redirects sin
+        // degradarlos silenciosamente al primer tab.
+        const panel = section.closest('.tab-panel');
+        return panel ? panel.id : null;
+      }
+
+      function applyHashNavigation(rawHash) {
+        const requestedTab = resolveTabIdFromHash(rawHash);
+        const firstTab = tabButtons.length ? tabButtons[0].dataset.tab : null;
+        const target = requestedTab || firstTab;
+        const normalizedHash = String(rawHash || '').replace(/^#/, '');
+        const mapLenses = ['operation-tree', 'deception-path', 'operation-relations', 'asset-coverage'];
+        if (!target) {
+          return;
+        }
+        const didActivate = activateTab(target);
+        if (
+          target === 'tab-mapa' &&
+          mapLenses.includes(normalizedHash) &&
+          window.apateMapLenses &&
+          typeof window.apateMapLenses.activate === 'function' &&
+          rawHash
+        ) {
+          const targetLens = window.apateMapLenses.activate(rawHash);
+          if (targetLens && window.location.hash !== '#' + targetLens) {
+            history.replaceState(null, '', '#' + targetLens);
+          }
+        }
+        if (!didActivate || !rawHash) {
+          return;
+        }
+        const targetId = String(rawHash || '').replace(/^#/, '');
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          const designStep = targetElement.closest('details.design-step');
+          if (designStep) {
+            // La navegación interna y los fragmentos históricos deben llegar
+            // a contenido visible, no al resumen cerrado de otra sección.
+            document.querySelectorAll('details.design-step').forEach(function (step) {
+              step.open = step === designStep;
+            });
+          }
+          window.requestAnimationFrame(function () {
+            targetElement.scrollIntoView({behavior: 'auto', block: 'start'});
+          });
+        }
+      }
+
+      tabButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          activateTab(button.dataset.tab);
+          // replaceState, no location.hash directo: cambiar location.hash
+          // agrega una entrada nueva al historial por cada click entre
+          // tabs, lo que rompe el boton "Atras" del navegador (un click
+          // por tab en vez de "volver a la pagina anterior real").
+          history.replaceState(null, "", "#" + button.dataset.tab);
+        });
+        button.addEventListener('keydown', function (event) {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          const current = tabButtons.indexOf(button);
+          let target = current;
+          if (event.key === 'ArrowLeft') target = (current - 1 + tabButtons.length) % tabButtons.length;
+          if (event.key === 'ArrowRight') target = (current + 1) % tabButtons.length;
+          if (event.key === 'Home') target = 0;
+          if (event.key === 'End') target = tabButtons.length - 1;
+          tabButtons[target].click();
+          tabButtons[target].focus();
+        });
+      });
+
+      // Fragmento de la URL al cargar -- lo deja _redirect_to_detail()
+      // (operations.py) despues de un submit, o lo escribe un enlace
+      // externo compartido a un tab puntual. Si esta vacio, no matchea
+      // ningun tab.id de esta pagina (ej. "#tab-mechanics" cuando esta
+      // operacion no tiene panel de mecanica especifica que mostrar), o
+      // directamente no existe, cae al primer tab -- nunca se queda sin
+      // ningun tab activo.
+      window.addEventListener("load", function () {
+        applyHashNavigation(window.location.hash);
+      });
+
+      // Sin esto, un enlace a "#tab-..." que no es uno de los botones de
+      // tab de arriba (ej. "Revisar capacidades" del centro operativo,
+      // "Vincular plugin" -> escenario, o cualquier nodo del arbol de la
+      // operacion) solo cambiaba el fragmento de la URL sin activar el
+      // panel -- .tab-panel queda oculto por CSS (display:none) salvo
+      // .active, y nada disparaba activateTab() en un click dentro de la
+      // misma pagina (a diferencia de la carga inicial, que si lee el
+      // hash arriba). Encontrado construyendo el arbol de la operacion,
+      // que depende de esto para que sus nodos sean clickeables de
+      // verdad -- corrige el mismo gap para cualquier otro enlace interno
+      // ya existente en la pagina, no solo los nodos nuevos.
+      window.addEventListener("hashchange", function () {
+        applyHashNavigation(window.location.hash);
+      });
+
+      document.addEventListener('invalid', function (event) {
+        const field = event.target;
+        if (!field || field.tagName.toLowerCase() !== 'input' && field.tagName.toLowerCase() !== 'textarea' && field.tagName.toLowerCase() !== 'select') {
+          return;
+        }
+        const form = field.closest('form');
+        if (!form) {
+          return;
+        }
+        const details = form.closest('details');
+        if (details && !details.open) {
+          details.open = true;
+        }
+      }, true);
+
+    })();
+  </script>
+{% endblock %}

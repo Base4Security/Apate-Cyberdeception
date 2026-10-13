@@ -1,0 +1,8 @@
+<nav class="tools-context-nav" aria-label="{{ _("Salud y configuración") }}">
+  <a href="{{ url_for('health.index') }}" {% if request.endpoint == 'health.index' %}aria-current="page"{% endif %}>{{ _("Resumen") }}</a>
+  <a href="{{ url_for('health.network_host_runtime') }}" {% if request.endpoint and request.endpoint.startswith('health.network_host_runtime') %}aria-current="page"{% endif %}>{{ _("Runtime de red / host") }}</a>
+  <a href="{{ url_for('health.content_generation') }}" {% if request.endpoint and (request.endpoint.startswith('health.content_generation') or request.endpoint == 'health.behavior_data_reset') %}aria-current="page"{% endif %}>{{ _("Generación de contenido") }}</a>
+  <a href="{{ url_for('health.threat_intelligence') }}" {% if request.endpoint == 'health.threat_intelligence' %}aria-current="page"{% endif %}>{{ _("Inteligencia de amenazas") }}</a>
+  <a href="{{ url_for('health.siem_soar') }}" {% if request.endpoint == 'health.siem_soar' %}aria-current="page"{% endif %}>SIEM/SOAR</a>
+  <a href="{{ url_for('health.identity_users') }}" {% if request.endpoint == 'health.identity_users' %}aria-current="page"{% endif %}>{{ _("Administración de usuarios") }}</a>
+</nav>

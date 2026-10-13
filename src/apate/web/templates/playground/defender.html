@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Vista defensor") }} - {{ operation.name }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('playground.index') }}">{{ _("Playground") }}</a> / {{ _("Defensor") }}</nav>{% endblock %}
+{% block content %}
+  <p class="detail-breadcrumb"><a href="{{ url_for('playground.index') }}">{{ _("← Playground") }}</a></p>
+  <header class="playground-view-header">
+    <div>
+      <h1>{{ _("Vista defensor") }}</h1>
+      <p class="muted">{{ operation.name }} <span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span></p>
+    </div>
+    <nav class="playground-view-switcher" aria-label="{{ _("Perspectiva de Playground") }}">
+      <a href="{{ url_for('playground.attacker_view', operation_id=operation.id) }}">{{ _("Atacante") }}</a>
+      <a class="active" aria-current="page" href="{{ url_for('playground.defender_view', operation_id=operation.id) }}">{{ _("Defensor") }}</a>
+    </nav>
+  </header>
+  <aside class="playground-perspective-note">{{ _("Telemetría normalizada y decisiones auditables del motor para esta operación.") }}</aside>
+
+  <div class="panel-grid playground-view-summary" aria-label="{{ _("Resumen de observaci&oacute;n") }}">
+    <div class="card kpi-card"><dl><dt>{{ _("Eventos") }}</dt><dd class="kpi-value">{{ events | length }}</dd></dl></div>
+    <div class="card kpi-card"><dl><dt><abbr title="{{ _("Tácticas, técnicas y procedimientos") }}">TTP</abbr>{{ _("s observadas") }}</dt><dd class="kpi-value">{{ ttps | length }}</dd></dl></div>
+    <div class="card kpi-card"><dl><dt><abbr title="{{ _("Indicadores de compromiso") }}">IoC</abbr>s</dt><dd class="kpi-value">{{ iocs | length }}</dd></dl></div>
+    <div class="card kpi-card"><dl><dt>{{ _("Reglas disparadas") }}</dt><dd class="kpi-value">{{ history | length if history is not none else 0 }}</dd></dl></div>
+  </div>
+
+  <nav class="playground-section-nav" aria-label="{{ _("Secciones de la vista defensor") }}">
+    <a href="#playground-live">{{ _("En vivo") }}</a>
+    <a href="#playground-expected">{{ _("Esperado/observado") }}</a>
+    <a href="#playground-plan">{{ _("Plan") }}</a>
+    <a href="#playground-coverage">{{ _("Cobertura") }}</a>
+    <a href="#playground-decisions">{{ _("Decisiones") }}</a>
+    <a href="#playground-raw">{{ _("Datos") }}</a>
+  </nav>
+
+  <section class="panel playground-section" id="playground-live">
+  <h2>{{ _("Notificaciones en vivo") }}</h2>
+  <p class="muted" id="playground-live-status">{{ _("Conectando...") }}</p>
+  <ul id="playground-live-feed" class="playground-live-feed"></ul>
+  </section>
+
+  <section class="panel playground-section" id="playground-expected">
+  <h2>{{ _("Esperado vs. observado") }}</h2>
+  <p class="muted">
+    {{ _("Comparación en vivo contra lo que la operación planificó -- generada al vuelo con la misma fuente del informe post-operación, sin esperar a que la operación se cierre.") }}
+  </p>
+  <h3>{{ _("Matriz de") }} <abbr title="{{ _("Tácticas, técnicas y procedimientos") }}">TTP</abbr>s <span class="muted">(MITRE ATT&amp;CK)</span></h3>
+  <p class="ttp-legend">
+    <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-matched"></span> {{ _("Coincidente") }}</span>
+    <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-not-observed"></span> {{ _("Esperada, no observada") }}</span>
+    <span class="ttp-legend-item"><span class="ttp-swatch ttp-cell-unexpected"></span> {{ _("Observada, no esperada") }}</span>
+    <span class="ttp-legend-item"><span class="ttp-swatch"></span> {{ _("Sin relación con esta operación") }}</span>
+  </p>
+  <div class="ttp-heatmap">
+    {% for column in ttp_heatmap.columns %}
+      <div class="ttp-heatmap-column">
+        <h3>{{ tactic_label(column.tactic) }}</h3>
+        {% for cell in column.cells %}
+          <div class="ttp-cell{% if cell.status %} ttp-cell-{{ cell.status }}{% endif %}"
+               title="{{ cell.technique.id }} -- {{ cell.technique.name }}">
+            <span class="mono">{{ cell.technique.id }}</span> {{ cell.technique.name }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+  {% if ttp_heatmap.uncatalogued %}
+    <p class="muted">
+      {{ _("TTPs fuera del catálogo curado (sin celda en la grilla de arriba):") }}
+      {% for item in ttp_heatmap.uncatalogued %}
+        <span class="mono">{{ item.id }}</span> ({{ item.label }}){% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
+  </section>
+
+  <section class="panel playground-section" id="playground-plan">
+  <h3>{{ _("Plan por capacidad vinculada") }}</h3>
+  {% if operation.plugins %}
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ _("Identificador técnico") }}</th><th>{{ _("Escenario") }}</th>
+          <th>{{ _("Adversario cree (Pensar)") }}</th><th>{{ _("Adversario hace (Hacer)") }}</th><th>{{ _("Métrica de éxito") }}</th>
+          <th>{{ _("Actividades de Engage planificadas") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for binding in operation.plugins %}
+          {% set scenario = operation.find_scenario(binding.scenario_id) %}
+          <tr>
+            <td class="mono">{{ binding.plugin_id }}</td>
+            <td>{{ scenario.description if scenario else "-" }}</td>
+            <td>{{ binding.effect.expected_adversary_belief or "-" }}</td>
+            <td>{{ binding.effect.expected_adversary_action or "-" }}</td>
+            <td>{{ binding.effect.success_metric or "-" }}</td>
+            <td>
+              {% if binding.effect.engage_activity_ids %}
+                <span class="tag-list">
+                  {% for activity_id in binding.effect.engage_activity_ids %}
+                    {% set activity = get_engage_activity(activity_id) %}
+                    <span class="tag" title="{{ activity_id }}">{{ activity.name if activity else activity_id }}</span>
+                  {% endfor %}
+                </span>
+              {% else %}-{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <div class="empty-state"><p class="muted">{{ _("Esta operación no tiene capacidades vinculadas, por lo que aún no existe un plan para comparar con lo observado.") }}</p><a href="{{ url_for('operations.detail', operation_id=operation.id) }}#tab-plugins">{{ _("Vincular una capacidad") }}</a></div>
+  {% endif %}
+  </section>
+
+  <section class="panel playground-section" id="playground-coverage">
+  <h3>{{ _("Cobertura del escenario fijo del Playground") }}</h3>
+  <p class="muted">
+    {{ _("El escenario simulado del Playground") }} ("Andesfinance") {{ _("es fijo -- no varía según la operación vinculada, salvo el nivel de engaño. Esto compara, por cada escenario de esta operación, sus TTPs esperadas") }} (<code>Scenario.related_ttps</code>) {{ _("contra las 9 técnicas que ese escenario fijo puede llegar a producir de verdad (investigación puntual contra el repo real, no una fuente pública versionada) --") }} <strong>{{ _("distinto de") }}</strong> <code>matched_ttps</code>/<code>ttps_not_observed</code> {{ _("de arriba, que es sobre lo ya observado en esta corrida, no sobre lo que el escenario fijo puede producir en principio.") }}
+  </p>
+  {% if scenario_ttp_coverage %}
+    {% for scenario, coverage in scenario_ttp_coverage %}
+      <h4>{{ scenario.description }}</h4>
+      {% if not scenario.related_ttps %}
+        <p class="muted">{{ _("Este escenario no tiene TTPs esperadas cargadas.") }}</p>
+      {% else %}
+        {% if coverage.producible %}
+          <p>
+            <strong>{{ _("El escenario fijo sí puede producir:") }}</strong>
+            <span class="tag-list">
+              {% for ttp in coverage.producible %}
+                <span class="tag" title="origen: {{ ttp.origin }}">
+                  <span class="mono">{{ ttp.id }}</span> {{ ttp.name }}
+                </span>
+              {% endfor %}
+            </span>
+          </p>
+        {% endif %}
+        {% if coverage.not_producible %}
+          <p>
+            <strong>{{ _("El escenario fijo no tiene ninguna chance de producir:") }}</strong>
+            <span class="tag-list">
+              {% for ttp_id in coverage.not_producible %}
+                <span class="tag mono">{{ ttp_id }}</span>
+              {% endfor %}
+            </span>
+          </p>
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <p class="muted">{{ _("Esta operación no tiene ningún escenario asociado -- sin TTPs esperadas que cruzar contra el escenario fijo del Playground.") }}</p>
+  {% endif %}
+  </section>
+
+  <section class="panel playground-section" id="playground-decisions">
+  <h2>{{ _("Decisiones del motor de reglas") }}</h2>
+  {% if history %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Fecha y hora") }}</th><th>{{ _("Regla") }}</th><th>{{ _("Acciones") }}</th></tr></thead>
+      <tbody>
+        {% for firing in history %}
+          <tr>
+            <td class="muted"><time data-local-time datetime="{{ firing.timestamp.isoformat() }}">{{ firing.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+            <td>{{ firing.rule_name }}</td>
+            <td>
+              <span class="tag-list">
+                {% for action in firing.actions %}
+                  <span class="tag">{{ action.kind.value }}</span>
+                {% endfor %}
+              </span>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Todavía no hay decisiones persistidas del motor para esta operación.") }}</p>
+  {% endif %}
+
+  {% include "rules/_rejected_actions.html" %}
+  </section>
+
+  <section class="panel playground-section" id="playground-raw">
+  <h2>{{ _("TTPs observadas") }} ({{ ttps | length }})</h2>
+  {% if ttps %}
+    <span class="tag-list">
+      {% for ttp in ttps %}
+        <span class="tag mono">{{ ttp }}</span>
+      {% endfor %}
+    </span>
+  {% else %}
+    <p class="muted">{{ _("Sin TTPs observadas todavía.") }}</p>
+  {% endif %}
+
+  <h2>IoCs ({{ iocs | length }})</h2>
+  {% if iocs %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Tipo") }}</th><th>{{ _("Valor") }}</th></tr></thead>
+      <tbody>
+        {% for ioc in iocs %}
+          <tr><td>{{ ioc.type }}</td><td>{{ ioc.value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Sin IoCs observados todavía.") }}</p>
+  {% endif %}
+
+  <h2>{{ _("Eventos") }} ({{ events | length }})</h2>
+  {% if events %}
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>{{ _("Fecha y hora") }}</th><th>{{ _("Tipo") }}</th><th>plugin_id</th><th>TTP</th><th>{{ _("Carga útil") }}</th></tr></thead>
+      <tbody>
+        {% for event in events %}
+          <tr>
+            <td class="muted"><time data-local-time datetime="{{ event.timestamp.isoformat() }}">{{ event.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+            <td>{{ event_type_label(event.event_type.value) }}</td>
+            <td>{{ event.plugin_id }}</td>
+            <td>{{ event.ttp_id or "-" }}</td>
+            <td><code class="payload-preview">{{ event.payload }}</code></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Sin eventos registrados todavía para esta operación.") }}</p>
+  {% endif %}
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+  <script>
+    // M13f: notificaciones en tiempo real -- namespace propio de APATE
+    // ('/playground', distinto del '/' que ya usa la actividad en vivo
+    // de decoys), un evento
+    // 'playground_event' por cada evento real que llega al bus de la
+    // PlaygroundSession de esta operacion (ver
+    // apate.web.blueprints.playground::_make_playground_notifier()).
+    // Sin sesion de Playground activa para esta operacion, el servidor
+    // nunca suscribio ningun handler que emita nada -- esta vista se
+    // queda conectada pero sin recibir nada, no es un error.
+    (function () {
+      const operationId = "{{ operation.id }}";
+      const status = document.getElementById("playground-live-status");
+      const feed = document.getElementById("playground-live-feed");
+      const MAX_ITEMS = 20;
+
+      const socket = io(
+        location.protocol + "//" + document.domain + ":" + location.port + "/playground"
+      );
+
+      const messages = {
+        connected: {{ _("Conectado -- esperando actividad en vivo de esta operación.")|tojson }},
+        disconnected: {{ _("Desconectado.")|tojson }},
+        triggeredRules: {{ _("regla(s) disparada(s):")|tojson }},
+      };
+
+      socket.on("connect", function () {
+        status.textContent = messages.connected;
+      });
+      socket.on("disconnect", function () {
+        status.textContent = messages.disconnected;
+      });
+
+      socket.on("playground_event", function (data) {
+        if (data.operation_id !== operationId) {
+          return; // notificacion de otra operacion -- este namespace no usa rooms, se filtra acá.
+        }
+        let text = data.timestamp + " · " + data.event_type;
+        if (data.plugin_id) {
+          text += " (" + data.plugin_id + ")";
+        }
+        if (data.ttp_id) {
+          text += " — TTP " + data.ttp_id;
+        }
+        if (data.detail) {
+          text += ": " + data.detail;
+        }
+        if (data.triggered_rules && data.triggered_rules.length) {
+          text += " → " + messages.triggeredRules + " " + data.triggered_rules.join(", ");
+        }
+
+        const li = document.createElement("li");
+        li.textContent = text;
+        feed.prepend(li);
+        while (feed.children.length > MAX_ITEMS) {
+          feed.removeChild(feed.lastChild);
+        }
+      });
+    })();
+  </script>
+{% endblock %}

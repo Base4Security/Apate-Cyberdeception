@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Bandeja SOC') }}{% endblock %}
+{% block content %}
+  <header class="page-header"><div><h1>{{ _('Bandeja SOC') }}</h1><p class="muted">{{ _('Casos de las operaciones visibles para tu equipo. La severidad se deriva de las señales vinculadas, no del caso.') }}</p></div></header>
+  <form method="get" class="panel soc-filters" role="search" aria-label="{{ _('Filtrar casos') }}">
+    <div class="form-grid">
+      <label>{{ _('Estado') }}<select name="status"><option value="open"{% if filters.status == 'open' %} selected{% endif %}>{{ _('Abiertos') }}</option><option value="all"{% if filters.status == 'all' %} selected{% endif %}>{{ _('Todos') }}</option></select></label>
+      <label>{{ _('Operación') }}<select name="operation_id"><option value="">{{ _('Todas las operaciones') }}</option>{% for operation in operations %}<option value="{{ operation.id }}"{% if filters.operation_id == operation.id %} selected{% endif %}>{{ operation.name }}</option>{% endfor %}</select></label>
+      <label>{{ _('Responsable') }}<select name="responsible"><option value="">{{ _('Cualquier responsable') }}</option>{% for responsible in responsible_options %}<option value="{{ responsible }}"{% if filters.responsible == responsible %} selected{% endif %}>{{ responsible }}</option>{% endfor %}</select></label>
+      <label>{{ _('Mayor severidad vinculada') }}<select name="severity"><option value="">{{ _('Todas las severidades') }}</option>{% for value in ['critical', 'high', 'medium', 'low', 'informational'] %}<option value="{{ value }}"{% if filters.severity == value %} selected{% endif %}>{{ severity_labels[value] }}</option>{% endfor %}</select></label>
+      <label>{{ _('Ordenar por') }}<select name="sort"><option value="severity"{% if filters.sort == 'severity' %} selected{% endif %}>{{ _('Severidad y actualización') }}</option><option value="updated"{% if filters.sort == 'updated' %} selected{% endif %}>{{ _('Actualización reciente') }}</option></select></label>
+    </div>
+    <div class="soc-filter-actions"><button type="submit" class="primary">{{ _('Aplicar filtros') }}</button><a href="{{ url_for('attention.inbox') }}">{{ _('Limpiar filtros') }}</a></div>
+  </form>
+  <p role="status" class="muted">{{ _('%(count)s caso(s) coinciden con los filtros.', count=total) }}</p>
+  {% if rows %}<div class="soc-case-list">
+    {% for row in rows %}<article class="panel soc-case-card">
+      <div class="soc-case-card-heading"><h2><a href="{{ url_for('attention.case_detail', operation_id=row.operation.id, case_id=row.case.id) }}">{{ row.case.title }}</a></h2><span class="tag">{{ _('Abierto') if row.case.status == 'open' else _('Resuelto') }}</span></div>
+      <p><strong>{{ row.operation.name }}</strong>{% if row.case.responsible %} · {{ _('Responsable:') }} {{ row.case.responsible }}{% else %} · {{ _('Sin responsable') }}{% endif %}</p>
+      <p>{% if row.severity %}<span class="tag">{{ _('Mayor severidad vinculada:') }} {{ severity_labels[row.severity] }}</span> · {% endif %}{{ row.signals|length }} {{ _('señales disponibles') }}{% if row.missing_signals %} · {{ row.missing_signals }} {{ _('referencias no disponibles') }}{% endif %}</p>
+      <p class="muted">{{ _('Actualizado:') }} <time data-local-time datetime="{{ row.case.updated_at.isoformat() }}">{{ row.case.updated_at.strftime('%Y-%m-%d %H:%M UTC') }}</time></p>
+      <a href="{{ url_for('attention.case_detail', operation_id=row.operation.id, case_id=row.case.id) }}">{{ _('Revisar caso y evidencia') }}</a>
+    </article>{% endfor %}
+  </div>{% else %}<p class="empty-state">{{ _('No hay casos que coincidan con estos filtros.') }}</p>{% endif %}
+  {% if page_count > 1 %}<nav class="soc-pagination" aria-label="{{ _('Páginas de casos') }}">
+    {% if page > 1 %}<a class="button small" href="{{ url_for('attention.inbox', page=page-1, **filters) }}">{{ _('Anterior') }}</a>{% endif %}
+    <span>{{ _('Página %(page)s de %(total)s', page=page, total=page_count) }}</span>
+    {% if page < page_count %}<a class="button small" href="{{ url_for('attention.inbox', page=page+1, **filters) }}">{{ _('Siguiente') }}</a>{% endif %}
+  </nav>{% endif %}
+{% endblock %}

@@ -1,0 +1,84 @@
+{
+  "_meta": {
+    "source": "https://attack.mitre.org/groups/ (Enterprise ATT&CK, versión pública v19)",
+    "note": "Subconjunto curado, no el catálogo completo de Groups de ATT&CK (~150). Técnicas por grupo verificadas contra los Navigator layer JSON reales publicados por MITRE (https://attack.mitre.org/groups/<ID>/<ID>-enterprise-layer.json) el 2026-08-07. APT28 (G0007) y FIN7 (G0046) verificados contra el listado completo de técnicas; APT29 (G0016) y Lazarus Group (G0032) verificados solo contra una porción del listado -- señalado acá en vez de presentado con la misma confianza que los otros dos. Solo se listan técnicas de nivel padre (sin sub-técnicas) para mantener el catálogo manejable a mano. Ampliar este archivo (más grupos, más técnicas, sub-técnicas) queda pendiente.",
+    "schema_version": "1.0"
+  },
+  "techniques": [
+    {"id": "T1003", "name": "OS Credential Dumping", "tactic": "credential-access"},
+    {"id": "T1005", "name": "Data from Local System", "tactic": "collection"},
+    {"id": "T1021", "name": "Remote Services", "tactic": "lateral-movement"},
+    {"id": "T1027", "name": "Obfuscated Files or Information", "tactic": "defense-evasion"},
+    {"id": "T1033", "name": "System Owner/User Discovery", "tactic": "discovery"},
+    {"id": "T1047", "name": "Windows Management Instrumentation", "tactic": "execution"},
+    {"id": "T1053", "name": "Scheduled Task/Job", "tactic": "execution"},
+    {"id": "T1057", "name": "Process Discovery", "tactic": "discovery"},
+    {"id": "T1059", "name": "Command and Scripting Interpreter", "tactic": "execution"},
+    {"id": "T1069", "name": "Permission Groups Discovery", "tactic": "discovery"},
+    {"id": "T1071", "name": "Application Layer Protocol", "tactic": "command-and-control"},
+    {"id": "T1078", "name": "Valid Accounts", "tactic": "defense-evasion"},
+    {"id": "T1082", "name": "System Information Discovery", "tactic": "discovery"},
+    {"id": "T1083", "name": "File and Directory Discovery", "tactic": "discovery"},
+    {"id": "T1087", "name": "Account Discovery", "tactic": "discovery"},
+    {"id": "T1090", "name": "Proxy", "tactic": "command-and-control"},
+    {"id": "T1098", "name": "Account Manipulation", "tactic": "persistence"},
+    {"id": "T1102", "name": "Web Service", "tactic": "command-and-control"},
+    {"id": "T1105", "name": "Ingress Tool Transfer", "tactic": "command-and-control"},
+    {"id": "T1110", "name": "Brute Force", "tactic": "credential-access"},
+    {"id": "T1113", "name": "Screen Capture", "tactic": "collection"},
+    {"id": "T1134", "name": "Access Token Manipulation", "tactic": "privilege-escalation"},
+    {"id": "T1140", "name": "Deobfuscate/Decode Files or Information", "tactic": "defense-evasion"},
+    {"id": "T1189", "name": "Drive-by Compromise", "tactic": "initial-access"},
+    {"id": "T1190", "name": "Exploit Public-Facing Application", "tactic": "initial-access"},
+    {"id": "T1195", "name": "Supply Chain Compromise", "tactic": "initial-access"},
+    {"id": "T1203", "name": "Exploitation for Client Execution", "tactic": "execution"},
+    {"id": "T1204", "name": "User Execution", "tactic": "execution"},
+    {"id": "T1210", "name": "Exploitation of Remote Services", "tactic": "lateral-movement"},
+    {"id": "T1218", "name": "System Binary Proxy Execution", "tactic": "defense-evasion"},
+    {"id": "T1486", "name": "Data Encrypted for Impact", "tactic": "impact"},
+    {"id": "T1547", "name": "Boot or Logon Autostart Execution", "tactic": "persistence"},
+    {"id": "T1553", "name": "Subvert Trust Controls", "tactic": "defense-evasion"},
+    {"id": "T1558", "name": "Steal or Forge Kerberos Tickets", "tactic": "credential-access"},
+    {"id": "T1560", "name": "Archive Collected Data", "tactic": "collection"},
+    {"id": "T1566", "name": "Phishing", "tactic": "initial-access"},
+    {"id": "T1567", "name": "Exfiltration Over Web Service", "tactic": "exfiltration"},
+    {"id": "T1583", "name": "Acquire Infrastructure", "tactic": "resource-development"},
+    {"id": "T1587", "name": "Develop Capabilities", "tactic": "resource-development"},
+    {"id": "T1588", "name": "Obtain Capabilities", "tactic": "resource-development"},
+    {"id": "T1608", "name": "Stage Capabilities", "tactic": "resource-development"}
+  ],
+  "groups": [
+    {
+      "id": "G0007",
+      "name": "APT28",
+      "aliases": ["Fancy Bear", "Sofacy", "Pawn Storm", "STRONTIUM", "Forest Blizzard"],
+      "description": "Atribuido a la GRU 85th Main Special Service Center (GTsSS), unidad militar 26165 de Rusia. Activo desde al menos 2004.",
+      "technique_ids": ["T1566", "T1078", "T1059", "T1105", "T1071", "T1003", "T1110", "T1190", "T1027", "T1021", "T1583", "T1560"],
+      "verification": "completa (layer JSON completo de G0007 leído)"
+    },
+    {
+      "id": "G0016",
+      "name": "APT29",
+      "aliases": ["Cozy Bear", "The Dukes", "Nobelium", "Midnight Blizzard"],
+      "description": "Atribuido al Servicio de Inteligencia Exterior de Rusia (SVR). Responsable del compromiso de la cadena de suministro de SolarWinds.",
+      "technique_ids": ["T1078", "T1059", "T1105", "T1071", "T1087", "T1098", "T1134", "T1567"],
+      "verification": "parcial (layer JSON de G0016 contrastado solo en parte; el resto de las técnicas no fue contrastado contra el layer -- revisar antes de ampliar este grupo)"
+    },
+    {
+      "id": "G0032",
+      "name": "Lazarus Group",
+      "aliases": ["Hidden Cobra", "Guardians of Peace", "ZINC", "Diamond Sleet"],
+      "description": "Atribuido a la República Popular Democrática de Corea (Corea del Norte). Responsable de WannaCry, el ataque a Sony Pictures y numerosas campañas contra el sector financiero/criptomonedas.",
+      "technique_ids": ["T1134", "T1087", "T1098", "T1583", "T1566", "T1059", "T1105", "T1071", "T1486", "T1195"],
+      "verification": "parcial (layer JSON de G0032 contrastado solo en parte; el resto de las técnicas no fue contrastado contra el layer -- revisar antes de ampliar este grupo)"
+    },
+    {
+      "id": "G0046",
+      "name": "FIN7",
+      "aliases": ["Carbon Spider", "Carbanak Group", "Navigator Group"],
+      "description": "Grupo con motivación financiera, responsable de campañas de phishing masivas contra retail/hospitality y, más recientemente, despliegue de ransomware.",
+      "technique_ids": ["T1566", "T1059", "T1078", "T1105", "T1071", "T1027", "T1053", "T1190", "T1210", "T1486", "T1558", "T1195", "T1218", "T1608"],
+      "verification": "completa (layer JSON completo de G0046 leído)"
+    }
+  ]
+}

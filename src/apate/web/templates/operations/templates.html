@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Plantillas de operaci&oacute;n - Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('operations.list_operations') }}">{{ _("Operaciones") }}</a> / {{ _("Plantillas") }}</nav>{% endblock %}
+{% block content %}
+  <div class="content-toolbar">
+    <h1>{{ _("Plantillas de operaci&oacute;n") }}</h1>
+    <div class="toolbar-actions">
+      <a href="{{ url_for('operations.new_operation_form') }}" class="button">{{ _("Empezar en blanco") }}</a>
+    </div>
+  </div>
+  <p class="muted">{{ _("Una plantilla precarga el perfil, las TTPs esperadas, las reglas de interacci&oacute;n y la narrativa; los escenarios y las capacidades los agreg&aacute;s despu&eacute;s.") }}</p>
+
+  {% if templates %}
+    <div class="panel-grid template-catalog">
+      {% for template in templates %}
+        {% set operation = template.operation %}
+        {% set next_steps = next_steps_by_id[template.id] %}
+        <article class="card template-card">
+          <h2 class="visually-hidden">{{ operation.name }}</h2>
+          <h3>{{ operation.name }}</h3>
+          <p class="muted">{{ template.summary }}</p>
+          <dl class="operation-overview">
+            <dt>{{ _("Adversario") }}</dt><dd>{{ operation.adversary_name }}</dd>
+            <dt><abbr title="{{ _("T&aacute;cticas, t&eacute;cnicas y procedimientos") }}">TTP</abbr>s {{ _("esperadas") }}</dt><dd>{{ operation.expected_ttps | length }}</dd>
+            <dt>{{ _("Entorno sugerido") }}</dt><dd>{{ environment_label(operation.environment) }}</dd>
+          </dl>
+          <span class="tag-list">
+            {% for objective in operation.objectives %}<span class="tag">{{ strategic_objective_label(objective) }}</span>{% endfor %}
+          </span>
+          {% if next_steps.scenario_description or next_steps.plugin_kinds %}
+            <p class="muted template-next-steps">
+              {% trans scenario=next_steps.scenario_description, count=next_steps.plugin_kinds | length %}Sugiere continuar (pasos 3/4, no se crean junto con la operaci&oacute;n) con el escenario &ldquo;{{ scenario }}&rdquo; y {{ count }} capacidad(es){% endtrans %}
+              ({{ next_steps.plugin_kinds | join(", ") }}).
+            </p>
+          {% endif %}
+          <a class="button primary" href="{{ url_for('operations.new_operation_form', template=template.id) }}">{{ _("Usar esta plantilla") }}</a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><p class="muted">{{ _("No hay plantillas cargadas.") }}</p></div>
+  {% endif %}
+{% endblock %}

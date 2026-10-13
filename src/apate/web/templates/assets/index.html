@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Inventario de activos") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / {{ _("Inventario de activos") }}</nav>{% endblock %}
+{% block content %}
+  <h1>{{ _("Inventario de activos") }}</h1>
+  <p class="muted">{{ _("Infraestructura compartida y global: no pertenece a una operación ni a un equipo. Elegirla en una operación solo guarda su identificador como referencia.") }}</p>
+
+  {% if not identity_authentication_active or current_identity.role.value == 'administration' %}
+    <section class="card">
+      <h2>{{ _("Agregar activo") }}</h2>
+      <form method="post" action="{{ url_for('assets.create') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+          <label>{{ _("Identificador") }} <input name="identifier" required placeholder="ASSET-ERP-01"></label>
+          <label>{{ _("Nombre") }} <input name="name" required placeholder="{{ _("ERP de producción") }}"></label>
+          <label>{{ _("Tipo") }} <input name="asset_type" required list="tipos-con-sugerencia" placeholder="{{ suggestible_asset_types | join(', ') }}"></label>
+<datalist id="tipos-con-sugerencia">{% for tipo in suggestible_asset_types %}<option value="{{ tipo }}"></option>{% endfor %}</datalist>
+          <label>{{ _("Criticidad") }}
+            <select name="criticality" required>
+              {% for value, label in criticality_labels.items() %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+            </select>
+          </label>
+          <label>{{ _("Identificador técnico (opcional)") }} <input name="technical_identifier" placeholder="erp01.example.internal / 10.0.0.15"></label>
+        </div>
+        <button type="submit">{{ _("Guardar activo") }}</button>
+      </form>
+    </section>
+    <section class="card">
+      <h2>{{ _("Importar CSV") }}</h2>
+      <p class="muted">{{ _("Columnas obligatorias:") }} <code>identifier,name,asset_type,criticality</code>. {{ _("Opcional:") }} <code>technical_identifier</code>. {{ _("La carga solo se previsualiza; nada se guarda hasta confirmar.") }}</p>
+      <form method="post" action="{{ url_for('assets.preview_csv') }}" enctype="multipart/form-data" data-slow-action><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label for="inventory_csv">{{ _("Archivo CSV UTF-8 (máx. 10 MB)") }}</label>
+        <input id="inventory_csv" type="file" name="inventory_csv" accept=".csv,text/csv" required>
+        <button type="submit">{{ _("Validar y previsualizar") }}</button>
+      </form>
+    </section>
+  {% endif %}
+
+  <section>
+    <h2>{{ _("Activos registrados") }} <span class="muted">({{ assets | length }})</span></h2>
+    {% if assets %}
+      <div class="card-grid">
+        {% for asset in assets %}
+          <article class="card">
+            <h3>{{ asset.name }}</h3>
+            <p><code>{{ asset.identifier }}</code></p>
+            <dl>
+              <dt>{{ _("Tipo") }}</dt><dd>{{ asset.asset_type }}</dd>
+              <dt>{{ _("Criticidad") }}</dt><dd>{{ criticality_labels[asset.criticality] }}</dd>
+              <dt>{{ _("Identificador técnico") }}</dt><dd>{{ asset.technical_identifier or '—' }}</dd>
+            </dl>
+            {% if not identity_authentication_active or current_identity.role.value == 'administration' %}
+              <a class="button small" href="{{ url_for('assets.edit', identifier=asset.identifier) }}">{{ _("Editar") }}</a>
+              <form method="post" action="{{ url_for('assets.delete', identifier=asset.identifier) }}" class="inline-form" data-confirm-message="{{ _("¿Eliminar este activo del inventario global?") }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="small danger">{{ _("Eliminar") }}</button>
+              </form>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">{{ _("Todavía no hay activos. Podés agregarlos uno a uno o importar un CSV.") }}</p>
+    {% endif %}
+  </section>
+{% endblock %}

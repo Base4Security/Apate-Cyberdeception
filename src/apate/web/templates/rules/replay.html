@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Reproducir reglas') }} · {{ operation.name }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ operation.name }}</a> / {{ _('Reproducir reglas') }}</nav>{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">{{ operation.name }}</p><h1>{{ _('Reproducir reglas') }}</h1></div></header>
+<p>{{ _('Se vuelven a evaluar eventos guardados sobre una copia de la operación. Las acciones de capacidades quedan como intentos simulados; ningún destino cambia.') }}</p>
+<form method="get" action="{{ url_for('rules.replay', operation_id=operation.id) }}"><label>{{ _('Versión de reglas') }}<select name="revision"><option value="">{{ _('Configuración actual') }}</option>{% for revision in revisions %}<option value="{{ revision }}"{% if revision == selected_revision %} selected{% endif %}>{{ revision[:12] }}</option>{% endfor %}</select></label><button type="submit">{{ _('Evaluar') }}</button></form>
+<p class="muted">{{ result.input_count }} {{ _('eventos evaluados') }} · {{ _('Huella de reglas:') }} <span class="mono">{{ result.rule_revision[:12] }}</span>{% if result.truncated %} · {{ _('Resultado limitado a los primeros 1000 eventos; exportá la telemetría para un análisis completo.') }}{% endif %}</p>
+<section class="panel"><h2>{{ _('Coincidencias de reglas') }}</h2>{% if result.firings %}<ul>{% for firing in result.firings %}<li><strong>{{ firing.rule_name }}</strong> · {{ firing.triggering_event_id or '—' }} · {{ firing.actions|join(', ') }}</li>{% endfor %}</ul>{% else %}<p>{{ _('Ninguna regla coincidió con los eventos elegidos.') }}</p>{% endif %}</section>
+<section class="panel"><h2>{{ _('Acciones rechazadas') }}</h2>{% if result.rejections %}<ul>{% for rejected in result.rejections %}<li>{{ rejected.rule_name }} · {{ rejected.kind }} · {{ rejected.action|join(', ') }} · {{ rejected.triggering_event_id or '—' }}</li>{% endfor %}</ul>{% else %}<p>{{ _('Ninguna acción fue rechazada.') }}</p>{% endif %}</section>
+<section class="panel"><h2>{{ _('Resultado simulado') }}</h2><p>{{ _('Estado de la copia:') }} {{ result.simulated_final_status }} · {{ result.plugin_attempts|length }} {{ _('intentos sobre capacidades') }}</p></section>
+<p class="muted">{{ _('La reproducción no inventa eventos secundarios que un despliegue real podría producir. Compara reglas sobre la telemetría ya observada.') }}</p>
+{% endblock %}

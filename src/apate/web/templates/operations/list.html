@@ -1,0 +1,465 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Operaciones") }} {{ _("- Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> {{ _("/ Operaciones") }}</nav>{% endblock %}
+{% block content %}
+  <div class="content-toolbar">
+    <h1>{{ _("Operaciones") }} <span class="muted">({{ operations | length }})</span></h1>
+    <div class="toolbar-actions">
+      <a href="{{ url_for('operations.compare_operations') }}" class="button">{{ _("Comparar operaciones") }}</a>
+      {% if can_operate %}
+        <a href="{{ url_for('operations.templates_gallery') }}" class="button">{{ _("Elegir desde plantilla") }}</a>
+        <a href="{{ url_for('operations.new_operation_form') }}" class="button primary">{{ _("Nueva operaci&oacute;n") }}</a>
+      {% endif %}
+    </div>
+  </div>
+  <p class="toolbar-stats muted">{{ _("Vista consolidada del estado de cada operaci&oacute;n: estado, cobertura y actividad reciente.") }}</p>
+
+  {% if operations %}
+    <div class="panel-grid toolbar-stats">
+      <div class="card kpi-card kpi-card-active">
+        <dl>
+          <dt><span class="status-dot status-dot-active" aria-hidden="true"></span> {{ _("Activas") }}</dt>
+          <dd class="kpi-value">{{ kpis.active_count }}</dd>
+        </dl>
+      </div>
+      <div class="card kpi-card kpi-card-compromised">
+        <dl>
+          <dt><span class="status-dot status-dot-compromised" aria-hidden="true"></span> {{ _("Comprometidas") }}</dt>
+          <dd class="kpi-value">{{ kpis.compromised_count }}</dd>
+        </dl>
+      </div>
+      <div class="card kpi-card">
+        <dl>
+          <dt>{{ _("Cobertura de") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTPs") }}</abbr></dt>
+          <dd class="kpi-value">{{ kpis.ttp_coverage_count }}</dd>
+        </dl>
+      </div>
+      <div class="card kpi-card kpi-card-attention">
+        <dl>
+          <dt>{{ _("Requieren atenci&oacute;n") }}</dt>
+          <dd class="kpi-value">{{ attention_operation_count }}</dd>
+        </dl>
+        <small>{{ _("Pendientes metodol&oacute;gicos expl&iacute;citos; no es un score.") }}</small>
+      </div>
+    </div>
+
+    <section class="panel operations-live-status" aria-labelledby="operations-live-status-title">
+      <div class="panel-heading">
+        <div>
+          <h2 class="visually-hidden">{{ _("Estado en vivo") }}</h2>
+          <h3 id="operations-live-status-title">{{ _("Estado en vivo") }}</h3>
+          <p class="muted">
+            {{ _("Decoys, narrativas y honeytokens realmente desplegados ahora mismo -- solo operaciones\n            activas o comprometidas. Se consulta despu&eacute;s de cargar esta p&aacute;gina y nunca\n            bloquea el listado; si Docker o el motor de comportamiento no responden, cada dato queda expl&iacute;cito como\n            desconocido en vez de asumir que est&aacute; abajo.") }}
+          </p>
+        </div>
+      </div>
+      {% if live_operations %}
+        <div class="panel-grid operations-live-cards" id="operations-live-cards">
+          {% for operation in live_operations %}
+            <article class="card operations-live-card" data-operation-id="{{ operation.id }}">
+              <div class="operations-live-card-heading">
+                <a href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ operation.name }}</a>
+                <span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span>
+              </div>
+              <p class="muted operations-live-card-adversary">{{ operation.adversary_profile.name }}</p>
+              <ul class="operations-live-card-status" data-live-status-list>
+                <li class="muted"><span class="dot dot-unknown" aria-hidden="true"></span> {{ _("Cargando estado en vivo&hellip;") }}</li>
+              </ul>
+              <a class="button small operations-live-card-open" href="{{ url_for('operations.detail', operation_id=operation.id) }}#tab-mechanics">{{ _("Ver despliegue") }} <span aria-hidden="true">{{ _("&rarr;") }}</span></a>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">{{ _("Ninguna operaci&oacute;n activa o comprometida en este momento.") }}</p>
+      {% endif %}
+    </section>
+
+    <div class="panel-grid">
+      <div class="card">
+        <h2 class="visually-hidden">{{ _("Pr&oacute;ximos cierres") }}</h2>
+        <h3>{{ _("Pr&oacute;ximos cierres") }}</h3>
+        {% if kpis.upcoming_closures %}
+          <div class="table-scroll">
+          <table>
+            <thead><tr><th>{{ _("Operaci&oacute;n") }}</th><th>{{ _("Cierre planificado") }}</th></tr></thead>
+            <tbody>
+              {% for op in kpis.upcoming_closures %}
+                <tr>
+                  <td><a href="{{ url_for('operations.detail', operation_id=op.id) }}">{{ op.name }}</a></td>
+                  <td class="muted">{{ op.closure_criteria.end_date.date() }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+        {% else %}
+          <p class="muted">{{ _("Ninguna operaci&oacute;n abierta tiene fecha de cierre planificada.") }}</p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2 class="visually-hidden">{{ _("Actividad reciente del motor") }}</h2>
+        <h3>{{ _("Actividad reciente del motor") }}</h3>
+        <p class="muted">
+          {{ _("Muestra las últimas reglas disparadas y persistidas por el motor, también después de reiniciar el servidor.") }}
+        </p>
+        {% if recent_rule_firings %}
+          <div class="table-scroll">
+          <table>
+            <thead><tr><th>{{ _("Cu&aacute;ndo") }}</th><th>{{ _("Operaci&oacute;n") }}</th><th>{{ _("Regla") }}</th></tr></thead>
+            <tbody>
+              {% for item in recent_rule_firings %}
+                <tr>
+                  <td class="muted"><time data-local-time datetime="{{ item.firing.timestamp.isoformat() }}">{{ item.firing.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC") }}</time></td>
+                  <td><a href="{{ url_for('operations.detail', operation_id=item.operation_id) }}">{{ item.operation_name }}</a></td>
+                  <td>{{ item.firing.rule_name }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+        {% else %}
+          <p class="muted">
+            {{ _("Todav&iacute;a no hay decisiones persistidas.") }} <a href="{{ url_for('playground.index') }}">{{ _("Abrir Playground") }}</a>
+            {{ _("para iniciar un ejercicio.") }}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="panel operations-catalog">
+      <div class="panel-heading">
+        <div>
+          <h2 class="visually-hidden">{{ _("Cat&aacute;logo de operaciones") }}</h2>
+          <h3>{{ _("Cat&aacute;logo de operaciones") }}</h3>
+          <p class="muted">{{ _("Busc&aacute;, filtr&aacute; y orden&aacute; sin salir de esta vista.") }}</p>
+        </div>
+      </div>
+      <div class="table-toolbar">
+        <div class="table-toolbar-field">
+          <label for="operations-search">{{ _("Buscar") }}</label>
+          <input type="search" id="operations-search" placeholder="{{ _('Nombre o adversario...') }}" autocomplete="off">
+        </div>
+        <div class="table-toolbar-field">
+          <label for="operations-status-filter">{{ _("Estado") }}</label>
+          <select id="operations-status-filter">
+            <option value="">{{ _("Todos") }}</option>
+            {% for status in operation_statuses %}
+              <option value="{{ status }}">{{ operation_status_label(status) }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="button" class="small table-toolbar-clear" id="operations-clear-filters">{{ _("Limpiar filtros") }}</button>
+        <p class="muted table-toolbar-count" id="operations-result-count" role="status" aria-live="polite"></p>
+      </div>
+      <div class="status-filter-chips" role="group" aria-label="{{ _('Filtros r&aacute;pidos por estado') }}">
+        <button type="button" class="status-filter-chip active" data-status-option="" aria-pressed="true">
+          {{ _("Todas") }} <span>{{ operations | length }}</span>
+        </button>
+        {% for status in operation_statuses %}
+          <button type="button" class="status-filter-chip" data-status-option="{{ status }}" aria-pressed="false">
+            {{ operation_status_label(status) }} <span>{{ operations | selectattr('status.value', 'equalto', status) | list | length }}</span>
+          </button>
+        {% endfor %}
+      </div>
+
+    <div class="table-scroll">
+    <table id="operations-table">
+      <thead>
+        <tr>
+          <th class="sortable" data-sort-key="name" data-sort-type="text" tabindex="0" role="button" aria-sort="none">{{ _("Nombre") }}</th>
+          <th class="sortable" data-sort-key="status" data-sort-type="text" tabindex="0" role="button" aria-sort="none">{{ _("Estado") }}</th>
+          <th>{{ _("Adversario") }}</th>
+          <th class="sortable" data-sort-key="ttp-count" data-sort-type="number" tabindex="0" role="button" aria-sort="none">{{ _("TTPs esperadas") }}</th>
+          <th class="sortable" data-sort-key="created" data-sort-type="text" tabindex="0" role="button" aria-sort="none">{{ _("Creada") }}</th>
+          <th><span class="visually-hidden">{{ _("Acci&oacute;n") }}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for operation in operations %}
+          {% set attention = operation_attention[operation.id] %}
+          <tr data-status="{{ operation.status.value }}" data-created="{{ operation.created_at.isoformat() }}" data-ttp-count="{{ operation.adversary_profile.expected_ttps | length }}">
+            <td>
+              <a class="operation-name" href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ operation.name }}</a>
+              <span class="operation-row-id mono">{{ operation.id[:8] }}</span>
+              {# Una operación sin equipo solo es visible para administración:
+                 queda en cuarentena hasta que se le asigne un equipo. #}
+              {% if identity_authentication_active and not operation.team_id %}
+                <span class="badge health-unavailable" title="{{ _('Sin equipo asignado: solo administración puede verla hasta clasificarla.') }}">{{ _("solo administración") }}</span>
+              {% endif %}
+              <span class="operation-attention-summary">
+                <span class="badge {{ 'health-unavailable' if attention.count else 'health-available' }}">{{ attention.label }}</span>
+                {% if attention["items"] %}
+                  <span class="muted">{% for item in attention["items"] %}{{ item.label }}{% if not loop.last %} {{ _("&middot;") }} {% endif %}{% endfor %}</span>
+                {% endif %}
+              </span>
+            </td>
+            <td><span class="badge badge-{{ operation.status.value }}">{{ operation_status_label(operation.status.value) }}</span></td>
+            <td>{{ operation.adversary_profile.name }}</td>
+            <td>
+              <span class="operation-ttp-count">{{ operation.adversary_profile.expected_ttps | length }}</span>
+              <span class="operation-ttp-preview mono muted" title="{{ operation.adversary_profile.expected_ttps | join(', ') }}">
+                {{ operation.adversary_profile.expected_ttps | join(", ") or "Sin TTPs" }}
+              </span>
+            </td>
+            <td class="muted"><time data-local-time datetime="{{ operation.created_at.isoformat() }}">{{ operation.created_at.strftime("%Y-%m-%d %H:%M UTC") }}</time></td>
+            <td><a class="button small operation-open" href="{{ url_for('operations.detail', operation_id=operation.id) }}">{{ _("Abrir") }} <span aria-hidden="true">{{ _("&rarr;") }}</span></a></td>
+          </tr>
+        {% endfor %}
+        <tr id="operations-no-results" class="hidden">
+          <td colspan="6" class="operations-no-results">
+            <strong>{{ _("Sin coincidencias") }}</strong>
+            <span class="muted">{{ _("Prob&aacute; con otro nombre, adversario o estado.") }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+
+    <script>
+      // Buscador/filtro/orden de la tabla de operaciones -- JS plano del
+      // lado del cliente, sin recarga de pagina, mismo criterio que el
+      // resto de la UI (tabs, wizard, collapsibles): el volumen de datos
+      // real esperado (un programa de operaciones de ciberengano) no
+      // justifica mover esto a consultas server-side.
+      (function () {
+        const table = document.getElementById('operations-table');
+        if (!table) return;
+
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr')).filter(function (row) {
+          return row.id !== 'operations-no-results';
+        });
+        const noResultsRow = document.getElementById('operations-no-results');
+        const searchInput = document.getElementById('operations-search');
+        const statusSelect = document.getElementById('operations-status-filter');
+        const statusButtons = Array.from(document.querySelectorAll('[data-status-option]'));
+        const clearFiltersButton = document.getElementById('operations-clear-filters');
+        const resultCount = document.getElementById('operations-result-count');
+        const initialParams = new URLSearchParams(window.location.search);
+        searchInput.value = initialParams.get('q') || '';
+        statusSelect.value = initialParams.get('status') || '';
+
+        function normalize(text) {
+          return (text || '').trim().toLowerCase();
+        }
+
+        function applyFilters() {
+          const query = normalize(searchInput.value);
+          const status = statusSelect.value;
+          let visible = 0;
+
+          rows.forEach(function (row) {
+            const name = normalize(row.cells[0].textContent);
+            const adversary = normalize(row.cells[2].textContent);
+            const matchesQuery = !query || name.indexOf(query) !== -1 || adversary.indexOf(query) !== -1;
+            const matchesStatus = !status || row.dataset.status === status;
+            const show = matchesQuery && matchesStatus;
+            row.classList.toggle('hidden', !show);
+            if (show) visible += 1;
+          });
+
+          resultCount.textContent = {{ _('Mostrando')|tojson }} + ' ' + visible + ' / ' + rows.length;
+          noResultsRow.classList.toggle('hidden', visible !== 0);
+          clearFiltersButton.disabled = !query && !status;
+          statusButtons.forEach(function (button) {
+            const active = button.dataset.statusOption === status;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', String(active));
+          });
+          const params = new URLSearchParams(window.location.search);
+          searchInput.value ? params.set('q', searchInput.value) : params.delete('q');
+          statusSelect.value ? params.set('status', statusSelect.value) : params.delete('status');
+          history.replaceState(null, '', window.location.pathname + (params.size ? '?' + params.toString() : ''));
+        }
+
+        searchInput.addEventListener('input', applyFilters);
+        statusSelect.addEventListener('change', applyFilters);
+        statusButtons.forEach(function (button) {
+          button.addEventListener('click', function () {
+            statusSelect.value = button.dataset.statusOption;
+            applyFilters();
+          });
+        });
+        clearFiltersButton.addEventListener('click', function () {
+          searchInput.value = '';
+          statusSelect.value = '';
+          applyFilters();
+          searchInput.focus();
+        });
+
+        function sortValue(row, key) {
+          if (key === 'name') return normalize(row.cells[0].textContent);
+          if (key === 'status') return row.dataset.status;
+          if (key === 'created') return row.dataset.created;
+          if (key === 'ttp-count') return Number(row.dataset.ttpCount);
+          return '';
+        }
+
+        let currentSort = { key: null, dir: 1 };
+
+        table.querySelectorAll('th.sortable').forEach(function (th) {
+          th.addEventListener('click', function () {
+            const key = th.dataset.sortKey;
+            const dir = currentSort.key === key ? -currentSort.dir : 1;
+            currentSort = { key: key, dir: dir };
+            const params = new URLSearchParams(window.location.search);
+            params.set('sort', key);
+            params.set('dir', dir === 1 ? 'asc' : 'desc');
+            history.replaceState(null, '', window.location.pathname + '?' + params.toString());
+
+            table.querySelectorAll('th.sortable').forEach(function (h) {
+              h.classList.remove('sort-asc', 'sort-desc');
+              h.setAttribute('aria-sort', 'none');
+            });
+            th.classList.add(dir === 1 ? 'sort-asc' : 'sort-desc');
+            th.setAttribute('aria-sort', dir === 1 ? 'ascending' : 'descending');
+
+            const sorted = rows.slice().sort(function (a, b) {
+              const va = sortValue(a, key);
+              const vb = sortValue(b, key);
+              if (va < vb) return -1 * dir;
+              if (va > vb) return 1 * dir;
+              return 0;
+            });
+            sorted.forEach(function (row) { tbody.insertBefore(row, noResultsRow); });
+          });
+          th.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            th.click();
+          });
+        });
+
+        applyFilters();
+        const initialSort = initialParams.get('sort');
+        if (initialSort) {
+          const heading = table.querySelector('th[data-sort-key="' + CSS.escape(initialSort) + '"]');
+          if (heading) {
+            heading.click();
+            if (initialParams.get('dir') === 'desc') heading.click();
+          }
+        }
+      })();
+    </script>
+
+    <script>
+      // "Estado en vivo" (referencia declarada: CounterCraft, "campaign
+      // cards" que muestran que esta corriendo sin abrir cada campana) --
+      // consulta Docker/BUDA DESPUES de pintar la pagina, nunca durante el
+      // render server-side de list_operations() (mismo criterio que ya
+      // establecio el dashboard de M13d para no pagar I/O externo por fila
+      // en una pantalla de listado). Un solo fetch() por lote a
+      // /operations/deployment-status, con timeout propio del lado del
+      // cliente (AbortController) para que un Docker colgado no deje las
+      // tarjetas "Cargando..." para siempre.
+      (function () {
+        const cardsContainer = document.getElementById('operations-live-cards');
+        if (!cardsContainer) return;
+        const cards = Array.from(cardsContainer.querySelectorAll('[data-operation-id]'));
+        if (!cards.length) return;
+
+        function renderUnavailable(list, message) {
+          list.replaceChildren();
+          const item = document.createElement('li');
+          item.className = 'muted';
+          item.innerHTML = '<span class="dot dot-unknown" aria-hidden="true"></span> ';
+          item.append(message);
+          list.appendChild(item);
+        }
+
+        function statusLine(dotClass, text) {
+          const item = document.createElement('li');
+          const dot = document.createElement('span');
+          dot.className = 'dot ' + dotClass;
+          dot.setAttribute('aria-hidden', 'true');
+          item.appendChild(dot);
+          item.append(' ' + text);
+          return item;
+        }
+
+        function renderStatus(list, status) {
+          list.replaceChildren();
+          const lines = [];
+          // Los textos vienen traducidos del servidor con marcadores; el
+          // cliente solo sustituye numeros. Concatenar aca dejaria las
+          // cadenas fuera del catalogo, que es como quedaron sin traducir.
+          const T = {
+            decoysUnknown: {{ _("Decoys: estado desconocido (Docker no disponible)") | tojson }},
+            decoys: {{ _("Decoys: {up} arriba, {down} abajo") | tojson }},
+            decoysUnknownExtra: {{ _(", {unknown} desconocido(s)") | tojson }},
+            narrativeUnknown: {{ _("Narrativa: estado desconocido (motor de comportamiento no disponible)") | tojson }},
+            narrative: {{ _("Narrativa: {running}/{configured} activa(s)") | tojson }},
+            honeytokens: {{ _("Honeytokens: {deployed}/{configured} desplegado(s)") | tojson }},
+          };
+          const fmt = (plantilla, valores) =>
+            plantilla.replace(/\{(\w+)\}/g, (_m, clave) => valores[clave]);
+
+          if (status.decoys.up + status.decoys.down + status.decoys.unknown > 0) {
+            if (!status.docker_available) {
+              lines.push(statusLine('dot-unknown', T.decoysUnknown));
+            } else {
+              const dotClass = status.decoys.up > 0 ? 'dot-up' : 'dot-down';
+              let text = fmt(T.decoys, status.decoys);
+              if (status.decoys.unknown > 0) text += fmt(T.decoysUnknownExtra, status.decoys);
+              lines.push(statusLine(dotClass, text));
+            }
+          }
+
+          if (status.narratives.configured > 0) {
+            if (!status.buda_available) {
+              lines.push(statusLine('dot-unknown', T.narrativeUnknown));
+            } else {
+              const dotClass = status.narratives.running > 0 ? 'dot-up' : 'dot-down';
+              lines.push(statusLine(dotClass, fmt(T.narrative, status.narratives)));
+            }
+          }
+
+          if (status.honeytokens.configured > 0) {
+            const dotClass = status.honeytokens.deployed === status.honeytokens.configured ? 'dot-up' : (status.honeytokens.deployed > 0 ? 'dot-unknown' : 'dot-down');
+            lines.push(statusLine(dotClass, fmt(T.honeytokens, status.honeytokens)));
+          }
+
+            lines.push(item);
+          }
+          lines.forEach(function (line) { list.appendChild(line); });
+        }
+
+        const ids = cards.map(function (card) { return card.dataset.operationId; });
+        const controller = new AbortController();
+        const timeout = window.setTimeout(function () { controller.abort(); }, 5000);
+        const url = "{{ url_for('operations.deployment_status') }}?ids=" + encodeURIComponent(ids.join(','));
+
+        fetch(url, { signal: controller.signal })
+          .then(function (response) {
+            if (!response.ok) throw new Error('respuesta no valida');
+            return response.json();
+          })
+          .then(function (data) {
+            cards.forEach(function (card) {
+              const list = card.querySelector('[data-live-status-list]');
+              const status = data[card.dataset.operationId];
+              if (status) {
+                renderStatus(list, status);
+              } else {
+                renderUnavailable(list, 'Sin datos para esta operación.');
+              }
+            });
+          })
+          .catch(function () {
+            // Docker/BUDA caidos, timeout, o el servidor no responde -- las
+            // tarjetas ya pintadas (nombre/adversario/estado) siguen
+            // siendo utiles, solo se pierde el estado en vivo de esta
+            // vuelta. Nunca se asume "abajo" en silencio.
+            cards.forEach(function (card) {
+              renderUnavailable(card.querySelector('[data-live-status-list]'), 'No se pudo determinar el estado en vivo.');
+            });
+          })
+          .finally(function () { window.clearTimeout(timeout); });
+      })();
+    </script>
+  {% else %}
+    <div class="empty-state"><h2>{{ _("Prepar&aacute; tu primera operaci&oacute;n") }}</h2><p class="muted">{{ _("Plantilla: inici&aacute; el wizard con una operaci&oacute;n de ejemplo ya poblada.") }}</p><p class="muted">{{ _("En blanco: inici&aacute; el wizard sin valores precargados.") }}</p>{% if can_operate %}<a class="button primary" href="{{ url_for('operations.new_operation_form') }}">{{ _("Crear operaci&oacute;n") }}</a> <a class="button" href="{{ url_for('operations.templates_gallery') }}">{{ _("Elegir desde plantilla") }}</a>{% endif %}</div>
+  {% endif %}
+{% endblock %}

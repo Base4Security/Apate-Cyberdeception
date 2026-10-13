@@ -1,0 +1,180 @@
+{
+  "_meta": {
+    "source": "English variant of the curated operation-template dataset. It keeps the same stable IDs and technical configuration as operation_templates.json.",
+    "note": "operation.end_date_days is resolved to an absolute ISO date at use time by apate.web._operation_templates.resolve_operation_fields().",
+    "localization": "Parallel localized files were chosen instead of language keys in every string. The web wizard and examples/seed_demo.py retain one unchanged schema, while template IDs, TTPs, plugin IDs, kinds, hostnames, addresses, and other technical values remain literal and identical across locales.",
+    "schema_version": "1.0"
+  },
+  "templates": [
+    {
+      "id": "apt28-lateral-finance",
+      "summary": "Early detection of a known espionage actor seeking to move laterally to the financial segment through SSH brute force.",
+      "operation": {
+        "name": "APT28 — Lateral movement to the financial segment",
+        "adversary_name": "APT28 (Fancy Bear)",
+        "adversary_motivation": "Espionage and access to financial data in the corporate segment",
+        "adversary_skill_level": "advanced",
+        "expected_ttps": ["T1566", "T1078", "T1059", "T1105", "T1071", "T1003", "T1021"],
+        "target_assets": "Financial network segment, Internal file servers",
+        "adversary_notes": "Profile based on TTPs publicly attributed to APT28 (curated MITRE ATT&CK catalog from apate.attack).",
+        "environment": "near_production",
+        "narrative_name": "Staging server with lateral access",
+        "narrative_description": "The decoys simulate a recently migrated staging environment with weak configurations typical of a pre-production environment.",
+        "psychological_impact": "The adversary believes they have found a low-risk environment from which to move laterally to real financial systems without being detected.",
+        "objectives": ["early_detection", "controls_validation"],
+        "roles": "SOC lead: N. Pérez\nThreat analyst: M. Gómez",
+        "resource_estimate": "2 part-time analysts for 4 weeks",
+        "end_date_days": 30
+      },
+      "scenario": {
+        "description": "Detect port scanning and SSH brute force targeting the financial segment",
+        "related_ttps": "T1046,T1110.001,T1021.004",
+        "deception_level": "basic"
+      },
+      "plugins": [
+        {
+          "kind": "dolost",
+          "plugin_id": "dolost-apt28-finance",
+          "surface": "network",
+          "expected_adversary_belief": "The SSH decoy server is a real jump host into the financial network.",
+          "expected_adversary_action": "Attempt brute force and, if successful, move laterally from there.",
+          "success_metric": "Alert in under 10 minutes from the first login attempt.",
+          "engage_activity_ids": ["EAC0005"],
+          "Hostname": "SshFinanceGateway",
+          "Description": "SSH decoy gateway to the financial segment",
+          "IP": "172.16.50.10",
+          "Subnet": "172.16.50.0/24",
+          "Gateway": "172.16.50.1",
+          "DeceptionNetwork": "NetworkOpFinance",
+          "ServicePorts": "{'22/tcp': 2222}",
+          "Service": "ssh",
+          "DecoyFiles": "decoy_ssh"
+        }
+      ],
+      "transitions": ["active"]
+    },
+    {
+      "id": "fin7-support-hr",
+      "summary": "Intelligence collection on a known fraud actor impersonating outsourced remote support for HR.",
+      "operation": {
+        "name": "FIN7 — Remote support impersonation in HR",
+        "adversary_name": "FIN7 (Carbon Spider)",
+        "adversary_motivation": "Financial fraud through compromise of remote support accounts",
+        "adversary_skill_level": "advanced",
+        "expected_ttps": ["T1566", "T1078", "T1190", "T1210", "T1486"],
+        "target_assets": "HR mailboxes, Remote access credentials",
+        "adversary_notes": "Profile based on TTPs publicly attributed to FIN7 (curated MITRE ATT&CK catalog from apate.attack).",
+        "environment": "isolated",
+        "narrative_name": "Outsourced remote support help desk",
+        "narrative_description": "The user profiles simulate remote support employees with predictable behavior patterns and reused credentials.",
+        "psychological_impact": "The adversary believes they are interacting with real low-privilege accounts with operational mistakes typical of an outsourced provider.",
+        "objectives": ["intelligence_collection", "attribution"],
+        "roles": "Identity analyst: L. Fernández\nHR lead: C. Ibarra",
+        "resource_estimate": "1 full-time analyst for 3 weeks",
+        "end_date_days": 45
+      },
+      "scenario": {
+        "description": "Detect brute force and exploitation of an exposed application against support accounts",
+        "related_ttps": "T1110.001,T1190,T1059.004",
+        "deception_level": "basic"
+      },
+      "plugins": [
+        {
+          "kind": "buda",
+          "plugin_id": "buda-fin7-hr",
+          "surface": "identity",
+          "expected_adversary_belief": "The remote support accounts are real and have legitimate access to internal systems.",
+          "expected_adversary_action": "Use compromised credentials to access systems and escalate privileges.",
+          "success_metric": "Detect access outside the simulated behavior pattern in under 1 hour.",
+          "engage_activity_ids": ["EAC0005"],
+          "create_buda_narrative": "on"
+        }
+      ],
+      "transitions": ["active"]
+    },
+    {
+      "id": "lazarus-exfil-validation",
+      "summary": "Control validation against exfiltration by combining network and behavioral decoys during the quarter close.",
+      "operation": {
+        "name": "Lazarus Group — Control validation against exfiltration",
+        "adversary_name": "Lazarus Group (Hidden Cobra)",
+        "adversary_motivation": "Financial data exfiltration and espionage",
+        "adversary_skill_level": "advanced",
+        "expected_ttps": ["T1566", "T1059", "T1105", "T1071", "T1486"],
+        "target_assets": "Financial data repositories, Backup infrastructure",
+        "adversary_notes": "Profile based on TTPs publicly attributed to Lazarus Group (curated MITRE ATT&CK catalog from apate.attack).",
+        "environment": "near_production",
+        "narrative_name": "Quarter-close exercise",
+        "narrative_description": "Combined scenario of network decoys and user behavior simulating the quarter-end close, a period of high legitimate activity.",
+        "psychological_impact": "The adversary believes the volume of legitimate quarter-close activity provides cover to exfiltrate data without detection.",
+        "objectives": ["deterrence_attrition", "attribution"],
+        "roles": "Operation lead: R. Sosa\nCompliance officer: D. Molina",
+        "resource_estimate": "3 analysts, 1 month, coordination with the legal team",
+        "end_date_days": 20
+      },
+      "scenario": {
+        "description": "Detect data exfiltration to external infrastructure after exploiting the exposed application",
+        "related_ttps": "T1190,T1041,T1083",
+        "deception_level": "complete"
+      },
+      "plugins": [
+        {
+          "kind": "dolost",
+          "plugin_id": "dolost-lazarus-exfil",
+          "surface": "network",
+          "expected_adversary_belief": "The backup decoy server contains the real quarter-close data.",
+          "expected_adversary_action": "Exfiltrate the backup contents to external infrastructure.",
+          "success_metric": "Detect outbound transfer to an unauthorized IP address.",
+          "engage_activity_ids": ["EAC0005"],
+          "Hostname": "FileServerBackup",
+          "Description": "Quarter-close backup decoy server",
+          "IP": "172.16.80.20",
+          "Subnet": "172.16.80.0/24",
+          "Gateway": "172.16.80.1",
+          "DeceptionNetwork": "NetworkOpBackup",
+          "ServicePorts": "{'21/tcp': 2121}",
+          "Service": "ftp",
+          "DecoyFiles": "decoy_backup"
+        },
+        {
+          "kind": "buda",
+          "plugin_id": "buda-lazarus-exfil",
+          "surface": "identity",
+          "expected_adversary_belief": "The quarter-close operator is a real user with access to backups.",
+          "expected_adversary_action": "Use that access to locate and exfiltrate the backup data.",
+          "success_metric": "Detect backup access outside normal quarter-close hours.",
+          "engage_activity_ids": ["EAC0005"],
+          "create_buda_narrative": "on"
+        },
+        {
+          "kind": "canarytoken",
+          "plugin_id": "canarytoken-lazarus-exfil",
+          "surface": "network",
+          "leads_to_plugin_id": "dolost-lazarus-exfil",
+          "expected_adversary_belief": "The quarter-close transfer link exposes a real backup resource.",
+          "expected_adversary_action": "Open the link and reuse the apparent infrastructure to locate the backup server.",
+          "success_metric": "Record interaction with the breadcrumb before it reaches the network decoy.",
+          "engage_activity_ids": ["EAC0005"],
+          "base_url": "https://canary-console.example",
+          "token_type": "dns",
+          "memo": "Lazarus quarter-close transfer link",
+          "email": "soc-finanzas@example.com",
+          "ttp_id": "T1041"
+        },
+        {
+          "kind": "opencanary",
+          "plugin_id": "opencanary-lazarus-exfil",
+          "surface": "network",
+          "expected_adversary_belief": "The transfer host exposes administrative services for the financial backup.",
+          "expected_adversary_action": "Enumerate SSH and FTP to prepare exfiltration from the closing environment.",
+          "success_metric": "Detect the first connection attempt to the decoy host services.",
+          "engage_activity_ids": ["EAC0005"],
+          "services": "ssh:2222\nftp:2121",
+          "network_mode": "bridge",
+          "ttp_id": "T1083"
+        }
+      ],
+      "transitions": ["active", "closed"]
+    }
+  ]
+}

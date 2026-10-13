@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Administración de usuarios") }} - Apate{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _("Ruta") }}"><a href="{{ url_for('index') }}">{{ _("Inicio") }}</a> / <a href="{{ url_for('health.index') }}">{{ _("Salud y configuración") }}</a> / {{ _("Administración de usuarios") }}</nav>{% endblock %}
+{% block content %}
+  {% include "health/_configuration_nav.html" %}
+  <div class="content-toolbar tools-page-header">
+    <div>
+      <h1>{{ _("Administración de usuarios") }}</h1>
+      <p class="muted">{{ _("Alta, cambio de contraseña y baja de usuarios locales.") }}</p>
+    </div>
+  </div>
+  {% if has_no_identities %}
+    <aside class="assist-note">
+      <strong>{{ _("Sin usuarios en la instancia") }}</strong>
+      <span>{{ _("Cuando no hay usuarios locales, la app se muestra en modo abierto para facilitar el primer arranque. Esta pantalla sirve para crear el primer usuario de administración.") }}</span>
+    </aside>
+  {% endif %}
+  <div class="settings-layout users-admin-layout">
+    <section class="panel">
+      <h2>{{ _("Usuarios locales") }}</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ _("Nombre") }}</th>
+              <th>{{ _("Rol") }}</th>
+              <th>{{ _("Equipo") }}</th>
+              <th>{{ _("Estado") }}</th>
+              <th>{{ _("Acciones") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for identity in identities %}
+              <tr>
+                <td>{{ identity.display_name }}</td>
+                <td>{{ identity.role.value }}</td>
+                <td>{{ identity.team_id or "-" }}</td>
+                <td><span class="badge {{ 'health-configured' if identity.active else 'health-disabled' }}">{{ _("activo") if identity.active else _("inactivo") }}</span></td>
+                <td>
+                  <div class="user-row-actions">
+                  <details class="user-password-action">
+                    <summary>{{ _("Cambiar contraseña") }}</summary>
+                    <form method="post" action="{{ url_for('health.change_identity_password', identity_id=identity.id) }}" class="inline-action"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                      <label for="password-change-{{ identity.id }}">{{ _("Cambiar contraseña") }}</label>
+                      <input type="password" id="password-change-{{ identity.id }}" name="new_password" autocomplete="new-password" required>
+                      <input type="password" name="new_password_confirmation" autocomplete="new-password" placeholder="{{ _("Confirmar") }}" required>
+                      <button type="submit">{{ _("Actualizar") }}</button>
+                    </form>
+                  </details>
+                  <form method="post" action="{{ url_for('health.deactivate_identity_user', identity_id=identity.id) }}" class="inline-action" data-confirm="{{ _("Desactivar usuario: esta acción no se puede deshacer.") }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    {% if identity.role.value == "administration" and active_administrator_count == 1 and identity.active %}
+                      <button type="submit" class="danger" disabled>{{ _("Desactivar") }}</button>
+                    {% else %}
+                      <button type="submit" class="danger">{{ _("Desactivar") }}</button>
+                    {% endif %}
+                  </form>
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="5"><span class="muted">{{ _("No hay usuarios configurados aún.") }}</span></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if active_administrator_count == 1 %}
+        <p class="muted">{{ _("No se puede desactivar el último administrador activo.") }}</p>
+      {% endif %}
+    </section>
+    <section class="panel">
+      <h2>{{ _("Dar de alta usuario") }}</h2>
+      <form class="settings-form" method="post" action="{{ url_for('health.create_identity_user') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <fieldset>
+          <legend>{{ _("Identidad local") }}</legend>
+          <label for="display_name">{{ _("Nombre visible") }}</label>
+          <input type="text" id="display_name" name="display_name" autocomplete="off" required>
+          <label for="identity-role">{{ _("Rol") }}</label>
+          <select id="identity-role" name="role">
+            <option value="administration">{{ _("Administración") }}</option>
+            <option value="operation">{{ _("Operación") }}</option>
+            <option value="read">{{ _("Lectura") }}</option>
+          </select>
+          <label for="identity-team">{{ _("Equipo") }}</label>
+          <input type="text" id="identity-team" name="team_id" list="identity-teams" placeholder="{{ _("Obligatorio para lectura u operación") }}" autocomplete="off">
+          <p id="team-help" class="muted" aria-live="polite">{{ _("El rol de administración puede trabajar sin equipo.") }}</p>
+          <label for="new-password">{{ _("Contraseña inicial") }}</label>
+          <input type="password" id="new-password" name="password" autocomplete="new-password" required>
+          <label for="new-password-confirmation">{{ _("Confirmación de contraseña") }}</label>
+          <input type="password" id="new-password-confirmation" name="password_confirmation" autocomplete="new-password" required>
+        </fieldset>
+        <p><button type="submit" class="primary">{{ _("Crear usuario") }}</button></p>
+      </form>
+      <datalist id="identity-teams">
+        {% for team in available_teams %}
+          <option value="{{ team }}"></option>
+        {% endfor %}
+      </datalist>
+    </section>
+  </div>
+  <script>
+    (function() {
+      var roleInput = document.getElementById("identity-role");
+      var teamInput = document.getElementById("identity-team");
+      var helpText = document.getElementById("team-help");
+      var messages = {
+        teamRequired: {{ _("Para lectura u operación, equipo obligatorio para respetar aislamiento.")|tojson }},
+        administrationNoTeam: {{ _("Administración puede operar sin equipo.")|tojson }},
+      };
+      function applyRule() {
+        var requiresTeam = roleInput && roleInput.value !== "administration";
+        if (!teamInput || !helpText) {
+          return;
+        }
+        teamInput.required = requiresTeam;
+        helpText.textContent = requiresTeam
+          ? messages.teamRequired
+          : messages.administrationNoTeam;
+      }
+      if (roleInput) {
+        roleInput.addEventListener("change", applyRule);
+      }
+      applyRule();
+    }());
+  </script>
+{% endblock %}

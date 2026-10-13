@@ -1,0 +1,42 @@
+# Ejemplo de reglas condicion-accion para el motor de decision (M3).
+# Replica los tres ejemplos de la seccion 4.3 del documento de diseno,
+# probados end-to-end contra MockHoneypotPlugin en
+# tests/test_rules_end_to_end.py.
+#
+# Para que estas reglas se ejecuten de verdad en una sesion de Playground,
+# la operacion necesita dos capacidades vinculadas con esos plugin_id
+# exactos (honeypot-mock-1 y honeypot-mock-2) y plugin_kind "mock": el
+# motor resuelve sus acciones contra las capacidades de la operacion, no
+# contra nombres sueltos. Sin esos bindings, las transiciones se aplican
+# igual pero deploy/retire no tienen sobre que actuar.
+
+rules:
+  - name: "Escaneo en honeypot-mock-1: desplegar segundo mock y activar la operacion"
+    when:
+      event_type: interaction
+      plugin_id: honeypot-mock-1
+      payload:
+        kind: scan
+    then:
+      - action: deploy
+        plugin_id: honeypot-mock-2
+      - action: transition
+        to: active
+
+  - name: "Acceso a honeypot-mock-1: marcar la operacion como comprometida"
+    when:
+      event_type: interaction
+      plugin_id: honeypot-mock-1
+      payload:
+        kind: access
+    then:
+      - action: transition
+        to: compromised
+
+  - name: "Cierre automatico por vencimiento: retirar todos los plugins y cerrar"
+    when:
+      closure_due: true
+    then:
+      - action: retire
+      - action: transition
+        to: closed

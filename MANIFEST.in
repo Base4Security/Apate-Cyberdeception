@@ -1,0 +1,4 @@
+include LICENSE NOTICE setup.py
+recursive-include playground-stack *
+prune playground-stack/logs
+global-exclude __pycache__ *.pyc

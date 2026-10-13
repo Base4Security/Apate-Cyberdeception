@@ -1,0 +1,402 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Nueva operaci&oacute;n") }} {{ _("- Apate") }}{% endblock %}
+{% block breadcrumbs %}<nav class="breadcrumbs" aria-label="{{ _('Ruta') }}"><a href="{{ url_for('index') }}">{{ _('Inicio') }}</a> / <a href="{{ url_for('operations.list_operations') }}">{{ _('Operaciones') }}</a> / {{ _('Nueva') }}</nav>{% endblock %}
+{% block content %}
+  <h1>{{ _("Nueva operaci&oacute;n") }}</h1>
+  <p class="muted">
+    {{ _("Complet&aacute; el perfil, las reglas de interacci&oacute;n y la narrativa. Los escenarios y\n    las capacidades se preparan despu&eacute;s desde el detalle de la operaci&oacute;n.") }}
+  </p>
+  {% if template %}
+    <p class="muted template-applied-banner">
+      <strong>{{ _("Plantilla:") }}</strong> {{ _("&ldquo;") }}{{ template.operation.name }}{{ _("&rdquo; aplicada -- revis&aacute; y\n      edit&aacute; todo antes de confirmar, no se crea nada hasta que envi&eacute;s este formulario.") }}
+      <a href="{{ url_for('operations.new_operation_form') }}">{{ _("Quitar plantilla y empezar en blanco") }}</a>
+    </p>
+    {% if template_next_steps and (template_next_steps.scenario_description or template_next_steps.plugin_kinds) %}
+      <p class="muted">
+        {{ _("Despu&eacute;s de crear la operaci&oacute;n, esta plantilla sugiere continuar con el escenario\n        &ldquo;") }}{{ template_next_steps.scenario_description }}{{ _("&rdquo; (TTPs:") }}
+        {{ template_next_steps.scenario_related_ttps or "sin especificar" }}{{ _(") y") }}
+        {{ template_next_steps.plugin_kinds | length }} {{ _("capacidad(es)\n        (") }}{{ template_next_steps.plugin_kinds | join(", ") }}{{ _(") -- se configuran aparte desde el detalle\n        de la operaci&oacute;n, no se crean autom&aacute;ticamente ac&aacute;.") }}
+      </p>
+    {% endif %}
+  {% elif prefill %}
+    <p class="muted">
+      <strong>{{ _("Reoperar:") }}</strong> {{ _("TTPs esperadas, activos objetivo y notas precargados a partir\n      del informe post-operaci&oacute;n de la operaci&oacute;n de origen -- revis&aacute; y edit&aacute;\n      todo antes de confirmar, no se crea nada hasta que envi&eacute;s este formulario.") }}
+    </p>
+  {% endif %}
+  <form method="post" action="{{ url_for('operations.create_operation') }}" id="operation-form" novalidate data-guard-unsaved data-undo-label="{{ _('Deshacer última edición') }}" data-undo-description="{{ _('Solo revierte campos locales; nunca acciones ya ejecutadas.') }}" data-undo-status="{{ _('Última edición local revertida. Guardar sigue siendo una decisión explícita.') }}"><input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <p class="wizard-progress" id="wizard-progress">{{ _("Paso 1 de 3") }}</p>
+
+    <div class="wizard-step active">
+    <fieldset>
+      <legend>{{ _("Operaci&oacute;n") }}</legend>
+      <label for="name">{{ _("Nombre") }}</label>
+      <input type="text" id="name" name="name" required value="{{ prefill.get('name', '') if prefill else '' }}">
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ _("Paso 1 &middot; Perfil de adversario y") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTPs") }}</abbr></legend>
+      <label for="adversary_name">{{ _("Nombre / actor") }}</label>
+      <input type="text" id="adversary_name" name="adversary_name" required value="{{ prefill.get('adversary_name', '') if prefill else '' }}">
+      <label for="adversary_motivation">{{ _("Motivaci&oacute;n") }}</label>
+      <input type="text" id="adversary_motivation" name="adversary_motivation" value="{{ prefill.get('adversary_motivation', '') if prefill else '' }}">
+      <label for="adversary_skill_level">{{ _("Nivel de habilidad") }}</label>
+      <select id="adversary_skill_level" name="adversary_skill_level">
+        {% set prefill_skill_level = prefill.get('adversary_skill_level') if prefill else None %}
+        {% for level in skill_levels %}
+          <option value="{{ level }}" {% if (prefill_skill_level and level == prefill_skill_level) or (not prefill_skill_level and level == "unknown") %}selected{% endif %}>{{ level }}</option>
+        {% endfor %}
+      </select>
+      <label for="adversary_notes">{{ _("Notas") }}</label>
+      <textarea id="adversary_notes" name="adversary_notes" rows="2">{{ prefill.get('adversary_notes', '') if prefill else "" }}</textarea>
+      <label for="inventory_target_assets">{{ _("Activos críticos objetivo del inventario (opcional)") }}</label>
+      <select id="inventory_target_assets" name="inventory_target_assets" multiple size="{% if inventory_assets | length > 6 %}6{% else %}{{ inventory_assets | length or 2 }}{% endif %}">
+        {% set selected_inventory_assets = prefill.target_assets.split(', ') if prefill and prefill.target_assets else [] %}
+        {% for asset in inventory_assets %}
+          <option value="{{ asset.identifier }}" {% if asset.identifier in selected_inventory_assets %}selected{% endif %}>{{ asset.name }} — {{ asset.asset_type }}, {{ criticality_label(asset.criticality) }} ({{ asset.identifier }})</option>
+        {% endfor %}
+      </select>
+      {% if not inventory_assets %}<p class="muted">{{ _("No hay activos inventariados todavía. Podés") }} <a href="{{ url_for('assets.index') }}" target="_blank" rel="noopener">{{ _("cargarlos desde Inventario de activos") }}</a> {{ _("(se abre en otra pestaña para conservar este formulario) o escribir una referencia manual.") }}</p>{% endif %}
+      <label for="target_assets">{{ _("Otros activos críticos objetivo (texto libre, separados por coma)") }}</label>
+      <input type="text" id="target_assets" name="target_assets" placeholder="{{ _('ERP no inventariado, Active Directory') }}" value="{{ prefill.target_assets if prefill else "" }}">
+
+      <label for="cti_report_upload">{{ _("Cargar informe de inteligencia de amenazas (") }}<abbr title="{{ _('Cyber Threat Intelligence') }}">{{ _("CTI") }}</abbr>{{ _(") (.txt/.pdf, opcional)") }}</label>
+      <input type="file" id="cti_report_upload" accept=".txt,.pdf">
+      <button type="button" id="cti-extract-button">{{ _("Extraer TTPs y grupo sugeridos") }}</button>
+      <p class="muted">
+        {{ _("An&aacute;lisis determinista, sin IA, del texto del informe contra el cat&aacute;logo curado de\n        MITRE ATT&amp;CK: marca las\n        t&eacute;cnicas encontradas como") }} <em>{{ _("sugerencia") }}</em> {{ _("junto a la lista de abajo y, si\n        reconoce un grupo conocido, ofrece aplicarlo -- nunca tilda ni completa nada por su cuenta,\n        el archivo no se envia al crear la operaci&oacute;n.") }}
+      </p>
+      <div id="cti-extract-result" class="panel panel-alt" hidden></div>
+
+      <label for="attack_group_select">{{ _("Cargar") }} <abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s desde grupo") }} <abbr title="{{ _('amenaza persistente avanzada') }}">{{ _("APT") }}</abbr> {{ _("(cat&aacute;logo MITRE ATT&amp;CK, opcional)") }}</label>
+      <select id="attack_group_select">
+        <option value="">{{ _("-- Ninguno --") }}</option>
+        {% for group in attack_groups %}
+          <option value="{{ group.id }}">{{ group.name }} ({{ group.aliases | join(", ") }})</option>
+        {% endfor %}
+      </select>
+      <p class="muted">{{ _('Catálogo curado v%(version)s · huella SHA-256 %(digest)s', version=attack_catalog_provenance.schema_version, digest=attack_catalog_provenance.sha256[:12]) }}</p>
+      <p class="muted">
+        {{ _("Precarga las t&eacute;cnicas de ese grupo en la lista de abajo (reemplaza la selecci&oacute;n\n        actual) y sugiere motivaci&oacute;n/notas si esos campos est&aacute;n vac&iacute;os -- se puede\n        seguir editando todo despu&eacute;s, no queda bloqueado.") }}
+      </p>
+
+      <label><abbr title="{{ _('T&aacute;cticas, t&eacute;cnicas y procedimientos') }}">{{ _("TTP") }}</abbr>{{ _("s esperadas") }}</label>
+      <div class="ttp-picker-toolbar">
+        <label for="ttp-picker-search">{{ _("Buscar t&eacute;cnica") }}</label>
+        <input id="ttp-picker-search" type="search" placeholder="{{ _('ID, nombre o t&aacute;ctica&hellip;') }}">
+        <label class="checkbox-label"><input id="ttp-picker-selected" type="checkbox"> {{ _("Ver solo seleccionadas") }}</label>
+        <span id="ttp-picker-count" class="tag" role="status">{{ _("0 seleccionadas") }}</span>
+      </div>
+      <div class="panel panel-alt" id="ttp-picker-list">
+        <h2 class="visually-hidden">{{ _("TTPs esperadas por táctica") }}</h2>
+        {% for tactic, techniques in techniques_by_tactic.items() %}
+          <section class="ttp-picker-group" data-tactic="{{ tactic }}"><h3>{{ tactic_label(tactic) }}</h3>
+          {% for technique in techniques %}
+            <label class="checkbox-label ttp-picker-item" data-search="{{ tactic }} {{ tactic_label(tactic) }} {{ technique.id }} {{ technique.name }}">
+              <input type="checkbox" name="expected_ttps" value="{{ technique.id }}" class="attack-technique-checkbox"
+                {% if prefill and technique.id in prefill.expected_ttps %}checked{% endif %}>
+              <span class="mono">{{ technique.id }}</span> {{ technique.name }}
+            </label>
+          {% endfor %}
+          </section>
+        {% endfor %}
+      </div>
+    </fieldset>
+    </div>
+
+    <div class="wizard-step">
+    <fieldset>
+      <legend>{{ _("Paso 2 &middot; Reglas de interacci&oacute;n y entorno") }}</legend>
+      <label for="environment">{{ _("Entorno de despliegue") }}</label>
+      <select id="environment" name="environment">
+        {% set prefill_environment = prefill.get('environment') if prefill else None %}
+        {% for env in environments %}
+          <option value="{{ env.value }}" {% if (prefill_environment and env.value == prefill_environment) or (not prefill_environment and env.value == "isolated") %}selected{% endif %}>{{ environment_label(env.value) }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="end_date">{{ _("Fecha de cierre planificada (Gating Criteria, opcional)") }}</label>
+      <input type="date" id="end_date" name="end_date" value="{{ prefill.get('end_date', '') if prefill else '' }}">
+      <p class="muted">
+        {{ _("El cierre tambi&eacute;n puede responder a condiciones definidas en la configuraci&oacute;n t&eacute;cnica.\n        Esas condiciones a&uacute;n no se pueden editar desde esta interfaz.") }}
+      </p>
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ _("Paso 2 &middot; Objetivos, roles y recursos") }}</legend>
+      <label>{{ _("Objetivos estrat&eacute;gicos") }}</label>
+      {% set prefill_objectives = prefill.get('objectives', []) if prefill else [] %}
+      {% for objective in strategic_objectives %}
+        <label class="checkbox-label"><input type="checkbox" name="objectives" value="{{ objective.value }}" {% if objective.value in prefill_objectives %}checked{% endif %}> {{ strategic_objective_label(objective.value) }}</label>
+      {% endfor %}
+      <label for="roles">{{ _("Roles y responsables (uno por l&iacute;nea, formato \"rol: responsable\")") }}</label>
+      <textarea id="roles" name="roles" rows="4" placeholder="{{ _('CTI: Equipo de inteligencia&#10;SOC/IR: Equipo de respuesta') }}">{{ prefill.get('roles', '') if prefill else '' }}</textarea>
+      <label for="resource_estimate">{{ _("Estimaci&oacute;n de recursos") }}</label>
+      <input type="text" id="resource_estimate" name="resource_estimate" value="{{ prefill.get('resource_estimate', '') if prefill else '' }}">
+    </fieldset>
+    </div>
+
+    <div class="wizard-step">
+    <section class="wizard-review" aria-labelledby="wizard-review-title">
+      <h2 id="wizard-review-title">{{ _("Revisi&oacute;n antes de crear") }}</h2>
+      <p class="muted">{{ _("Nada se aplica autom&aacute;ticamente. Revis&aacute; el resumen y volv&eacute; al paso correspondiente si necesit&aacute;s corregir algo.") }}</p>
+      <dl id="wizard-review-summary"></dl>
+      <p><button type="button" class="small" data-review-step="0">{{ _("Editar perfil") }}</button> <button type="button" class="small" data-review-step="1">{{ _("Editar reglas y recursos") }}</button></p>
+    </section>
+    <fieldset>
+      <legend>{{ _("Paso 5 &middot; Narrativa de enga&ntilde;o") }}</legend>
+      <label for="narrative_name">{{ _("Nombre") }}</label>
+      <input type="text" id="narrative_name" name="narrative_name" required value="{{ prefill.get('narrative_name', '') if prefill else '' }}">
+      <label for="narrative_description">{{ _("Descripci&oacute;n") }}</label>
+      <input type="text" id="narrative_description" name="narrative_description" value="{{ prefill.get('narrative_description', '') if prefill else '' }}">
+      <label for="psychological_impact">{{ _("Impacto psicol&oacute;gico buscado (sesgo cognitivo a explotar)") }}</label>
+      <input type="text" id="psychological_impact" name="psychological_impact" placeholder="{{ _('sesgo de confirmaci&oacute;n, urgencia...') }}" value="{{ prefill.get('psychological_impact', '') if prefill else '' }}">
+    </fieldset>
+    </div>
+
+    <p class="wizard-nav">
+      <button type="button" id="wizard-prev" hidden>{{ _("&larr; Atr&aacute;s") }}</button>
+      <button type="button" id="wizard-next">{{ _("Siguiente") }} {{ _("&rarr;") }}</button>
+      <button type="submit" id="wizard-submit" class="primary" hidden>{{ _("Crear operaci&oacute;n") }}</button>
+      <a href="{{ url_for('operations.list_operations') }}">{{ _("Cancelar") }}</a>
+    </p>
+  </form>
+
+  <script>
+    // M12j: "cargar desde grupo APT" -- resuelto del lado del cliente
+    // (JS simple, sin frameworks nuevos) en vez de un segundo submit/
+    // reload, para que precargar un grupo no pierda lo que el operador
+    // ya haya tipeado en el resto del formulario (nombre de la
+    // operacion, narrativa, etc.) ni requiera un viaje al servidor
+    // solo para marcar checkboxes.
+    const APATE_ATTACK_GROUPS = {{ attack_groups_json | tojson }};
+
+    document.getElementById('attack_group_select').addEventListener('change', function () {
+      const group = APATE_ATTACK_GROUPS.find((g) => g.id === this.value);
+      const checkboxes = document.querySelectorAll('.attack-technique-checkbox');
+      if (!group) {
+        return;
+      }
+      // Precarga = reemplaza la seleccion actual por la del grupo, no
+      // la suma -- el operador sigue pudiendo tildar/destildar despues.
+      checkboxes.forEach((checkbox) => {
+        checkbox.checked = group.technique_ids.includes(checkbox.value);
+      });
+
+      // Sugiere, no fuerza: solo completa si el campo esta vacio (mismo
+      // criterio de los formularios asistidos: no pisar una decisión manual).
+      const motivationInput = document.getElementById('adversary_motivation');
+      if (motivationInput.value.trim() === '') {
+        motivationInput.value = group.name + (group.aliases.length ? ' (' + group.aliases.join(', ') + ')' : '');
+      }
+      const notesInput = document.getElementById('adversary_notes');
+      if (notesInput.value.trim() === '') {
+        notesInput.value = group.description;
+      }
+      if (typeof updateTtpPicker === 'function') updateTtpPicker();
+    });
+  </script>
+
+  <script>
+    // Fase 6 post-BlackHat (ver docs/roadmap.md): sube el informe de
+    // CTI a /operations/cti-extract (fetch(), no un submit del
+    // formulario -- el archivo nunca viaja al crear la operacion) y
+    // muestra las sugerencias devueltas. Nunca tilda un checkbox ni
+    // dispara el prellenado de grupo por su cuenta: las tecnicas
+    // encontradas se marcan solo con una etiqueta ("sugerida (CTI)")
+    // al lado del checkbox real, y el grupo detectado se ofrece como
+    // boton -- al hacer click reusa el mismo listener de 'change' del
+    // selector manual de grupo APT (M12j) de arriba, sin duplicar la
+    // logica de prellenado de motivacion/notas.
+    document.getElementById('cti-extract-button').addEventListener('click', async function () {
+      const fileInput = document.getElementById('cti_report_upload');
+      const resultBox = document.getElementById('cti-extract-result');
+      const file = fileInput.files[0];
+
+      resultBox.hidden = false;
+      resultBox.innerHTML = '';
+
+      if (!file) {
+        resultBox.textContent = 'Elegí un archivo .txt o .pdf primero.';
+        return;
+      }
+
+      // Limpia las etiquetas de una extracción anterior antes de
+      // aplicar las nuevas -- re-extraer con otro archivo no debe ir
+      // acumulando sugerencias viejas.
+      document.querySelectorAll('.cti-suggestion-badge').forEach((badge) => badge.remove());
+      resultBox.textContent = 'Analizando...';
+
+      const formData = new FormData();
+      formData.append('cti_report_file', file);
+
+      let response;
+      let data;
+      try {
+        response = await fetch('{{ url_for("operations.cti_extract") }}', { method: 'POST', headers: window.apateCsrfHeaders(), body: formData });
+        data = await response.json();
+      } catch (err) {
+        resultBox.textContent = 'No se pudo contactar al servidor para analizar el archivo.';
+        return;
+      }
+      if (!response.ok) {
+        resultBox.textContent = data.error || 'No se pudo procesar el archivo.';
+        return;
+      }
+
+      resultBox.innerHTML = '';
+
+      const techniqueIds = data.technique_matches.map((match) => match.id);
+      document.querySelectorAll('.attack-technique-checkbox').forEach((checkbox) => {
+        if (techniqueIds.includes(checkbox.value)) {
+          const badge = document.createElement('span');
+          badge.className = 'tag accent cti-suggestion-badge';
+          badge.title = 'Sugerida por el análisis determinista del informe de CTI';
+          badge.textContent = 'sugerida (CTI)';
+          checkbox.closest('label').appendChild(badge);
+        }
+      });
+
+      const summary = document.createElement('p');
+      summary.textContent = data.technique_matches.length
+        ? data.technique_matches.length + ' técnica(s) del catálogo curado encontrada(s) -- marcadas con "sugerida (CTI)" en la lista de abajo.'
+        : 'No se encontró ninguna técnica del catálogo curado en el texto.';
+      resultBox.appendChild(summary);
+
+      if (data.group_matches.length) {
+        const groupLabel = document.createElement('p');
+        groupLabel.textContent = 'Grupo(s) reconocido(s) en el texto:';
+        resultBox.appendChild(groupLabel);
+        data.group_matches.forEach((match) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = 'Usar ' + match.name + ' (coincidencia: "' + match.raw_match + '")';
+          button.addEventListener('click', function () {
+            const groupSelect = document.getElementById('attack_group_select');
+            groupSelect.value = match.id;
+            groupSelect.dispatchEvent(new Event('change'));
+          });
+          resultBox.appendChild(button);
+        });
+      }
+    });
+  </script>
+
+  <script>
+    // M12e: wizard cosmetico sobre el mismo formulario/POST de siempre
+    // -- no crea la Operacion a mitad de camino, solo agrupa los
+    // fieldsets existentes en pasos navegables mostrando/ocultando con
+    // JS puro (misma filosofia minimalista, sin frameworks nuevos).
+    const wizardSteps = Array.from(document.querySelectorAll('#operation-form > .wizard-step'));
+    const wizardProgress = document.getElementById('wizard-progress');
+    const wizardPrev = document.getElementById('wizard-prev');
+    const wizardNext = document.getElementById('wizard-next');
+    const wizardSubmit = document.getElementById('wizard-submit');
+    let wizardCurrent = 0;
+
+    const ttpSearch = document.getElementById('ttp-picker-search');
+    const ttpSelectedOnly = document.getElementById('ttp-picker-selected');
+    const ttpCount = document.getElementById('ttp-picker-count');
+    const ttpItems = Array.from(document.querySelectorAll('.ttp-picker-item'));
+
+    function updateTtpPicker() {
+      const query = ttpSearch.value.trim().toLocaleLowerCase();
+      let selected = 0;
+      ttpItems.forEach(function (item) {
+        const checkbox = item.querySelector('input');
+        if (checkbox.checked) selected += 1;
+        item.hidden = !item.dataset.search.toLocaleLowerCase('es').includes(query) || (ttpSelectedOnly.checked && !checkbox.checked);
+      });
+      document.querySelectorAll('.ttp-picker-group').forEach(function (group) {
+        group.hidden = !Array.from(group.querySelectorAll('.ttp-picker-item')).some(function (item) { return !item.hidden; });
+      });
+      ttpCount.textContent = selected + ' seleccionada' + (selected === 1 ? '' : 's');
+    }
+    ttpSearch.addEventListener('input', updateTtpPicker);
+    ttpSelectedOnly.addEventListener('change', updateTtpPicker);
+    document.querySelectorAll('.attack-technique-checkbox').forEach(function (checkbox) { checkbox.addEventListener('change', updateTtpPicker); });
+
+    function updateWizardReview() {
+      const summary = document.getElementById('wizard-review-summary');
+      const selectedTtps = Array.from(document.querySelectorAll('.attack-technique-checkbox:checked')).map(function (item) { return item.value; });
+      const objectives = Array.from(document.querySelectorAll('input[name="objectives"]:checked')).map(function (item) { return item.closest('label').textContent.trim(); });
+      // Etiquetas y valores de respaldo traducidos del lado del servidor:
+      // como literales JS quedaban fuera del catalogo.
+      const rows = [
+        [{{ _("Operación") | tojson }}, document.getElementById('name').value || {{ _("Sin nombre") | tojson }}],
+        [{{ _("Adversario") | tojson }}, document.getElementById('adversary_name').value || {{ _("Sin adversario") | tojson }}],
+        [{{ _("Activos objetivo") | tojson }}, document.getElementById('target_assets').value || {{ _("Sin especificar") | tojson }}],
+        [{{ _("TTPs esperadas") | tojson }}, selectedTtps.length ? selectedTtps.join(', ') : {{ _("Ninguna seleccionada") | tojson }}],
+        [{{ _("Entorno") | tojson }}, document.getElementById('environment').selectedOptions[0].textContent],
+        [{{ _("Objetivos") | tojson }}, objectives.length ? objectives.join(', ') : {{ _("Sin especificar") | tojson }}],
+        [{{ _("Cierre planificado") | tojson }}, document.getElementById('end_date').value || {{ _("Sin fecha") | tojson }}],
+      ];
+      summary.replaceChildren();
+      rows.forEach(function (row) {
+        const dt = document.createElement('dt'); dt.textContent = row[0];
+        const dd = document.createElement('dd'); dd.textContent = row[1];
+        summary.append(dt, dd);
+      });
+    }
+
+    function showWizardStep(index) {
+      wizardSteps.forEach((step, i) => step.classList.toggle('active', i === index));
+      wizardCurrent = index;
+      wizardProgress.textContent = 'Paso ' + (index + 1) + ' de ' + wizardSteps.length;
+      wizardPrev.hidden = index === 0;
+      wizardNext.hidden = index === wizardSteps.length - 1;
+      wizardSubmit.hidden = index !== wizardSteps.length - 1;
+      if (index === wizardSteps.length - 1) updateWizardReview();
+    }
+
+    wizardPrev.addEventListener('click', function () {
+      showWizardStep(Math.max(0, wizardCurrent - 1));
+    });
+
+    wizardNext.addEventListener('click', function () {
+      // Bug clasico de este patron: un <input required> en un paso
+      // oculto (display:none) sigue contando para la validacion
+      // nativa del navegador, pero al no ser visible/enfocable el
+      // submit puede bloquearse sin mostrar ningun aviso claro. Se
+      // valida el paso ACTUAL antes de avanzar (con el paso todavia
+      // visible, reportValidity() si puede mostrar su tooltip nativo).
+      const invalid = wizardSteps[wizardCurrent].querySelector(':invalid');
+      if (invalid) {
+        invalid.reportValidity();
+        return;
+      }
+      showWizardStep(Math.min(wizardSteps.length - 1, wizardCurrent + 1));
+    });
+
+    document.querySelectorAll('[data-review-step]').forEach(function (button) {
+      button.addEventListener('click', function () { showWizardStep(Number(button.dataset.reviewStep)); });
+    });
+
+    document.getElementById('operation-form').addEventListener('submit', function (event) {
+      // El <form> tiene novalidate (ver arriba) a proposito: sin eso,
+      // el navegador corre su validacion automatica ANTES de disparar
+      // 'submit' y, si hay un required invalido en un paso oculto
+      // (display:none), cancela el envio en silencio sin que este
+      // listener llegue a ejecutarse siquiera -- exactamente el bug
+      // clasico de este patron. Con novalidate, 'submit' siempre
+      // dispara y la validacion pasa a ser manual aca: si hay un
+      // campo invalido en cualquier paso (deberia haberlo evitado
+      // "Siguiente", pero no se asume como defensa en profundidad),
+      // saltamos a ese paso para que sea visible/enfocable y recien
+      // ahi llamamos reportValidity() -- nunca se deja que el envio
+      // falle en silencio sobre un elemento oculto.
+      const invalid = this.querySelector(':invalid');
+      if (invalid) {
+        const stepEl = invalid.closest('.wizard-step');
+        const index = wizardSteps.indexOf(stepEl);
+        if (index !== -1) {
+          showWizardStep(index);
+        }
+        invalid.reportValidity();
+        event.preventDefault();
+      }
+    });
+
+    updateTtpPicker();
+    showWizardStep(0);
+  </script>
+{% endblock %}
